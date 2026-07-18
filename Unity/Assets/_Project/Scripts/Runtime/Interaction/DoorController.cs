@@ -14,6 +14,9 @@ namespace EchoShift.Interaction
         private Vector3 _closedPosition;
         private bool _hasCapturedState;
         private bool _hasValidSources;
+        private bool _usesCoordinatedTicks;
+        private bool _committedOpenRequest;
+        private bool _appliedOpenRequest;
 
         public bool HasValidReferences => _hasValidSources;
         public bool IsOpen => _hasCapturedState &&
@@ -33,6 +36,7 @@ namespace EchoShift.Interaction
                 return false;
             }
         }
+        public bool AppliedOpenRequest => _appliedOpenRequest;
 
         public void Configure(PressurePlate plate, Vector3 offset, float speed)
         {
@@ -59,7 +63,7 @@ namespace EchoShift.Interaction
 
         private void Update()
         {
-            if (!_hasCapturedState)
+            if (!_hasCapturedState || _usesCoordinatedTicks)
             {
                 return;
             }
@@ -77,6 +81,8 @@ namespace EchoShift.Interaction
         {
             _closedPosition = transform.position;
             _hasCapturedState = true;
+            _committedOpenRequest = false;
+            _appliedOpenRequest = false;
         }
 
         public void RestoreInitialState()
@@ -84,6 +90,35 @@ namespace EchoShift.Interaction
             if (_hasCapturedState)
             {
                 transform.position = _closedPosition;
+            }
+
+            _committedOpenRequest = false;
+            _appliedOpenRequest = false;
+        }
+
+        public void UseCoordinatedTicks()
+        {
+            _usesCoordinatedTicks = true;
+        }
+
+        public void BeginSimulationTick()
+        {
+            if (!_usesCoordinatedTicks || !_hasCapturedState)
+            {
+                return;
+            }
+
+            _appliedOpenRequest = _committedOpenRequest;
+            transform.position = _appliedOpenRequest
+                ? _closedPosition + openOffset
+                : _closedPosition;
+        }
+
+        public void CommitDeviceState()
+        {
+            if (_usesCoordinatedTicks)
+            {
+                _committedOpenRequest = IsOpenRequested;
             }
         }
 

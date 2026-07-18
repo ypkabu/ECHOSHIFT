@@ -5,6 +5,8 @@ namespace EchoShift.Core
     [CreateAssetMenu(fileName = "LoopSettings", menuName = "ECHO SHIFT/Loop Settings")]
     public sealed class LoopSettings : ScriptableObject
     {
+        public const int MaximumSafeTicks = 36000;
+
         [SerializeField, Min(1)] private int tickRate = 60;
         [SerializeField, Min(1)] private int loopDurationSeconds = 10;
         [SerializeField, Range(1, 3)] private int maxEchoes = 3;
@@ -19,7 +21,12 @@ namespace EchoShift.Core
         public float DriftTolerance => driftTolerance;
         public int MaxCatchUpTicksPerFrame => maxCatchUpTicksPerFrame;
         public float TickDuration => 1f / tickRate;
-        public int MaxTicks => tickRate * loopDurationSeconds;
+        public long CalculatedTickCount => (long)tickRate * loopDurationSeconds;
+        public int MaxTicks => CalculatedTickCount > int.MaxValue
+            ? int.MaxValue
+            : CalculatedTickCount < 0
+                ? 0
+                : (int)CalculatedTickCount;
 
         public bool TryValidate(out string error)
         {
@@ -35,16 +42,17 @@ namespace EchoShift.Core
                 return false;
             }
 
-            long maxTicks = (long)tickRate * loopDurationSeconds;
-            if (maxTicks > int.MaxValue)
+            long maxTicks = CalculatedTickCount;
+            if (maxTicks > MaximumSafeTicks)
             {
-                error = "The configured loop contains too many ticks.";
+                error =
+                    $"The configured loop exceeds the safe limit of {MaximumSafeTicks} ticks.";
                 return false;
             }
 
             if (maxEchoes < 1 || maxEchoes > 3)
             {
-                error = "Phase 0 supports between one and three Echoes.";
+                error = "The prototype supports between one and three Echoes.";
                 return false;
             }
 

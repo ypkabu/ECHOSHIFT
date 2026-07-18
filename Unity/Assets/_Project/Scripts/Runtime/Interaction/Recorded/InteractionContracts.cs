@@ -22,6 +22,7 @@ namespace EchoShift.Interaction.Recorded
         HeldByAnotherActor,
         ActorNotCarrying,
         SocketOccupied,
+        TargetBusy,
         UnsupportedInteraction,
         MissingInteractor
     }

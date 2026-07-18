@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
-using EchoShift.Player;
+using EchoShift.Interaction;
 using EchoShift.Interaction.Recorded;
+using EchoShift.Player;
 using EchoShift.Replay;
 using EchoShift.Reset;
 using UnityEngine;
@@ -16,8 +18,22 @@ namespace EchoShift.Core
         [SerializeField] private EchoPlayback echoPrefab;
         [SerializeField] private Transform echoContainer;
         [SerializeField] private InteractionRegistry interactionRegistry;
+        [SerializeField] private PressurePlate[] coordinatedPressurePlates =
+            Array.Empty<PressurePlate>();
+        [SerializeField] private DoorController[] coordinatedDoors =
+            Array.Empty<DoorController>();
+        [SerializeField] private GoalVolume coordinatedGoal;
 
         private readonly List<EchoPlayback> _echoes = new List<EchoPlayback>(3);
+        private readonly ReplayFrame[] _echoFrames = new ReplayFrame[3];
+        private readonly bool[] _echoHasFrame = new bool[3];
+        private readonly InteractionRequest[] _requests =
+            new InteractionRequest[InteractionConflictResolver.MaximumRequestsPerTick];
+        private readonly InteractionResolution[] _resolutions =
+            new InteractionResolution[InteractionConflictResolver.MaximumRequestsPerTick];
+        private readonly InteractionConflictResolver _conflictResolver =
+            new InteractionConflictResolver();
+
         private SimulationClock _clock;
         private ReplayRecorder _recorder;
         private Vector3 _actorStartPosition;
@@ -25,20 +41,25 @@ namespace EchoShift.Core
         private bool _isInitialized;
         private bool _isTransitioning;
         private bool _loopEndRequested;
+        private LoopEndReason _pendingEndReason = LoopEndReason.Manual;
+        private int _nextReplayGeneration = 1;
 
         public int CurrentTick { get; private set; }
         public int LoopNumber { get; private set; } = 1;
         public int EchoCount => _echoes.Count;
         public int MaxTicks => settings != null ? settings.MaxTicks : 0;
+        public int TickRate => settings != null ? settings.TickRate : 0;
+        public int LoopDurationSeconds => settings != null ? settings.LoopDurationSeconds : 0;
+        public int MaxEchoes => settings != null ? settings.MaxEchoes : 0;
+        public float DriftTolerance => settings != null ? settings.DriftTolerance : 0f;
         public ReplayRecording LastCompletedRecording { get; private set; }
         public int CurrentInteractionCount => _recorder?.InteractionCount ?? 0;
+        public LoopEndReason LastLoopEndReason { get; private set; } = LoopEndReason.Manual;
+        public LoopHistory History { get; private set; } = new LoopHistory();
+        public bool IsInitialized => _isInitialized;
         public bool HasValidReferences =>
-            settings != null &&
-            playerSimulation != null &&
-            playerReset != null &&
-            resetRegistry != null &&
-            echoPrefab != null &&
-            echoContainer != null &&
+            settings != null && playerSimulation != null && playerReset != null &&
+            resetRegistry != null && echoPrefab != null && echoContainer != null &&
             playerSimulation.HasValidReferences;
 
         public float MaximumReplayDrift
@@ -79,14 +100,8 @@ namespace EchoShift.Core
             EchoPlayback prefab,
             Transform container)
         {
-            Configure(
-                loopSettings,
-                player,
-                playerTransformReset,
-                registry,
-                prefab,
-                container,
-                null);
+            Configure(loopSettings, player, playerTransformReset, registry, prefab,
+                container, null, null, null, null);
         }
 
         public void Configure(
@@ -98,6 +113,22 @@ namespace EchoShift.Core
             Transform container,
             InteractionRegistry recordedInteractionRegistry)
         {
+            Configure(loopSettings, player, playerTransformReset, registry, prefab,
+                container, recordedInteractionRegistry, null, null, null);
+        }
+
+        public void Configure(
+            LoopSettings loopSettings,
+            PlayerSimulation player,
+            TransformResettable playerTransformReset,
+            ResetRegistry registry,
+            EchoPlayback prefab,
+            Transform container,
+            InteractionRegistry recordedInteractionRegistry,
+            PressurePlate[] pressurePlates,
+            DoorController[] doors,
+            GoalVolume goal)
+        {
             settings = loopSettings;
             playerSimulation = player;
             playerReset = playerTransformReset;
@@ -105,11 +136,14 @@ namespace EchoShift.Core
             echoPrefab = prefab;
             echoContainer = container;
             interactionRegistry = recordedInteractionRegistry;
+            coordinatedPressurePlates = pressurePlates ?? Array.Empty<PressurePlate>();
+            coordinatedDoors = doors ?? Array.Empty<DoorController>();
+            coordinatedGoal = goal;
         }
 
         private void Start()
         {
-            if (!TryInitialize())
+            if (!_isInitialized && !TryInitialize())
             {
                 enabled = false;
             }
@@ -134,7 +168,6 @@ namespace EchoShift.Core
                 SimulateTick();
                 if (_loopEndRequested)
                 {
-                    TransitionLoop();
                     break;
                 }
             }
@@ -142,8 +175,14 @@ namespace EchoShift.Core
 
         public void RequestLoopEnd()
         {
+            RequestLoopEnd(LoopEndReason.Manual);
+        }
+
+        public void RequestLoopEnd(LoopEndReason reason)
+        {
             if (_isInitialized && !_isTransitioning)
             {
+                _pendingEndReason = reason;
                 _loopEndRequested = true;
             }
         }
@@ -151,6 +190,27 @@ namespace EchoShift.Core
         public EchoPlayback GetEchoPlayback(int index)
         {
             return _echoes[index];
+        }
+
+        public bool InitializeForTests()
+        {
+            return _isInitialized || TryInitialize();
+        }
+
+        public void AdvanceOneTickForTests()
+        {
+            if (!InitializeForTests())
+            {
+                throw new InvalidOperationException("LoopDirector test initialization failed.");
+            }
+
+            if (_loopEndRequested)
+            {
+                TransitionLoop();
+                return;
+            }
+
+            SimulateTick();
         }
 
         private bool TryInitialize()
@@ -171,8 +231,16 @@ namespace EchoShift.Core
             playerReset.CaptureInitialState();
             _actorStartPosition = playerReset.InitialPosition;
             _actorStartRotation = playerReset.InitialRotation;
+            LoopActor playerActor = playerSimulation.GetComponent<LoopActor>();
+            playerActor?.Configure(LoopActorKind.Player, _nextReplayGeneration);
+            for (int i = 0; i < coordinatedDoors.Length; i++)
+            {
+                coordinatedDoors[i]?.UseCoordinatedTicks();
+            }
+
             _clock = new SimulationClock(settings.TickRate, settings.MaxCatchUpTicksPerFrame);
             _recorder = new ReplayRecorder(settings.MaxTicks);
+            History = new LoopHistory();
             _clock.Resume();
             _isInitialized = true;
             return true;
@@ -180,14 +248,76 @@ namespace EchoShift.Core
 
         private void SimulateTick()
         {
-            ReplayFrame playerFrame = playerSimulation.SimulateTick(
-                CurrentTick,
-                settings.TickDuration);
+            BeginDevicesForTick();
+
+            int echoCount = _echoes.Count;
+            for (int i = 0; i < echoCount; i++)
+            {
+                _echoHasFrame[i] = _echoes[i].TryGetCurrentFrame(out _echoFrames[i]);
+            }
+
+            InputCommand playerCommand = playerSimulation.CollectCommand(CurrentTick);
+            for (int i = 0; i < echoCount; i++)
+            {
+                if (_echoHasFrame[i])
+                {
+                    _echoes[i].SimulateCurrentMovement(_echoFrames[i], settings.TickDuration);
+                }
+            }
+
+            playerSimulation.SimulateMovement(playerCommand, settings.TickDuration);
+            Physics.SyncTransforms();
+            RefreshSensors();
+
+            int requestCount = 0;
+            for (int i = 0; i < echoCount; i++)
+            {
+                if (_echoHasFrame[i] &&
+                    _echoes[i].TryCreateInteractionRequest(
+                        _echoFrames[i].Command.Tick,
+                        out InteractionRequest request))
+                {
+                    _requests[requestCount++] = request;
+                }
+            }
+
+            LoopActor playerActor = playerSimulation.GetComponent<LoopActor>();
+            ActorSimulationOrder playerOrder = playerActor != null
+                ? playerActor.SimulationOrder
+                : new ActorSimulationOrder(LoopActorKind.Player, _nextReplayGeneration);
+            if (playerSimulation.TryCreateInteractionRequest(
+                    playerCommand,
+                    playerOrder,
+                    out InteractionRequest playerRequest))
+            {
+                _requests[requestCount++] = playerRequest;
+            }
+
+            int resolutionCount = _conflictResolver.Resolve(
+                _requests, requestCount, _resolutions);
+            for (int i = 0; i < resolutionCount; i++)
+            {
+                ApplyInteractionResolution(_resolutions[i]);
+                _requests[i] = default;
+                _resolutions[i] = default;
+            }
+
+            CommitDevicesForNextTick();
+            for (int i = 0; i < echoCount; i++)
+            {
+                if (_echoHasFrame[i])
+                {
+                    _echoes[i].CompleteCurrentFrame(_echoFrames[i]);
+                    _echoHasFrame[i] = false;
+                }
+            }
+
+            ReplayFrame playerFrame = playerSimulation.CaptureFrame(playerCommand);
             ReplayRecordResult recordResult = _recorder.TryRecord(playerFrame);
             if (recordResult != ReplayRecordResult.Recorded)
             {
                 Debug.LogError($"Replay recorder rejected tick {CurrentTick}: {recordResult}.", this);
-                _loopEndRequested = true;
+                RequestLoopEnd(LoopEndReason.Test);
                 return;
             }
 
@@ -201,21 +331,70 @@ namespace EchoShift.Core
                     Debug.LogError(
                         $"Interaction recorder rejected tick {CurrentTick}: {interactionResult}.",
                         this);
-                    _loopEndRequested = true;
+                    RequestLoopEnd(LoopEndReason.Test);
                     return;
                 }
             }
 
-            for (int i = 0; i < _echoes.Count; i++)
+            coordinatedGoal?.RefreshFromPhysics();
+            CurrentTick++;
+            if (coordinatedGoal != null && coordinatedGoal.IsReached)
             {
-                _echoes[i].SimulateTick(settings.TickDuration);
+                RequestLoopEnd(LoopEndReason.Goal);
+            }
+            else if (playerCommand.HasButton(InputButtonFlags.EndLoop))
+            {
+                RequestLoopEnd(LoopEndReason.Manual);
+            }
+            else if (CurrentTick >= settings.MaxTicks)
+            {
+                RequestLoopEnd(LoopEndReason.Timer);
+            }
+        }
+
+        private void BeginDevicesForTick()
+        {
+            for (int i = 0; i < coordinatedDoors.Length; i++)
+            {
+                coordinatedDoors[i]?.BeginSimulationTick();
             }
 
-            CurrentTick++;
-            if (playerFrame.Command.HasButton(InputButtonFlags.EndLoop) ||
-                CurrentTick >= settings.MaxTicks)
+            Physics.SyncTransforms();
+        }
+
+        private void RefreshSensors()
+        {
+            for (int i = 0; i < coordinatedPressurePlates.Length; i++)
             {
-                _loopEndRequested = true;
+                coordinatedPressurePlates[i]?.RefreshFromPhysics();
+            }
+
+            playerSimulation.RefreshInteractionCandidate(CurrentTick);
+        }
+
+        private void CommitDevicesForNextTick()
+        {
+            for (int i = 0; i < coordinatedDoors.Length; i++)
+            {
+                coordinatedDoors[i]?.CommitDeviceState();
+            }
+        }
+
+        private void ApplyInteractionResolution(InteractionResolution resolution)
+        {
+            if (resolution.Request.Interactor == playerSimulation.Interactor)
+            {
+                playerSimulation.CompleteInteraction(resolution.Execution);
+                return;
+            }
+
+            for (int i = 0; i < _echoes.Count; i++)
+            {
+                if (resolution.Request.Interactor == _echoes[i].Interactor)
+                {
+                    _echoes[i].CompleteInteraction(resolution.Execution);
+                    return;
+                }
             }
         }
 
@@ -228,67 +407,89 @@ namespace EchoShift.Core
 
             _isTransitioning = true;
             _clock.Pause();
-
+            UpdateHistoryRuntimeResults();
             LastCompletedRecording = _recorder.FinalizeRecording();
+            LastLoopEndReason = _pendingEndReason;
+            int generation = _nextReplayGeneration;
+
             ReleaseActorHeldObjects();
             resetRegistry.RestoreInitialStates();
             Physics.SyncTransforms();
-
             for (int i = 0; i < _echoes.Count; i++)
             {
                 _echoes[i].Rewind(_actorStartPosition, _actorStartRotation);
             }
 
-            AddEcho(LastCompletedRecording);
+            AddEcho(LastCompletedRecording, generation);
+            History.Add(new LoopHistorySummary(
+                LoopNumber,
+                LastCompletedRecording.Count,
+                LastCompletedRecording.Interactions.Count,
+                generation,
+                0f,
+                playerSimulation.InteractionSuccessCount,
+                playerSimulation.InteractionFailureCount,
+                ReplayHistoryState.Active,
+                LastLoopEndReason));
+            _nextReplayGeneration++;
+
             playerReset.RestoreInitialState();
             playerSimulation.Motor.ResetPose(_actorStartPosition, _actorStartRotation);
+            playerSimulation.GetComponent<LoopActor>()?.Configure(
+                LoopActorKind.Player, _nextReplayGeneration);
+            playerSimulation.ResetInteractionStatistics();
             Physics.SyncTransforms();
 
             _recorder = new ReplayRecorder(settings.MaxTicks);
             CurrentTick = 0;
             LoopNumber++;
             _loopEndRequested = false;
+            _pendingEndReason = LoopEndReason.Manual;
             _clock.Reset();
             _clock.Resume();
             _isTransitioning = false;
         }
 
-        private void AddEcho(ReplayRecording recording)
+        private void AddEcho(ReplayRecording recording, int generation)
         {
             if (_echoes.Count >= settings.MaxEchoes)
             {
                 EchoPlayback oldest = _echoes[0];
                 _echoes.RemoveAt(0);
+                History.MarkEvicted(oldest.ReplayGeneration);
                 oldest.ReleaseCarriedForReset();
                 oldest.gameObject.SetActive(false);
                 Destroy(oldest.gameObject);
             }
 
             EchoPlayback echo = Instantiate(
-                echoPrefab,
-                _actorStartPosition,
-                _actorStartRotation,
-                echoContainer);
+                echoPrefab, _actorStartPosition, _actorStartRotation, echoContainer);
             CharacterMotor motor = echo.GetComponent<CharacterMotor>();
             LoopActor actor = echo.GetComponent<LoopActor>();
             Interactor actorInteractor = echo.GetComponent<Interactor>();
             if (actorInteractor != null)
             {
-                actorInteractor.Configure(
-                    actor,
-                    actorInteractor.Sensor,
-                    actorInteractor.CarrySocket,
-                    interactionRegistry);
+                actorInteractor.Configure(actor, actorInteractor.Sensor,
+                    actorInteractor.CarrySocket, interactionRegistry);
             }
 
-            echo.Initialize(
-                recording,
-                motor,
-                actor,
-                settings.DriftTolerance,
-                actorInteractor);
+            echo.Initialize(recording, motor, actor, settings.DriftTolerance,
+                actorInteractor, generation);
             echo.gameObject.SetActive(true);
             _echoes.Add(echo);
+        }
+
+        private void UpdateHistoryRuntimeResults()
+        {
+            for (int i = 0; i < _echoes.Count; i++)
+            {
+                EchoPlayback echo = _echoes[i];
+                History.UpdateRuntimeResults(
+                    echo.ReplayGeneration,
+                    echo.MaximumDrift,
+                    echo.InteractionSuccessCount,
+                    echo.InteractionFailureCount);
+            }
         }
 
         private void ReleaseActorHeldObjects()

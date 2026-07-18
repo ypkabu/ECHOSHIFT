@@ -19,6 +19,8 @@ namespace EchoShift.Replay
 
         public int PlaybackTick => _nextFrame;
         public int RecordingLength => _recording?.Count ?? 0;
+        public int ReplayGeneration => loopActor != null ? loopActor.ReplayGeneration : 0;
+        public Color GenerationColor { get; private set; } = Color.cyan;
         public LoopActor Actor => loopActor;
         public CharacterMotor Motor => motor;
         public Interactor Interactor => interactor;
@@ -38,7 +40,8 @@ namespace EchoShift.Replay
             CharacterMotor characterMotor,
             LoopActor actor,
             float driftTolerance,
-            Interactor actorInteractor = null)
+            Interactor actorInteractor = null,
+            int replayGeneration = 0)
         {
             _recording = recording;
             motor = characterMotor;
@@ -46,6 +49,8 @@ namespace EchoShift.Replay
             interactor = actorInteractor != null
                 ? actorInteractor
                 : GetComponent<Interactor>();
+            loopActor.Configure(LoopActorKind.Echo, replayGeneration);
+            ApplyGenerationVisual(replayGeneration);
             _driftMonitor = new ReplayDriftMonitor(driftTolerance);
             _actualPath = new Vector3[recording.Count];
             _nextFrame = 0;
@@ -54,16 +59,90 @@ namespace EchoShift.Replay
 
         public void SimulateTick(float tickDuration)
         {
+            if (!TryGetCurrentFrame(out ReplayFrame frame))
+            {
+                return;
+            }
+
+            SimulateCurrentMovement(frame, tickDuration);
+            if (TryCreateInteractionRequest(frame.Command.Tick, out InteractionRequest request))
+            {
+                CompleteInteraction(request.Interactor.ExecuteRecorded(request.Command));
+            }
+
+            CompleteCurrentFrame(frame);
+        }
+
+        public bool TryGetCurrentFrame(out ReplayFrame frame)
+        {
+            if (_recording == null || _nextFrame >= _recording.Count)
+            {
+                frame = default;
+                return false;
+            }
+
+            frame = _recording[_nextFrame];
+            return true;
+        }
+
+        public void SimulateCurrentMovement(ReplayFrame frame, float tickDuration)
+        {
+            motor.Simulate(frame.Command.Move, tickDuration);
+        }
+
+        public bool TryCreateInteractionRequest(
+            int tick,
+            out InteractionRequest request)
+        {
+            request = default;
+            if (_recording == null)
+            {
+                return false;
+            }
+
+            InteractionRecording interactions = _recording.Interactions;
+            while (_nextInteraction < interactions.Count &&
+                   interactions[_nextInteraction].Tick < tick)
+            {
+                _nextInteraction++;
+            }
+
+            if (_nextInteraction >= interactions.Count ||
+                interactions[_nextInteraction].Tick != tick)
+            {
+                return false;
+            }
+
+            InteractionCommand command = interactions[_nextInteraction];
+            _nextInteraction++;
+            request = interactor != null
+                ? interactor.CreateRecordedRequest(command, loopActor.SimulationOrder)
+                : new InteractionRequest(loopActor.SimulationOrder, command, null);
+            return true;
+        }
+
+        public void CompleteInteraction(InteractionExecution execution)
+        {
+            if (execution.Succeeded)
+            {
+                InteractionSuccessCount++;
+            }
+            else
+            {
+                InteractionFailureCount++;
+                LastInteractionFailure = execution.FailureReason;
+            }
+        }
+
+        public void CompleteCurrentFrame(ReplayFrame frame)
+        {
             if (_recording == null || _nextFrame >= _recording.Count)
             {
                 return;
             }
 
-            ReplayFrame frame = _recording[_nextFrame];
-            motor.Simulate(frame.Command.Move, tickDuration);
             _driftMonitor.Measure(frame.ExpectedPosition, motor.Position);
             _actualPath[_nextFrame] = motor.Position;
-            ReplayInteractionsAtTick(frame.Command.Tick);
             _nextFrame++;
         }
 
@@ -80,41 +159,32 @@ namespace EchoShift.Replay
             interactor?.ReleaseCarriedForReset();
         }
 
-        private void ReplayInteractionsAtTick(int tick)
-        {
-            InteractionRecording interactions = _recording.Interactions;
-            while (_nextInteraction < interactions.Count &&
-                   interactions[_nextInteraction].Tick <= tick)
-            {
-                InteractionCommand command = interactions[_nextInteraction];
-                if (command.Tick == tick)
-                {
-                    InteractionExecution execution = interactor != null
-                        ? interactor.ExecuteRecorded(command)
-                        : InteractionExecution.Failure(
-                            command,
-                            InteractionFailureReason.MissingInteractor);
-                    if (execution.Succeeded)
-                    {
-                        InteractionSuccessCount++;
-                    }
-                    else
-                    {
-                        InteractionFailureCount++;
-                        LastInteractionFailure = execution.FailureReason;
-                    }
-                }
-
-                _nextInteraction++;
-            }
-        }
-
         private void ResetInteractionPlayback()
         {
             _nextInteraction = 0;
             InteractionSuccessCount = 0;
             InteractionFailureCount = 0;
             LastInteractionFailure = InteractionFailureReason.None;
+        }
+
+        private void ApplyGenerationVisual(int generation)
+        {
+            GenerationColor = (generation % 3) switch
+            {
+                1 => new Color(0.15f, 0.9f, 1f, 0.58f),
+                2 => new Color(1f, 0.25f, 0.8f, 0.58f),
+                _ => new Color(0.45f, 1f, 0.35f, 0.58f)
+            };
+            Renderer actorRenderer = GetComponentInChildren<Renderer>();
+            if (actorRenderer == null)
+            {
+                return;
+            }
+
+            MaterialPropertyBlock properties = new MaterialPropertyBlock();
+            actorRenderer.GetPropertyBlock(properties);
+            properties.SetColor("_BaseColor", GenerationColor);
+            actorRenderer.SetPropertyBlock(properties);
         }
 
         private void OnDrawGizmos()

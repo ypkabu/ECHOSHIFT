@@ -50,7 +50,7 @@ GameObject:
   - component: {fileID: 904404972402229759}
   - component: {fileID: 5081868595023356007}
   m_Layer: 8
-  m_Name: P1_Echo
+  m_Name: P2_Echo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

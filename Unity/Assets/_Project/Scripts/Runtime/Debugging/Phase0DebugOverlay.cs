@@ -14,6 +14,7 @@ namespace EchoShift.Debugging
         [SerializeField] private PlayerSimulation playerSimulation;
         [SerializeField] private CarryableBattery battery;
         [SerializeField] private PowerSocket powerSocket;
+        [SerializeField] private bool isPhase2;
 
         private GUIStyle _labelStyle;
         private GUIStyle _titleStyle;
@@ -39,6 +40,7 @@ namespace EchoShift.Debugging
             playerSimulation = null;
             battery = null;
             powerSocket = null;
+            isPhase2 = false;
         }
 
         public void ConfigurePhase1(
@@ -54,6 +56,24 @@ namespace EchoShift.Debugging
             playerSimulation = player;
             battery = carryableBattery;
             powerSocket = socket;
+            isPhase2 = false;
+        }
+
+        public void ConfigurePhase2(
+            LoopDirector director,
+            PlayerSimulation player,
+            PressurePlate plate,
+            CarryableBattery carryableBattery,
+            PowerSocket socket,
+            GoalVolume goal)
+        {
+            loopDirector = director;
+            playerSimulation = player;
+            pressurePlate = plate;
+            battery = carryableBattery;
+            powerSocket = socket;
+            goalVolume = goal;
+            isPhase2 = true;
         }
 
         private void OnGUI()
@@ -65,9 +85,10 @@ namespace EchoShift.Debugging
 
             EnsureStyles();
 
-            float height = IsPhase1Configured ? 520f : 260f;
+            float height = isPhase2 ? 650f : IsPhase1Configured ? 520f : 260f;
             GUILayout.BeginArea(new Rect(20f, 20f, 520f, height), GUI.skin.box);
             GUILayout.Label(
+                isPhase2 ? "ECHO//SHIFT - PHASE 2" :
                 IsPhase1Configured ? "ECHO//SHIFT - PHASE 1" : "ECHO//SHIFT - PHASE 0",
                 _titleStyle);
             GUILayout.Label($"Loop: {loopDirector.LoopNumber}", _labelStyle);
@@ -130,14 +151,30 @@ namespace EchoShift.Debugging
             GUILayout.Label(
                 $"Recorded interactions: {loopDirector.CurrentInteractionCount}",
                 _labelStyle);
+            LoopActor playerActor = playerSimulation.GetComponent<LoopActor>();
+            GUILayout.Label(
+                $"Player gen={playerActor?.ReplayGeneration ?? 0}, " +
+                $"success={playerSimulation.InteractionSuccessCount}, " +
+                $"failed={playerSimulation.InteractionFailureCount}, " +
+                $"held={GetBatteryName(playerInteractor?.CarriedBattery)}, " +
+                $"pos={playerSimulation.transform.position:F2}",
+                _labelStyle);
 
             for (int i = 0; i < loopDirector.EchoCount; i++)
             {
                 EchoShift.Replay.EchoPlayback echo = loopDirector.GetEchoPlayback(i);
                 GUILayout.Label(
-                    $"Echo {i + 1}: next={echo.NextInteractionTick}, " +
+                    $"Echo gen={echo.ReplayGeneration}: tick={echo.PlaybackTick}/{echo.RecordingLength}, " +
                     $"success={echo.InteractionSuccessCount}, failed={echo.InteractionFailureCount}, " +
+                    $"held={GetBatteryName(echo.Interactor?.CarriedBattery)}, " +
+                    $"pos={echo.transform.position:F2}, drift={echo.MaximumDrift:F4}, " +
                     $"last={echo.LastInteractionFailure}",
+                    _labelStyle);
+            }
+
+            if (isPhase2)
+            {
+                GUILayout.Label($"Loop history: {loopDirector.History.Count}/{loopDirector.History.Capacity}",
                     _labelStyle);
             }
         }

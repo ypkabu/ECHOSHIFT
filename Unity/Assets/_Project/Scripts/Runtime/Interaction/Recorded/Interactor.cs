@@ -78,6 +78,75 @@ namespace EchoShift.Interaction.Recorded
                     : sensor.CurrentFailureReason);
         }
 
+        public bool TryCreateLiveRequest(
+            int tick,
+            ActorSimulationOrder actorOrder,
+            out InteractionRequest request,
+            out InteractionExecution rejectedExecution)
+        {
+            request = default;
+            rejectedExecution = default;
+            if (!HasValidReferences)
+            {
+                InteractionCommand missingCommand = new InteractionCommand(
+                    tick,
+                    InteractionKind.None,
+                    string.Empty,
+                    transform.position);
+                rejectedExecution = InteractionExecution.Failure(
+                    missingCommand,
+                    InteractionFailureReason.MissingInteractor);
+                return false;
+            }
+
+            IInteractable candidate = sensor.CurrentTarget;
+            InteractionKind kind;
+            IInteractable target;
+            if (candidate != null && sensor.CurrentCanInteract)
+            {
+                target = candidate;
+                kind = sensor.CurrentKind;
+            }
+            else if (_carriedBattery != null)
+            {
+                target = _carriedBattery;
+                kind = InteractionKind.DropBattery;
+            }
+            else
+            {
+                string rejectedTargetId = candidate?.StableId?.Value ?? string.Empty;
+                InteractionCommand rejectedCommand = new InteractionCommand(
+                    tick,
+                    sensor.CurrentKind,
+                    rejectedTargetId,
+                    transform.position);
+                rejectedExecution = InteractionExecution.Failure(
+                    rejectedCommand,
+                    candidate == null
+                        ? InteractionFailureReason.NoCandidate
+                        : sensor.CurrentFailureReason);
+                return false;
+            }
+
+            string targetId = target.StableId != null
+                ? target.StableId.Value
+                : string.Empty;
+            InteractionCommand command = new InteractionCommand(
+                tick,
+                kind,
+                targetId,
+                transform.position);
+            request = new InteractionRequest(actorOrder, command, this);
+            return true;
+        }
+
+        public InteractionRequest CreateRecordedRequest(
+            InteractionCommand command,
+            ActorSimulationOrder actorOrder)
+        {
+            return new InteractionRequest(actorOrder, command, this);
+        }
+
         public InteractionExecution ExecuteRecorded(InteractionCommand command)
         {
             if (!HasValidReferences)

@@ -11,6 +11,8 @@ namespace EchoShift.Interaction
     {
         private readonly HashSet<LoopActor> _occupants = new HashSet<LoopActor>();
         private readonly List<LoopActor> _invalidOccupants = new List<LoopActor>(4);
+        private readonly Collider[] _overlapBuffer = new Collider[16];
+        private BoxCollider _boxCollider;
 
         public event Action<bool> PressedChanged;
 
@@ -64,6 +66,43 @@ namespace EchoShift.Interaction
             PruneInvalidOccupants();
             bool wasPressed = IsPressedWithoutPruning;
             _occupants.Remove(actor);
+            NotifyIfChanged(wasPressed);
+        }
+
+        public void RefreshFromPhysics()
+        {
+            _boxCollider ??= GetComponent<BoxCollider>();
+            if (_boxCollider == null)
+            {
+                return;
+            }
+
+            bool wasPressed = IsPressedWithoutPruning;
+            _occupants.Clear();
+            Vector3 scale = transform.lossyScale;
+            Vector3 halfExtents = Vector3.Scale(
+                _boxCollider.size,
+                new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z))) * 0.5f;
+            Vector3 center = transform.TransformPoint(_boxCollider.center);
+            int count = Physics.OverlapBoxNonAlloc(
+                center,
+                halfExtents,
+                _overlapBuffer,
+                transform.rotation,
+                ~0,
+                QueryTriggerInteraction.Collide);
+            for (int i = 0; i < count; i++)
+            {
+                LoopActor actor = _overlapBuffer[i].GetComponentInParent<LoopActor>();
+                if (actor != null && actor.isActiveAndEnabled &&
+                    actor.gameObject.activeInHierarchy)
+                {
+                    _occupants.Add(actor);
+                }
+
+                _overlapBuffer[i] = null;
+            }
+
             NotifyIfChanged(wasPressed);
         }
 
