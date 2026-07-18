@@ -7,7 +7,8 @@ namespace EchoShift.Replay
     public enum InputButtonFlags : byte
     {
         None = 0,
-        EndLoop = 1 << 0
+        EndLoop = 1 << 0,
+        Interact = 1 << 1
     }
 
     public readonly struct InputCommand

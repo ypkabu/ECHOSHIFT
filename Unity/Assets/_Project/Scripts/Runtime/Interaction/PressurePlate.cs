@@ -7,12 +7,14 @@ using UnityEngine;
 namespace EchoShift.Interaction
 {
     [RequireComponent(typeof(Collider))]
-    public sealed class PressurePlate : MonoBehaviour, IResettable
+    public sealed class PressurePlate : MonoBehaviour, IResettable, IDoorOpenSource
     {
         private readonly HashSet<LoopActor> _occupants = new HashSet<LoopActor>();
         private readonly List<LoopActor> _invalidOccupants = new List<LoopActor>(4);
 
         public event Action<bool> PressedChanged;
+
+        public bool RequestsDoorOpen => IsPressed;
 
         public bool IsPressed
         {

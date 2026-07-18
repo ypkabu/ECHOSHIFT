@@ -2,7 +2,8 @@
   "name": "EchoShift.Editor",
   "rootNamespace": "EchoShift.Editor",
   "references": [
-    "EchoShift.Runtime"
+    "EchoShift.Runtime",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor"

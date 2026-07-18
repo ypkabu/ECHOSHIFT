@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EchoShift.Player;
+using EchoShift.Interaction.Recorded;
 using EchoShift.Replay;
 using EchoShift.Reset;
 using UnityEngine;
@@ -29,6 +30,7 @@ namespace EchoShift.Core
         public int EchoCount => _echoes.Count;
         public int MaxTicks => settings != null ? settings.MaxTicks : 0;
         public ReplayRecording LastCompletedRecording { get; private set; }
+        public int CurrentInteractionCount => _recorder?.InteractionCount ?? 0;
         public bool HasValidReferences =>
             settings != null &&
             playerSimulation != null &&
@@ -168,6 +170,21 @@ namespace EchoShift.Core
                 return;
             }
 
+            InteractionExecution interaction = playerSimulation.LastInteractionExecution;
+            if (interaction.Succeeded)
+            {
+                InteractionRecordResult interactionResult =
+                    _recorder.TryRecordInteraction(interaction.Command);
+                if (interactionResult != InteractionRecordResult.Recorded)
+                {
+                    Debug.LogError(
+                        $"Interaction recorder rejected tick {CurrentTick}: {interactionResult}.",
+                        this);
+                    _loopEndRequested = true;
+                    return;
+                }
+            }
+
             for (int i = 0; i < _echoes.Count; i++)
             {
                 _echoes[i].SimulateTick(settings.TickDuration);
@@ -192,6 +209,7 @@ namespace EchoShift.Core
             _clock.Pause();
 
             LastCompletedRecording = _recorder.FinalizeRecording();
+            ReleaseActorHeldObjects();
             resetRegistry.RestoreInitialStates();
             Physics.SyncTransforms();
 
@@ -220,6 +238,7 @@ namespace EchoShift.Core
             {
                 EchoPlayback oldest = _echoes[0];
                 _echoes.RemoveAt(0);
+                oldest.ReleaseCarriedForReset();
                 oldest.gameObject.SetActive(false);
                 Destroy(oldest.gameObject);
             }
@@ -234,6 +253,15 @@ namespace EchoShift.Core
             echo.Initialize(recording, motor, actor, settings.DriftTolerance);
             echo.gameObject.SetActive(true);
             _echoes.Add(echo);
+        }
+
+        private void ReleaseActorHeldObjects()
+        {
+            playerSimulation.ReleaseCarriedForReset();
+            for (int i = 0; i < _echoes.Count; i++)
+            {
+                _echoes[i].ReleaseCarriedForReset();
+            }
         }
     }
 }

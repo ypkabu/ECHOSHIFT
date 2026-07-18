@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -20,6 +21,7 @@ namespace EchoShift.Editor
         private const string ProjectRoot = "Assets/_Project";
         public const string ScenePath = ProjectRoot + "/Scenes/P0_ReplayLab.unity";
         private const string SettingsPath = ProjectRoot + "/Settings/LoopSettings.asset";
+        public const string InputActionsPath = ProjectRoot + "/Settings/EchoShiftControls.inputactions";
         private const string EchoPrefabPath = ProjectRoot + "/Prefabs/Actors/P0_Echo.prefab";
         private const string MaterialRoot = ProjectRoot + "/Art/Temp/Materials";
 
@@ -51,6 +53,15 @@ namespace EchoShift.Editor
                 echoLayer,
                 environmentLayer,
                 interactionTriggerLayer);
+            ConfigureInputSystemBackend();
+
+            InputActionAsset inputActions =
+                AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputActionsPath);
+            if (inputActions == null)
+            {
+                throw new InvalidOperationException(
+                    $"Input Action asset is missing at {InputActionsPath}.");
+            }
 
             LoopSettings settings = CreateOrUpdateLoopSettings();
             Material playerMaterial = CreateOrUpdateMaterial(
@@ -98,6 +109,7 @@ namespace EchoShift.Editor
                 gameplayRoot.transform,
                 playerMaterial,
                 settings,
+                inputActions,
                 playerLayer,
                 environmentLayer,
                 out TransformResettable playerReset);
@@ -250,6 +262,22 @@ namespace EchoShift.Editor
             Physics.IgnoreLayerCollision(echoLayer, interactionTriggerLayer, false);
         }
 
+        private static void ConfigureInputSystemBackend()
+        {
+            SerializedObject projectSettings = new SerializedObject(
+                AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);
+            SerializedProperty activeInputHandler =
+                projectSettings.FindProperty("activeInputHandler");
+            if (activeInputHandler == null)
+            {
+                throw new InvalidOperationException(
+                    "ProjectSettings.activeInputHandler could not be resolved.");
+            }
+
+            activeInputHandler.intValue = 1;
+            projectSettings.ApplyModifiedProperties();
+        }
+
         private static LoopSettings CreateOrUpdateLoopSettings()
         {
             LoopSettings settings = AssetDatabase.LoadAssetAtPath<LoopSettings>(SettingsPath);
@@ -378,6 +406,7 @@ namespace EchoShift.Editor
             Transform parent,
             Material material,
             LoopSettings settings,
+            InputActionAsset inputActions,
             int actorLayer,
             int environmentLayer,
             out TransformResettable resettable)
@@ -402,7 +431,8 @@ namespace EchoShift.Editor
             motor.Configure(settings.MoveSpeed, 0.45f, 2f, 1 << environmentLayer);
             LoopActor actor = playerObject.AddComponent<LoopActor>();
             actor.Configure(LoopActorKind.Player);
-            KeyboardInputSource input = playerObject.AddComponent<KeyboardInputSource>();
+            InputSystemInputSource input = playerObject.AddComponent<InputSystemInputSource>();
+            input.Configure(inputActions);
             PlayerSimulation simulation = playerObject.AddComponent<PlayerSimulation>();
             simulation.Configure(input, motor);
             resettable = playerObject.AddComponent<TransformResettable>();

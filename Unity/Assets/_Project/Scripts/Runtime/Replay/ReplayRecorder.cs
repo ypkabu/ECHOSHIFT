@@ -1,4 +1,5 @@
 using System;
+using EchoShift.Interaction.Recorded;
 
 namespace EchoShift.Replay
 {
@@ -13,6 +14,7 @@ namespace EchoShift.Replay
     public sealed class ReplayRecorder
     {
         private readonly ReplayFrame[] _buffer;
+        private readonly InteractionRecorder _interactionRecorder;
         private ReplayRecording _finalizedRecording;
         private int _count;
 
@@ -24,10 +26,12 @@ namespace EchoShift.Replay
             }
 
             _buffer = new ReplayFrame[capacity];
+            _interactionRecorder = new InteractionRecorder(capacity);
         }
 
         public int Capacity => _buffer.Length;
         public int Count => _count;
+        public int InteractionCount => _interactionRecorder.Count;
         public bool IsFinalized => _finalizedRecording != null;
 
         public ReplayRecordResult TryRecord(ReplayFrame frame)
@@ -61,8 +65,20 @@ namespace EchoShift.Replay
 
             ReplayFrame[] immutableFrames = new ReplayFrame[_count];
             Array.Copy(_buffer, immutableFrames, _count);
-            _finalizedRecording = new ReplayRecording(immutableFrames);
+            _finalizedRecording = new ReplayRecording(
+                immutableFrames,
+                _interactionRecorder.FinalizeRecording());
             return _finalizedRecording;
+        }
+
+        public InteractionRecordResult TryRecordInteraction(InteractionCommand command)
+        {
+            if (IsFinalized)
+            {
+                return InteractionRecordResult.Finalized;
+            }
+
+            return _interactionRecorder.TryRecord(command, _count);
         }
     }
 }

@@ -190,3 +190,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Replay.EchoPlayback
   motor: {fileID: 0}
   loopActor: {fileID: 0}
+  interactor: {fileID: 0}
