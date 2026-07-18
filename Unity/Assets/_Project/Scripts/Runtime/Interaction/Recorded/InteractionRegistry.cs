@@ -15,7 +15,7 @@ namespace EchoShift.Interaction.Recorded
         {
             if (stableId == null ||
                 string.IsNullOrWhiteSpace(stableId.Value) ||
-                stableId.Target == null)
+                !stableId.CanRegister)
             {
                 return false;
             }
@@ -55,7 +55,7 @@ namespace EchoShift.Interaction.Recorded
             if (identity == null ||
                 !identity.isActiveAndEnabled ||
                 !identity.gameObject.activeInHierarchy ||
-                identity.Target == null)
+                !identity.IsTargetAvailable)
             {
                 _targets.Remove(stableId);
                 return false;

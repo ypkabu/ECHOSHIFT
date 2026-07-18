@@ -20,6 +20,7 @@ namespace EchoShift.Editor
     {
         private const string ProjectRoot = "Assets/_Project";
         public const string ScenePath = ProjectRoot + "/Scenes/P0_ReplayLab.unity";
+        private const string Phase1ScenePath = ProjectRoot + "/Scenes/P1_InteractionLab.unity";
         private const string SettingsPath = ProjectRoot + "/Settings/LoopSettings.asset";
         public const string InputActionsPath = ProjectRoot + "/Settings/EchoShiftControls.inputactions";
         private const string EchoPrefabPath = ProjectRoot + "/Prefabs/Actors/P0_Echo.prefab";
@@ -162,10 +163,21 @@ namespace EchoShift.Editor
                 throw new InvalidOperationException($"Could not save scene at {ScenePath}.");
             }
 
-            EditorBuildSettings.scenes = new[]
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(Phase1ScenePath) != null)
             {
-                new EditorBuildSettingsScene(ScenePath, true)
-            };
+                EditorBuildSettings.scenes = new[]
+                {
+                    new EditorBuildSettingsScene(ScenePath, true),
+                    new EditorBuildSettingsScene(Phase1ScenePath, true)
+                };
+            }
+            else
+            {
+                EditorBuildSettings.scenes = new[]
+                {
+                    new EditorBuildSettingsScene(ScenePath, true)
+                };
+            }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }

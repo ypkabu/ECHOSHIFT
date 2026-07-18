@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/P1_InteractionLab.unity
+    guid: 16c7d6e8471f81f44a4cb2421d8347eb
+  - enabled: 1
     path: Assets/_Project/Scenes/P0_ReplayLab.unity
     guid: d3c6689676701a840ab3469edf71ee5f
   m_configObjects: {}

@@ -14,6 +14,7 @@ namespace EchoShift.Interaction.Recorded
         private Vector3 _initialPosition;
         private Quaternion _initialRotation;
         private bool _hasCapturedState;
+        private Transform _carrySocket;
 
         public StableId StableId => stableId;
         public string InteractionName => name;
@@ -154,9 +155,9 @@ namespace EchoShift.Interaction.Recorded
             }
 
             Holder = interactor;
-            transform.SetParent(carrySocket, false);
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
+            _carrySocket = carrySocket;
+            transform.SetParent(_initialParent, true);
+            FollowCarrySocket();
             SetCollisionEnabled(false);
             failureReason = InteractionFailureReason.None;
             return true;
@@ -165,6 +166,7 @@ namespace EchoShift.Interaction.Recorded
         internal void DetachAndPlace(Vector3 contextPosition, Vector3 contextForward)
         {
             Holder = null;
+            _carrySocket = null;
             transform.SetParent(_initialParent, true);
             Vector3 position = contextPosition + (contextForward.normalized * 0.9f);
             position.y = _hasCapturedState ? _initialPosition.y : transform.position.y;
@@ -185,6 +187,7 @@ namespace EchoShift.Interaction.Recorded
             }
 
             Holder = null;
+            _carrySocket = null;
             InsertedSocket = socket;
             transform.SetParent(insertionTransform, false);
             transform.localPosition = Vector3.zero;
@@ -202,6 +205,7 @@ namespace EchoShift.Interaction.Recorded
             }
 
             Holder = null;
+            _carrySocket = null;
             transform.SetParent(_initialParent, true);
             SetCollisionEnabled(true);
         }
@@ -241,6 +245,7 @@ namespace EchoShift.Interaction.Recorded
             {
                 Holder.NotifyBatteryDetached(this);
                 Holder = null;
+                _carrySocket = null;
             }
 
             if (InsertedSocket != null)
@@ -253,7 +258,26 @@ namespace EchoShift.Interaction.Recorded
 
         private void OnDisable()
         {
+            stableId?.UnregisterTarget();
             SeverRelationships();
+        }
+
+        private void OnEnable()
+        {
+            stableId?.RegisterTarget();
+        }
+
+        private void LateUpdate()
+        {
+            FollowCarrySocket();
+        }
+
+        private void FollowCarrySocket()
+        {
+            if (Holder != null && _carrySocket != null)
+            {
+                transform.SetPositionAndRotation(_carrySocket.position, _carrySocket.rotation);
+            }
         }
 
         private void OnDrawGizmosSelected()

@@ -1,5 +1,7 @@
 using EchoShift.Core;
 using EchoShift.Interaction;
+using EchoShift.Interaction.Recorded;
+using EchoShift.Player;
 using UnityEngine;
 
 namespace EchoShift.Debugging
@@ -9,14 +11,22 @@ namespace EchoShift.Debugging
         [SerializeField] private LoopDirector loopDirector;
         [SerializeField] private PressurePlate pressurePlate;
         [SerializeField] private GoalVolume goalVolume;
+        [SerializeField] private PlayerSimulation playerSimulation;
+        [SerializeField] private CarryableBattery battery;
+        [SerializeField] private PowerSocket powerSocket;
 
         private GUIStyle _labelStyle;
         private GUIStyle _titleStyle;
 
         public bool HasValidReferences =>
             loopDirector != null &&
-            pressurePlate != null &&
-            goalVolume != null;
+            goalVolume != null &&
+            (pressurePlate != null || IsPhase1Configured);
+
+        public bool IsPhase1Configured =>
+            playerSimulation != null &&
+            battery != null &&
+            powerSocket != null;
 
         public void Configure(
             LoopDirector director,
@@ -26,19 +36,40 @@ namespace EchoShift.Debugging
             loopDirector = director;
             pressurePlate = plate;
             goalVolume = goal;
+            playerSimulation = null;
+            battery = null;
+            powerSocket = null;
+        }
+
+        public void ConfigurePhase1(
+            LoopDirector director,
+            PlayerSimulation player,
+            CarryableBattery carryableBattery,
+            PowerSocket socket,
+            GoalVolume goal)
+        {
+            loopDirector = director;
+            pressurePlate = null;
+            goalVolume = goal;
+            playerSimulation = player;
+            battery = carryableBattery;
+            powerSocket = socket;
         }
 
         private void OnGUI()
         {
-            if (loopDirector == null || pressurePlate == null || goalVolume == null)
+            if (!HasValidReferences)
             {
                 return;
             }
 
             EnsureStyles();
 
-            GUILayout.BeginArea(new Rect(20f, 20f, 440f, 260f), GUI.skin.box);
-            GUILayout.Label("ECHO//SHIFT - PHASE 0", _titleStyle);
+            float height = IsPhase1Configured ? 520f : 260f;
+            GUILayout.BeginArea(new Rect(20f, 20f, 520f, height), GUI.skin.box);
+            GUILayout.Label(
+                IsPhase1Configured ? "ECHO//SHIFT - PHASE 1" : "ECHO//SHIFT - PHASE 0",
+                _titleStyle);
             GUILayout.Label($"Loop: {loopDirector.LoopNumber}", _labelStyle);
             GUILayout.Label(
                 $"Tick: {loopDirector.CurrentTick}/{loopDirector.MaxTicks}",
@@ -47,13 +78,25 @@ namespace EchoShift.Debugging
             GUILayout.Label(
                 $"Maximum replay drift: {loopDirector.MaximumReplayDrift:F4} m",
                 _labelStyle);
-            GUILayout.Label(
-                $"Pressure plate: {(pressurePlate.IsPressed ? "PRESSED" : "RELEASED")}",
-                _labelStyle);
+            if (pressurePlate != null)
+            {
+                GUILayout.Label(
+                    $"Pressure plate: {(pressurePlate.IsPressed ? "PRESSED" : "RELEASED")}",
+                    _labelStyle);
+            }
             GUILayout.Label(
                 $"Goal: {(goalVolume.IsReached ? "REACHED" : "NOT REACHED")}",
                 _labelStyle);
-            GUILayout.Label("WASD: Move    R: End loop", _labelStyle);
+            if (IsPhase1Configured)
+            {
+                DrawPhase1State();
+                GUILayout.Label("WASD / Left Stick: Move", _labelStyle);
+                GUILayout.Label("E / South Button: Interact    R / Start: End loop", _labelStyle);
+            }
+            else
+            {
+                GUILayout.Label("WASD / Left Stick: Move    R / Start: End loop", _labelStyle);
+            }
 
             if (loopDirector.AnyEchoExceededTolerance)
             {
@@ -61,6 +104,47 @@ namespace EchoShift.Debugging
             }
 
             GUILayout.EndArea();
+        }
+
+        private void DrawPhase1State()
+        {
+            Interactor playerInteractor = playerSimulation.Interactor;
+            InteractionSensor sensor = playerInteractor != null
+                ? playerInteractor.Sensor
+                : null;
+            GUILayout.Label(
+                $"Candidate: {(sensor != null ? sensor.CurrentTargetName : string.Empty)}",
+                _labelStyle);
+            GUILayout.Label(
+                $"Candidate ID: {(sensor != null ? sensor.CurrentStableId : string.Empty)}",
+                _labelStyle);
+            GUILayout.Label(
+                $"Player carrying: {GetBatteryName(playerInteractor?.CarriedBattery)}",
+                _labelStyle);
+            GUILayout.Label(
+                $"Battery holder: {(battery.Holder != null ? battery.Holder.Actor.name : "none")}",
+                _labelStyle);
+            GUILayout.Label(
+                $"Power socket: {(powerSocket.IsPowered ? "POWERED" : "UNPOWERED")}",
+                _labelStyle);
+            GUILayout.Label(
+                $"Recorded interactions: {loopDirector.CurrentInteractionCount}",
+                _labelStyle);
+
+            for (int i = 0; i < loopDirector.EchoCount; i++)
+            {
+                EchoShift.Replay.EchoPlayback echo = loopDirector.GetEchoPlayback(i);
+                GUILayout.Label(
+                    $"Echo {i + 1}: next={echo.NextInteractionTick}, " +
+                    $"success={echo.InteractionSuccessCount}, failed={echo.InteractionFailureCount}, " +
+                    $"last={echo.LastInteractionFailure}",
+                    _labelStyle);
+            }
+        }
+
+        private static string GetBatteryName(CarryableBattery carriedBattery)
+        {
+            return carriedBattery != null ? carriedBattery.name : "none";
         }
 
         private void EnsureStyles()

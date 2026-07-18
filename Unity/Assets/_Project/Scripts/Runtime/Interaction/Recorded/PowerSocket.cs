@@ -131,7 +131,13 @@ namespace EchoShift.Interaction.Recorded
 
         private void OnDisable()
         {
+            stableId?.UnregisterTarget();
             ClearInsertedBattery();
+        }
+
+        private void OnEnable()
+        {
+            stableId?.RegisterTarget();
         }
     }
 }

@@ -12,6 +12,13 @@ namespace EchoShift.Interaction.Recorded
 
         public string Value => value;
         public IInteractable Target => _target;
+        internal bool CanRegister =>
+            targetComponent != null &&
+            _target != null;
+        public bool IsTargetAvailable =>
+            CanRegister &&
+            targetComponent.isActiveAndEnabled &&
+            isActiveAndEnabled;
         public bool HasValidConfiguration =>
             !string.IsNullOrWhiteSpace(value) &&
             registry != null &&
@@ -27,7 +34,7 @@ namespace EchoShift.Interaction.Recorded
             registry = interactionRegistry;
             targetComponent = interactableComponent;
             ResolveTarget();
-            RegisterIfPossible();
+            RegisterIfPossible(false);
         }
 
         private void Awake()
@@ -38,7 +45,7 @@ namespace EchoShift.Interaction.Recorded
         private void OnEnable()
         {
             ResolveTarget();
-            RegisterIfPossible();
+            RegisterIfPossible(true);
         }
 
         private void OnDisable()
@@ -51,9 +58,14 @@ namespace EchoShift.Interaction.Recorded
             _target = targetComponent as IInteractable;
         }
 
-        private void RegisterIfPossible()
+        private void RegisterIfPossible(bool isEnabling)
         {
-            if (!isActiveAndEnabled || registry == null || _target == null)
+            if (registry == null || !CanRegister)
+            {
+                return;
+            }
+
+            if (!isEnabling && !IsTargetAvailable)
             {
                 return;
             }
@@ -62,6 +74,16 @@ namespace EchoShift.Interaction.Recorded
             {
                 Debug.LogError($"Stable ID registration failed for '{value}'.", this);
             }
+        }
+
+        internal void RegisterTarget()
+        {
+            RegisterIfPossible(true);
+        }
+
+        internal void UnregisterTarget()
+        {
+            registry?.Unregister(this);
         }
     }
 }

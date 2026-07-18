@@ -63,7 +63,7 @@ ADR 0004 will document identity ownership, validation, limitations, and replacem
 9. Restore Player pose.
 10. Allocate new recorders, reset tick zero, and resume simulation.
 
-Battery motion remains parented/kinematic rather than free Rigidbody replay. ADR 0006 will record that choice.
+Battery motion remains kinematic and follows a shared Carry Socket without becoming an actor child, rather than using free Rigidbody replay. ADR 0006 records that choice.
 
 ## Planned files
 

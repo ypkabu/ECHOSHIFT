@@ -15,6 +15,7 @@ namespace EchoShift.Core
         [SerializeField] private ResetRegistry resetRegistry;
         [SerializeField] private EchoPlayback echoPrefab;
         [SerializeField] private Transform echoContainer;
+        [SerializeField] private InteractionRegistry interactionRegistry;
 
         private readonly List<EchoPlayback> _echoes = new List<EchoPlayback>(3);
         private SimulationClock _clock;
@@ -78,12 +79,32 @@ namespace EchoShift.Core
             EchoPlayback prefab,
             Transform container)
         {
+            Configure(
+                loopSettings,
+                player,
+                playerTransformReset,
+                registry,
+                prefab,
+                container,
+                null);
+        }
+
+        public void Configure(
+            LoopSettings loopSettings,
+            PlayerSimulation player,
+            TransformResettable playerTransformReset,
+            ResetRegistry registry,
+            EchoPlayback prefab,
+            Transform container,
+            InteractionRegistry recordedInteractionRegistry)
+        {
             settings = loopSettings;
             playerSimulation = player;
             playerReset = playerTransformReset;
             resetRegistry = registry;
             echoPrefab = prefab;
             echoContainer = container;
+            interactionRegistry = recordedInteractionRegistry;
         }
 
         private void Start()
@@ -250,7 +271,22 @@ namespace EchoShift.Core
                 echoContainer);
             CharacterMotor motor = echo.GetComponent<CharacterMotor>();
             LoopActor actor = echo.GetComponent<LoopActor>();
-            echo.Initialize(recording, motor, actor, settings.DriftTolerance);
+            Interactor actorInteractor = echo.GetComponent<Interactor>();
+            if (actorInteractor != null)
+            {
+                actorInteractor.Configure(
+                    actor,
+                    actorInteractor.Sensor,
+                    actorInteractor.CarrySocket,
+                    interactionRegistry);
+            }
+
+            echo.Initialize(
+                recording,
+                motor,
+                actor,
+                settings.DriftTolerance,
+                actorInteractor);
             echo.gameObject.SetActive(true);
             _echoes.Add(echo);
         }
