@@ -1,0 +1,82 @@
+# ECHO//SHIFT Codex Development Rules
+
+## Project
+
+ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
+
+The current milestone is Phase 0. Phase 0 exists only to validate the fixed-tick replay and world-reset architecture.
+
+## Required workflow
+
+Before changing files:
+
+1. Read this file.
+2. Inspect the existing repository and Unity project.
+3. Read every Markdown document in the repository. Documents already read do not need to be reread unless changed.
+4. Write or update `Docs/ImplementationPlan_P0.md`.
+5. Proceed with implementation without waiting for approval.
+
+After changing files:
+
+1. Check for compilation errors.
+2. Run available EditMode and PlayMode tests.
+3. Review the diff.
+4. Report changed files, tests, manual verification steps, and unresolved risks.
+
+Do not commit, push, create branches, or rewrite Git history.
+
+## Architecture rules
+
+- Use namespaces beginning with `EchoShift`.
+- Keep runtime, editor, and test code in separate assembly definitions.
+- Keep gameplay logic outside Editor assemblies.
+- Prefer plain C# classes for data and calculations.
+- Use MonoBehaviours only as Unity-facing adapters or scene components.
+- Do not place unrelated responsibilities in one manager class.
+- Do not introduce a service locator, dependency-injection framework, ECS, DOTS, Addressables, UniTask, or third-party framework.
+- Avoid global mutable singletons. A scene-owned coordinator is acceptable when its lifetime and ownership are explicit.
+- Serialized fields must normally be private and use `[SerializeField]`.
+- Validate required references in `Awake` or `OnValidate`.
+- Do not use `FindObjectOfType`, `GameObject.Find`, tags, or repeated hierarchy searches during gameplay.
+- Do not use LINQ, reflection, string formatting, or avoidable allocations inside per-frame or per-tick paths.
+- Preallocate replay storage for the configured loop length.
+- Do not silently catch exceptions.
+- Do not suppress compiler warnings without a documented reason.
+
+## Simulation rules
+
+- Gameplay simulation must run through an explicit fixed-tick clock.
+- The Phase 0 tick rate is 60 ticks per second.
+- Input collection must be separated from movement simulation.
+- Player and Echo movement must use the same movement implementation.
+- Replay data must be immutable after a loop has been finalized.
+- Each replay frame must retain the command and an expected pose for drift validation.
+- Existing Echoes restart from tick zero whenever a new loop begins.
+- World reset must be explicit and coordinated. Do not reload the scene to implement a normal loop reset.
+- Player and Echo actors must not physically block each other.
+- They must still be detectable by trigger-based gameplay objects such as pressure plates.
+
+## Testing rules
+
+At minimum, maintain tests for:
+
+- Replay frame ordering.
+- Replay recording immutability after finalization.
+- Replay capacity based on loop settings.
+- Reset restoration.
+- Loop transition behavior.
+- Echo playback reaching the expected final pose within tolerance.
+
+Tests must not depend on Asset Store content.
+
+## Scope restrictions for Phase 0
+
+Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, VFX, or menus.
+
+Do not add an explicit Stable ID interaction system unless a verified Phase 0 defect requires it. Use Unity primitives and temporary materials only.
+
+## Documentation
+
+Important architectural decisions must be recorded in `Docs/ADR/` with the selected design, reasons, alternatives, current limitations, and replacement conditions.
+
+Code comments should explain non-obvious decisions, not restate the code.

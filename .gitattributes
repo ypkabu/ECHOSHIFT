@@ -1,0 +1,23 @@
+* text=auto eol=lf
+
+*.cs text diff=csharp
+*.json text
+*.md text
+*.asmdef text
+*.asmref text
+*.meta text whitespace=-trailing-space
+*.unity text merge=unityyamlmerge eol=lf whitespace=-trailing-space
+*.prefab text merge=unityyamlmerge eol=lf whitespace=-trailing-space
+*.asset text merge=unityyamlmerge eol=lf whitespace=-trailing-space
+*.mat text merge=unityyamlmerge eol=lf whitespace=-trailing-space
+*.controller text merge=unityyamlmerge eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.psd binary
+*.fbx binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
