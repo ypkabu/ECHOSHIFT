@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-The current milestone is Phase 0. Phase 0 exists only to validate the fixed-tick replay and world-reset architecture.
+The current validated milestone is Phase 1. Phase 1 validates fixed-tick movement replay, explicit world reset, Stable-ID-addressed recorded interactions, and deterministic Battery/PowerSocket ownership.
 
 ## Required workflow
 
@@ -13,7 +13,7 @@ Before changing files:
 1. Read this file.
 2. Inspect the existing repository and Unity project.
 3. Read every Markdown document in the repository. Documents already read do not need to be reread unless changed.
-4. Write or update `Docs/ImplementationPlan_P0.md`.
+4. Write or update the implementation plan for the active milestone.
 5. Proceed with implementation without waiting for approval.
 
 After changing files:
@@ -55,6 +55,9 @@ Do not commit, push, create branches, or rewrite Git history.
 - World reset must be explicit and coordinated. Do not reload the scene to implement a normal loop reset.
 - Player and Echo actors must not physically block each other.
 - They must still be detectable by trigger-based gameplay objects such as pressure plates.
+- Successful recorded interactions must resolve the exact serialized Stable ID and must never substitute a nearby target.
+- Interaction target IDs are authored and repaired only by Editor tooling, never generated at runtime.
+- Carryable ownership and reset cleanup must not rely on trigger-exit or hierarchy-destruction order.
 
 ## Testing rules
 
@@ -69,11 +72,11 @@ At minimum, maintain tests for:
 
 Tests must not depend on Asset Store content.
 
-## Scope restrictions for Phase 0
+## Scope restrictions after Phase 1
 
 Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, VFX, or menus.
 
-Do not add an explicit Stable ID interaction system unless a verified Phase 0 defect requires it. Use Unity primitives and temporary materials only.
+Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Use Unity primitives and temporary materials until an art milestone explicitly replaces them.
 
 ## Documentation
 

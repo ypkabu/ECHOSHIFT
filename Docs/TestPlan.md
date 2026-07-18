@@ -2,25 +2,31 @@
 
 ## EditMode
 
-- Frames remain in increasing tick order.
-- Finalized recordings cannot be mutated through the recorder.
-- Recorder capacity equals the configured 600 ticks.
-- Overflow is rejected without resizing.
-- A short recording finalizes only its recorded prefix and remains immutable.
-- Invalid tick rate, loop duration, Echo limit, speed, or drift tolerance is rejected.
+The 23-case suite retains the 12 Phase 0 cases and covers:
+
+- replay frame ordering, capacity, overflow rejection, immutable finalization, and short prefixes;
+- LoopSettings validation and drift monitoring;
+- empty and duplicate Stable ID detection;
+- Registry exact-ID resolution and stale removal;
+- ordered, immutable interaction-event finalization and recorded-frame bounds;
+- deterministic Stable-ID candidate tie-break;
+- Battery double-ownership rejection and Battery/Socket reset consistency;
+- required keyboard and gamepad bindings in the Input Actions asset.
 
 ## PlayMode
 
-- A resettable transform restores its captured position and rotation.
-- A finalized player recording is handed to a newly created Echo during a loop transition.
-- Echo playback reaches the recorded final pose within `0.05 m` in an unobstructed test.
-- A pressure plate remains pressed until its last overlapping actor leaves.
-- Existing Echo playback indices return to zero when a new loop starts.
-- Player/Echo and Echo/Echo contacts are disabled while both actors remain blocked by a closed door and room boundary.
-- Both actor kinds are detected by pressure-plate and goal triggers.
-- Disabled, deactivated, destroyed, reset, and evicted actors cannot leave a pressure plate latched.
-- A short manual loop replays only recorded frames and holds its final pose without further drift measurements.
-- The generated `P0_ReplayLab` scene has no missing component, loads its required references, and completes the Echo/plate/door/goal flow without unexpected exceptions.
+The 26-case suite retains the 12 Phase 0 cases and covers:
+
+- unchanged movement replay, pressure-plate lifecycle cleanup, actor collision matrix, short replay, Echo cap, and generated Phase 0 flow;
+- Player pickup, carry-socket following, deterministic drop, Socket insertion, and powered Door opening;
+- Player/Echo ownership conflict rejection;
+- Actor disable/destruction cleanup without Battery destruction;
+- target disable/unregister/re-enable lifecycle;
+- explicit Battery/Socket/Door world reset consistency;
+- exact recorded-ID Echo pickup and Socket insertion;
+- missing recorded target failure without nearby-target fallback;
+- interaction cursor stopping at a short recording's end;
+- generated `P1_InteractionLab` references, Stable IDs, Reset Registry, overlay, two-loop interaction replay, Door opening, current-Player Goal completion, unexpected-log absence, interaction counts, and drift.
 
 ## Batch commands
 
@@ -28,21 +34,25 @@ From the repository root in PowerShell:
 
 ```powershell
 $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P0SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\scene-builder.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\editmode.xml" -logFile "$PWD\Logs\editmode.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\playmode.xml" -logFile "$PWD\Logs\playmode.log"
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase0BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\standalone-build.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P1SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\phase1-scene-builder.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\phase1-edit.xml" -logFile "$PWD\Logs\phase1-edit.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\phase1-play.xml" -logFile "$PWD\Logs\phase1-play.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase1BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\phase1-build.log"
 ```
 
-Review XML results and logs. A process exit code alone is not sufficient evidence. Do not add `-quit` to the test commands: the Test Framework exits the process after writing results, while an early generic quit can occur before the runner starts.
+Review XML contents and logs. A process exit code alone is not sufficient evidence. Do not add `-quit` to test commands: Unity Test Framework exits after writing XML, while an early generic quit can occur before the runner starts.
+
+`Phase1BuildPipeline` regenerates Phase 0 and Phase 1 Scenes, builds `P1_InteractionLab` as startup Scene, retains `P0_ReplayLab` as the second Scene, targets Windows x86_64, enables Development Build, and writes `Builds/Phase1/ECHOSHIFT_Phase1.exe`.
 
 ## Latest verified results
 
 Executed with Unity `6000.4.6f1` on 2026-07-19:
 
-- EditMode: 12 passed, 0 failed, 0 skipped.
-- PlayMode: 12 passed, 0 failed, 0 skipped.
-- The PlayMode suite includes a complete scripted two-loop solution in the generated scene and measured `0 m` maximum replay drift in the final run.
-- Windows x86_64 Development Build: exit code `0`, BuildReport succeeded, zero warnings, and the expected EXE/Data output was generated.
-- Headless Standalone smoke: initialized Unity and PhysX, ran for ten seconds, then was terminated by the audit; no matched unhandled exception or missing-reference error.
-- `Logs/scene-builder-final-audit.log`, `Logs/editmode-final.log`, `Logs/playmode-final-2.log`, `Logs/standalone-build.log`, and `Logs/standalone-player-final.log` contain no matched compiler error/warning, unhandled exception, missing script/reference, or final test failure.
+- Phase 1 Scene Builder: completed; generated Scene contains exactly the authored Battery and PowerSocket Stable IDs.
+- EditMode: 23 passed, 0 failed, 0 skipped.
+- PlayMode: 26 passed, 0 failed, 0 skipped.
+- Phase 0 integration maximum drift: `0 m`.
+- Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
+- Windows x86_64 Development Build: return code `0`, BuildReport succeeded, zero warnings, expected EXE/Data output generated.
+- Headless Standalone smoke: ran for 20 seconds, reached engine/Input System/PhysX/Scene initialization, then the audit stopped the process; matched exception, error, missing-script, and missing-reference counts were all zero.
+- Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase1Validation.md`.
