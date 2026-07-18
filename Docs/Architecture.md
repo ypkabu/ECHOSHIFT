@@ -14,9 +14,15 @@ Runtime code has no dependency on Editor or test assemblies. Only the input adap
 
 ## Fixed-tick simulation and input
 
-`LoopDirector.Update` feeds unscaled delta time to `SimulationClock`. For each 60 Hz tick, `PlayerSimulation` samples its replaceable `IInputSource`, advances `CharacterMotor`, executes an interaction only when requested, and returns the recorded post-tick pose. `LoopDirector` then records the frame, records only a successful interaction event, and advances each `EchoPlayback` through the same motor.
+`LoopDirector.Update` feeds unscaled delta time to `SimulationClock`. Each tick is an explicit transaction: apply the prior Door commit; acquire oldest-to-newest Echo frames and current Player input; simulate all movement; synchronize physics and sensors; collect at most one interaction request per Actor; resolve requests; commit devices; record poses/drift; then evaluate Goal and loop end.
 
-The production adapter is `InputSystemInputSource`, backed by the `Gameplay` action map in `EchoShiftControls.inputactions`. Tests inject scripted `IInputSource` components without changing gameplay code. The clock caps catch-up work per rendered frame to avoid an unbounded spiral after a pause.
+The production adapter is `InputSystemInputSource`, backed by the `Gameplay` action map in `EchoShiftControls.inputactions`. Tests inject scripted `IInputSource` components and can advance the same transaction one tick at a time. The clock caps catch-up work per rendered frame to avoid an unbounded spiral after a pause.
+
+## Actor order and request arbitration
+
+`LoopActor` stores explicit Replay generation. `ActorSimulationOrder` places older Echo generations first, newer Echoes next, and current Player last. `InteractionConflictResolver` sorts immutable requests by tick, Actor order, ordinal Stable ID, and interaction kind. The first request reserves its target for the tick; subsequent requests to that ID fail once with `TargetBusy`, without fallback or retry.
+
+The fixed request capacity is four because the milestone supports three Echoes and one Player. See ADR 0008.
 
 ## Replay ownership
 
@@ -37,7 +43,7 @@ Replay targets are limited to objects that can be referenced by recorded command
 
 `CarryableBattery` owns single-holder and inserted-Socket state. While held it remains outside the Actor hierarchy, copies the shared Carry Socket pose during `LateUpdate`, and disables collision. This prevents actor hierarchy destruction from deleting the Battery. Insertion attaches it to the PowerSocket insertion Transform. Free Rigidbody state is not replayed.
 
-`PowerSocket` owns insertion and powered state and implements the small `IDoorOpenSource` contract. `DoorController` accepts one or more serialized sources; therefore Phase 0 PressurePlate and Phase 1 PowerSocket use the same Door without a global manager.
+`PowerSocket` owns insertion and powered state and implements the small `IDoorOpenSource` contract. `DoorController` accepts one or more serialized sources. In a coordinated Scene, a source change at tick N is committed after interactions and applied to the Door Transform and collision at tick N+1. Standalone component use retains legacy rendered-frame movement.
 
 ## Loop transition
 
@@ -56,6 +62,12 @@ resume simulation
 ```
 
 No normal loop transition reloads the Scene or depends on trigger-exit/disable callback ordering for world consistency.
+
+## Scene settings and Loop history
+
+P0/P1 share a 600-tick asset; P2 owns a 900-tick asset. Recorder arrays are allocated from the active Scene asset. Authored loops above 36,000 ticks are rejected to prevent accidental large dual-buffer allocations.
+
+`LoopHistory` retains 16 immutable aggregate summaries and no Replay or Unity object references. Active Echo runtime results update at transition and evicted generations remain as value-only summaries until the bounded history ages them out.
 
 ## Collision and Unity boundary
 

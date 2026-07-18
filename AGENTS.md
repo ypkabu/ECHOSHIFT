@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-The current validated milestone is Phase 1. Phase 1 validates fixed-tick movement replay, explicit world reset, Stable-ID-addressed recorded interactions, and deterministic Battery/PowerSocket ownership.
+The current implementation milestone is Phase 2. It validates deterministic multi-Echo ordering, same-tick interaction arbitration, coordinated Door timing, bounded Loop history, and a three-loop two-Gate puzzle while retaining Phase 0 and Phase 1.
 
 ## Required workflow
 
@@ -23,7 +23,7 @@ After changing files:
 3. Review the diff.
 4. Report changed files, tests, manual verification steps, and unresolved risks.
 
-Do not commit, push, create branches, or rewrite Git history.
+Do not commit, push, create branches, or rewrite Git history unless the active user request explicitly authorizes the specific operation. Never push or rewrite history for Phase 2.
 
 ## Architecture rules
 
@@ -72,7 +72,7 @@ At minimum, maintain tests for:
 
 Tests must not depend on Asset Store content.
 
-## Scope restrictions after Phase 1
+## Scope restrictions after Phase 2
 
 Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, VFX, or menus.
 
