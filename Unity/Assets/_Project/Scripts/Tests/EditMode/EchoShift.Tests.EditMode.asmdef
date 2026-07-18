@@ -2,7 +2,9 @@
   "name": "EchoShift.Tests.EditMode",
   "rootNamespace": "EchoShift.Tests",
   "references": [
-    "EchoShift.Runtime"
+    "EchoShift.Runtime",
+    "EchoShift.Editor",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor"
