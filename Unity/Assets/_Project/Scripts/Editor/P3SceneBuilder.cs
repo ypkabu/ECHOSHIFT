@@ -13,7 +13,9 @@ using EchoShift.Telemetry;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -254,6 +256,7 @@ namespace EchoShift.Editor
             if (number == 1) overlay.Configure(director, pressurePlate, goal);
             else if (number == 2) overlay.ConfigurePhase1(director, player, battery, powerSocket, goal);
             else overlay.ConfigurePhase2(director, player, pressurePlate, battery, powerSocket, goal);
+            overlay.SetVisible(false);
             return section;
         }
 
@@ -489,6 +492,11 @@ namespace EchoShift.Editor
             Transform parent, SectionTransitionCoordinator coordinator,
             Phase3TextCatalog catalog)
         {
+            GameObject eventSystemObject = new GameObject("Event System");
+            eventSystemObject.transform.SetParent(parent, false);
+            eventSystemObject.AddComponent<EventSystem>();
+            eventSystemObject.AddComponent<InputSystemUIInputModule>();
+
             GameObject canvasObject = new GameObject("Pause Menu Canvas");
             canvasObject.transform.SetParent(parent);
             Canvas canvas = canvasObject.AddComponent<Canvas>();

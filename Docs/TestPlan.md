@@ -21,7 +21,7 @@ The 57-case suite retains all Phase 0-3 cases and adds seven Japanese-localizati
 - telemetry aggregation, deterministic schema, immutable snapshot arrays, and exclusion of replay payloads;
 - complete centralized text catalog values;
 - repeatable P3 Scene generation, unchanged P0-P2 Scene hashes, unique Stable IDs, and P3/P2/P1/P0 build order;
-- required Japanese catalog values, no legacy English player text, complete failure mappings, Japanese keyboard/gamepad prompts, and unique stable keys;
+- required Japanese catalog values, no legacy English player text, complete and serialized-replaceable failure mappings, Japanese keyboard/gamepad prompts, and unique stable keys;
 - repeated P3 Scene generation retaining Japanese catalog/font/EventSystem references, valid glyphs, responsive wrapping, and Pause button fit.
 
 ## PlayMode
@@ -74,12 +74,12 @@ Review XML contents and logs. A process exit code alone is not sufficient eviden
 Executed with Unity `6000.4.6f1` on 2026-07-19:
 
 - Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
-- EditMode: 57 passed, 0 failed, 0 skipped; duration 1.1710206 seconds.
-- PlayMode: 49 passed, 0 failed, 0 skipped; duration 13.020364 seconds.
+- EditMode: 57 passed, 0 failed, 0 skipped; duration 1.3506917 seconds.
+- PlayMode: 49 passed, 0 failed, 0 skipped; duration 13.1806739 seconds.
 - Phase 0 integration maximum drift: `0 m`.
 - Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
 - Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
 - Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
-- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,306,485 bytes, expected EXE/Data output generated at `Builds/Phase3-JA`.
+- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,307,570 bytes, expected EXE/Data output generated at `Builds/Phase3-JA`.
 - Headless Japanese Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it saved schema 1 JSON, requested the normal quit path, and exited naturally with code 0. Matched exception/font/glyph/missing-reference messages were zero.
 - Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.

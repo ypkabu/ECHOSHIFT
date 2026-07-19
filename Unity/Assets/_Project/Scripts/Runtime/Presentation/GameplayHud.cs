@@ -137,10 +137,11 @@ namespace EchoShift.Presentation
 
         public string ResolvePrompt(InputPromptDevice device, bool hasCandidate)
         {
-            if (!hasCandidate) return string.Empty;
-            return device == InputPromptDevice.Gamepad
-                ? textCatalog.InteractGamepad
-                : textCatalog.InteractKeyboard;
+            if (device == InputPromptDevice.Gamepad)
+            {
+                return hasCandidate ? textCatalog.InteractGamepad : textCatalog.MoveGamepad;
+            }
+            return hasCandidate ? textCatalog.InteractKeyboard : textCatalog.MoveKeyboard;
         }
     }
 }

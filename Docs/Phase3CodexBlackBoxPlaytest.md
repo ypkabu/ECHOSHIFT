@@ -141,4 +141,4 @@ High-issue-only GUI recheck: **PASS for BBJA-001 and BBJA-002**. A fresh-context
 - Pause failure: [`20_Menu_EConfirm.png`](../Playtest/Phase3-JA-BlackBox/Screenshots/20_Menu_EConfirm.png)
 - High-fix recheck: [`HighIssueRetest.md`](../Playtest/Phase3-JA-BlackBox/HighIssueRetest.md)
 
-No Section 2, Section 3, Battery-held, or game-completion screenshot exists because the tester did not leave Section 1. All retained black-box screenshots are cropped to the 1280x720 game client; full-desktop captures were not retained.
+No Section 2, Section 3, Battery-held, or game-completion screenshot exists because the tester did not leave Section 1. All retained black-box screenshots are cropped to the 1280x720 game client; the two excluded invalid-attempt full-desktop captures were deleted before package handoff.

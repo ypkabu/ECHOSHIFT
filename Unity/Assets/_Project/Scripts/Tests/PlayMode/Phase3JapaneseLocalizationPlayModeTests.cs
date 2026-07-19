@@ -3,10 +3,13 @@ using System.Linq;
 using EchoShift.Core;
 using EchoShift.Debugging;
 using EchoShift.Gameplay;
+using EchoShift.Input;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -25,6 +28,17 @@ namespace EchoShift.Tests
             Assert.That(coordinator.Hud.CurrentTutorial, Is.EqualTo("スイッチの上に乗る"));
             Assert.That(coordinator.Hud.IsJapaneseReady, Is.True);
             Assert.That(coordinator.Hud.JapaneseFontName, Is.Not.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator Section1ShowsMovementPromptBeforeAnInteractionTargetIsNear()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            coordinator.Hud.RefreshNow();
+            Assert.That(coordinator.Hud.CurrentPrompt, Is.EqualTo("WASD：移動"));
+            Assert.That(coordinator.Hud.ResolvePrompt(InputPromptDevice.Gamepad, false),
+                Is.EqualTo("左スティック：移動"));
         }
 
         [UnityTest]
@@ -97,6 +111,34 @@ namespace EchoShift.Tests
         }
 
         [UnityTest]
+        public IEnumerator PauseMenuButtonsAcceptPointerAndKeyboardSubmitEvents()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            EventSystem eventSystem = UnityEngine.Object.FindAnyObjectByType<EventSystem>();
+            Assert.That(eventSystem, Is.Not.Null);
+            Assert.That(eventSystem.GetComponent<InputSystemUIInputModule>(), Is.Not.Null);
+
+            Assert.That(coordinator.SetPaused(true), Is.True);
+            Button[] buttons = coordinator.PauseMenu.GetComponentsInChildren<Button>(true);
+            Button resume = buttons.Single(value =>
+                value.GetComponentInChildren<Text>(true).text == "ゲームに戻る");
+            Button quit = buttons.Single(value =>
+                value.GetComponentInChildren<Text>(true).text == "ゲームを終了する");
+            Assert.That(eventSystem.currentSelectedGameObject, Is.SameAs(resume.gameObject));
+
+            ExecuteEvents.Execute(resume.gameObject, new BaseEventData(eventSystem),
+                ExecuteEvents.submitHandler);
+            Assert.That(coordinator.State, Is.EqualTo(GameplayState.Playing));
+            Assert.That(coordinator.PauseMenu.IsVisible, Is.False);
+
+            Assert.That(coordinator.SetPaused(true), Is.True);
+            ExecuteEvents.Execute(quit.gameObject, new PointerEventData(eventSystem),
+                ExecuteEvents.pointerClickHandler);
+            Assert.That(coordinator.PauseMenu.ConfirmationLabel, Does.Contain("終了しますか？"));
+        }
+
+        [UnityTest]
         public IEnumerator CompletedStateShowsJapaneseCompletion()
         {
             SectionTransitionCoordinator coordinator = null;
@@ -115,6 +157,8 @@ namespace EchoShift.Tests
             yield return Load(value => coordinator = value);
             Phase0DebugOverlay overlay = UnityEngine.Object.FindObjectsByType<Phase0DebugOverlay>()
                 .First(value => value.gameObject.activeInHierarchy);
+            Assert.That(overlay.IsVisible, Is.False,
+                "P3 black-box play must start without the technical debug overlay.");
             overlay.SetVisible(false);
             Assert.That(coordinator.Hud.CurrentTutorial,
                 Does.Not.Contain("MOVE").And.Not.Contain("WORK WITH"));

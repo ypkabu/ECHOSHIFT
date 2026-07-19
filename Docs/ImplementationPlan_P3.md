@@ -75,4 +75,4 @@ One local session stores build/version, Unity version, UTC start and duration, s
 
 ## Out of Phase 3
 
-Enemy AI, stealth, combat, story dialogue, voice, final models/animation/shaders/audio, Steamworks, achievements, cloud/save slots/checkpoints/level select, settings and rebinding UI, a localization system, online features, procedural generation, Addressables, large Asset Store environments, a generic level editor, new Replay formats, and Timeline editing are excluded.
+Enemy AI, stealth, combat, story dialogue, voice, final models/animation/shaders/audio, Steamworks, achievements, cloud/save slots/checkpoints/level select, settings and rebinding UI, the Unity Localization package and multilingual runtime switching, online features, procedural generation, Addressables, large Asset Store environments, a generic level editor, new Replay formats, and Timeline editing are excluded. The later Phase 3 Japanese pretest adds only a centralized serialized `ja-JP` presentation catalog and installed-OS-font selection.

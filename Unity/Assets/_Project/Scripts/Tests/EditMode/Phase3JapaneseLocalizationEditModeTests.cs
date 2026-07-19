@@ -5,6 +5,8 @@ using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace EchoShift.Tests
@@ -45,6 +47,13 @@ namespace EchoShift.Tests
                 Is.EqualTo("ほかのエコーが使用中です"));
             Assert.That(catalog.GetFailureText(InteractionFailureReason.OutOfRange),
                 Is.EqualTo("もう少し近づいてください"));
+
+            UnityEditor.SerializedObject serializedCatalog = new UnityEditor.SerializedObject(catalog);
+            serializedCatalog.FindProperty("failureTargetBusy").stringValue = "Busy override";
+            serializedCatalog.ApplyModifiedPropertiesWithoutUndo();
+            Assert.That(catalog.GetFailureText(InteractionFailureReason.TargetBusy),
+                Is.EqualTo("Busy override"),
+                "Failure text must remain replaceable through the serialized catalog.");
             UnityEngine.Object.DestroyImmediate(catalog);
         }
 
@@ -83,6 +92,10 @@ namespace EchoShift.Tests
             Assert.That(hud.TextCatalog.ContainsLegacyEnglishPlayerText(), Is.False);
             Assert.That(font.ApplyNow(), Is.True);
             Assert.That(font.HasRequiredGlyphs, Is.True);
+            EventSystem eventSystem = UnityEngine.Object
+                .FindObjectsByType<EventSystem>(FindObjectsInactive.Include).Single();
+            Assert.That(eventSystem.GetComponent<InputSystemUIInputModule>(), Is.Not.Null,
+                "The generated Standalone needs a UI input module for mouse and keyboard menus.");
 
             string[] legacy = { "RESUME", "RESTART SECTION", "QUIT TO DESKTOP", "SWITCH", "CELL", "GATE", "EXIT" };
             string[] sceneText = UnityEngine.Object.FindObjectsByType<Text>(FindObjectsInactive.Include)

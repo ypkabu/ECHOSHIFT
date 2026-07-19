@@ -88,6 +88,19 @@ namespace EchoShift.Presentation
         [SerializeField] private string confirmRestartGame = "最初からやり直しますか？\nもう一度押すと実行します";
         [SerializeField] private string confirmQuit = "ゲームを終了しますか？\nもう一度押すと実行します";
 
+        [SerializeField] private string failureNone = "問題ありません";
+        [SerializeField] private string failureNoCandidate = "操作する対象がありません";
+        [SerializeField] private string failureTargetNotFound = "操作する対象がありません";
+        [SerializeField] private string failureTargetInactive = "操作する対象がありません";
+        [SerializeField] private string failureOutOfRange = "もう少し近づいてください";
+        [SerializeField] private string failureTargetUnavailable = "今は操作できません";
+        [SerializeField] private string failureHeldByAnother = "すでに誰かが持っています";
+        [SerializeField] private string failureActorNotCarrying = "電池を持っていません";
+        [SerializeField] private string failureSocketOccupied = "すでに電池が入っています";
+        [SerializeField] private string failureTargetBusy = "ほかのエコーが使用中です";
+        [SerializeField] private string failureUnsupported = "今は操作できません";
+        [SerializeField] private string failureMissingInteractor = "今は操作できません";
+
         public string LanguageCode => languageCode;
         public string MoveKeyboard => moveKeyboard;
         public string MoveGamepad => moveGamepad;
@@ -167,19 +180,19 @@ namespace EchoShift.Presentation
 
         public string GetFailureText(InteractionFailureReason reason) => reason switch
         {
-            InteractionFailureReason.None => "問題ありません",
-            InteractionFailureReason.NoCandidate => "操作する対象がありません",
-            InteractionFailureReason.TargetNotFound => "操作する対象がありません",
-            InteractionFailureReason.TargetInactive => "操作する対象がありません",
-            InteractionFailureReason.OutOfRange => "もう少し近づいてください",
-            InteractionFailureReason.TargetUnavailable => "今は操作できません",
-            InteractionFailureReason.HeldByAnotherActor => "すでに誰かが持っています",
-            InteractionFailureReason.ActorNotCarrying => "電池を持っていません",
-            InteractionFailureReason.SocketOccupied => "すでに電池が入っています",
-            InteractionFailureReason.TargetBusy => "ほかのエコーが使用中です",
-            InteractionFailureReason.UnsupportedInteraction => "今は操作できません",
-            InteractionFailureReason.MissingInteractor => "今は操作できません",
-            _ => "今は操作できません"
+            InteractionFailureReason.None => failureNone,
+            InteractionFailureReason.NoCandidate => failureNoCandidate,
+            InteractionFailureReason.TargetNotFound => failureTargetNotFound,
+            InteractionFailureReason.TargetInactive => failureTargetInactive,
+            InteractionFailureReason.OutOfRange => failureOutOfRange,
+            InteractionFailureReason.TargetUnavailable => failureTargetUnavailable,
+            InteractionFailureReason.HeldByAnotherActor => failureHeldByAnother,
+            InteractionFailureReason.ActorNotCarrying => failureActorNotCarrying,
+            InteractionFailureReason.SocketOccupied => failureSocketOccupied,
+            InteractionFailureReason.TargetBusy => failureTargetBusy,
+            InteractionFailureReason.UnsupportedInteraction => failureUnsupported,
+            InteractionFailureReason.MissingInteractor => failureMissingInteractor,
+            _ => failureTargetUnavailable
         };
 
         public bool HasNoEmptyValues()
@@ -329,6 +342,18 @@ namespace EchoShift.Presentation
             confirmRestartSection = "このセクションをやり直しますか？\nもう一度押すと実行します";
             confirmRestartGame = "最初からやり直しますか？\nもう一度押すと実行します";
             confirmQuit = "ゲームを終了しますか？\nもう一度押すと実行します";
+            failureNone = "問題ありません";
+            failureNoCandidate = "操作する対象がありません";
+            failureTargetNotFound = "操作する対象がありません";
+            failureTargetInactive = "操作する対象がありません";
+            failureOutOfRange = "もう少し近づいてください";
+            failureTargetUnavailable = "今は操作できません";
+            failureHeldByAnother = "すでに誰かが持っています";
+            failureActorNotCarrying = "電池を持っていません";
+            failureSocketOccupied = "すでに電池が入っています";
+            failureTargetBusy = "ほかのエコーが使用中です";
+            failureUnsupported = "今は操作できません";
+            failureMissingInteractor = "今は操作できません";
         }
     }
 

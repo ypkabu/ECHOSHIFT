@@ -1,5 +1,6 @@
 using EchoShift.Gameplay;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace EchoShift.Presentation
@@ -69,8 +70,29 @@ namespace EchoShift.Presentation
 
         public void SetVisible(bool visible)
         {
-            if (!visible) ClearConfirmation();
-            panel?.SetActive(visible);
+            if (panel == null)
+            {
+                return;
+            }
+
+            if (visible)
+            {
+                panel.SetActive(true);
+                if (EventSystem.current != null && resumeButton != null)
+                {
+                    EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
+                }
+                return;
+            }
+
+            ClearConfirmation();
+            if (EventSystem.current != null &&
+                EventSystem.current.currentSelectedGameObject != null &&
+                EventSystem.current.currentSelectedGameObject.transform.IsChildOf(panel.transform))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+            panel.SetActive(false);
         }
 
         public void Resume()

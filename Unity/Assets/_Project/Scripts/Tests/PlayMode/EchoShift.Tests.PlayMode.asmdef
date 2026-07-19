@@ -2,7 +2,8 @@
   "name": "EchoShift.Tests.PlayMode",
   "rootNamespace": "EchoShift.Tests",
   "references": [
-    "EchoShift.Runtime"
+    "EchoShift.Runtime",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

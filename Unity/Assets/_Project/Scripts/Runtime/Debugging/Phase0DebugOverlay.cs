@@ -16,23 +16,23 @@ namespace EchoShift.Debugging
         [SerializeField] private CarryableBattery battery;
         [SerializeField] private PowerSocket powerSocket;
         [SerializeField] private bool isPhase2;
+        [SerializeField] private bool isVisible = true;
 
         private GUIStyle _labelStyle;
         private GUIStyle _titleStyle;
-        private bool _isVisible = true;
 
-        public bool IsVisible => _isVisible;
+        public bool IsVisible => isVisible;
 
         public void SetVisible(bool visible)
         {
-            _isVisible = visible;
+            isVisible = visible;
         }
 
         private void Update()
         {
             if (Keyboard.current != null && Keyboard.current.f3Key.wasPressedThisFrame)
             {
-                _isVisible = !_isVisible;
+                isVisible = !isVisible;
             }
         }
 
@@ -95,7 +95,7 @@ namespace EchoShift.Debugging
 
         private void OnGUI()
         {
-            if (!HasValidReferences || !_isVisible)
+            if (!HasValidReferences || !isVisible)
             {
                 return;
             }

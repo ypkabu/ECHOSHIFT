@@ -20,8 +20,8 @@ This gives the greybox a readable, replaceable presentation layer without changi
 
 ## Current constraints
 
-Visual clarity, camera comfort, control feel, monitor scaling, and tutorial comprehension remain human acceptance items. Audio, final VFX, accessibility settings, and localization are outside scope.
+Visual clarity, camera comfort, control feel, monitor scaling, and tutorial comprehension remain human acceptance items. Audio, final VFX, accessibility settings, the Unity Localization package, multilingual runtime switching, and production localization workflow are outside scope. The Phase 3 Japanese pretest uses a centralized serialized `ja-JP` catalog and an installed OS Japanese font without adding those systems.
 
 ## Replacement conditions
 
-Replace temporary assets and layout when an art/UI milestone supplies production style, accessibility, localization, or camera requirements.
+Replace temporary assets and layout when an art/UI milestone supplies production style, accessibility, multilingual localization, or camera requirements.

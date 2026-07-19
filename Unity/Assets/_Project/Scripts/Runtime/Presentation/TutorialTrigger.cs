@@ -8,7 +8,7 @@ namespace EchoShift.Presentation
     {
         [SerializeField] private TutorialGuide guide;
         [SerializeField] private byte step;
-        [SerializeField] private string message = "移動";
+        [SerializeField] private string message = string.Empty;
         private bool _consumed;
 
         public void Configure(TutorialGuide tutorialGuide, byte tutorialStep, string text)
