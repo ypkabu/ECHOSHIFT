@@ -9,6 +9,9 @@ namespace EchoShift.Interaction.Recorded
     {
         [SerializeField] private StableId stableId;
         [SerializeField] private Transform insertionTransform;
+        [SerializeField] private bool requireReplayForDoor;
+
+        private bool _insertedByReplay;
 
         public event Action<bool> PoweredChanged;
 
@@ -17,12 +20,19 @@ namespace EchoShift.Interaction.Recorded
         public Transform InteractionTransform => transform;
         public CarryableBattery InsertedBattery { get; private set; }
         public bool IsPowered => InsertedBattery != null;
-        public bool RequestsDoorOpen => IsPowered;
+        public bool RequireReplayForDoor => requireReplayForDoor;
+        public bool InsertedByReplay => _insertedByReplay;
+        public bool RequestsDoorOpen => IsPowered &&
+            (!requireReplayForDoor || _insertedByReplay);
 
-        public void Configure(StableId identity, Transform socketTransform)
+        public void Configure(
+            StableId identity,
+            Transform socketTransform,
+            bool replayRequiredForDoor = false)
         {
             stableId = identity;
             insertionTransform = socketTransform;
+            requireReplayForDoor = replayRequiredForDoor;
         }
 
         public InteractionKind GetDefaultInteraction(in InteractionContext context)
@@ -91,6 +101,7 @@ namespace EchoShift.Interaction.Recorded
             }
 
             InsertedBattery = battery;
+            _insertedByReplay = context.IsReplay;
             PoweredChanged?.Invoke(true);
             return true;
         }
@@ -113,6 +124,7 @@ namespace EchoShift.Interaction.Recorded
             }
 
             InsertedBattery = null;
+            _insertedByReplay = false;
             PoweredChanged?.Invoke(false);
         }
 
@@ -120,11 +132,13 @@ namespace EchoShift.Interaction.Recorded
         {
             if (InsertedBattery == null)
             {
+                _insertedByReplay = false;
                 return;
             }
 
             CarryableBattery battery = InsertedBattery;
             InsertedBattery = null;
+            _insertedByReplay = false;
             battery.ReleaseFromSocketForReset(this);
             PoweredChanged?.Invoke(false);
         }

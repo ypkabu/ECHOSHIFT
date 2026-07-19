@@ -76,12 +76,12 @@ Review XML contents and logs. A process exit code alone is not sufficient eviden
 Executed with Unity `6000.4.6f1` on 2026-07-20:
 
 - Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
-- EditMode: 60 passed, 0 failed, 0 skipped; duration 1.6551463 seconds.
-- PlayMode: 54 passed, 0 failed, 0 skipped; duration 14.6311932 seconds.
+- EditMode: 61 passed, 0 failed, 0 skipped; duration 1.9120047 seconds.
+- PlayMode: 59 passed, 0 failed, 0 skipped; duration 15.2049905 seconds.
 - Phase 0 integration maximum drift: `0 m`.
 - Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
 - Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
 - Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
-- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,327,358 bytes; the 290-file output tree totals 166,522,490 bytes at `Builds/Phase3-JA`.
+- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,333,594 bytes; the 290-file output tree totals 166,528,726 bytes at `Builds/Phase3-JA`.
 - Headless Japanese Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it saved schema 1 JSON, requested the normal quit path, and exited naturally with code 0. Matched exception/font/glyph/missing-reference messages were zero.
 - Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.

@@ -55,9 +55,20 @@ namespace EchoShift.Interaction.Recorded
             InteractionContext context = CreateContext(tick, false);
             sensor.RefreshCandidate(context);
             IInteractable candidate = sensor.CurrentTarget;
-            if (candidate != null && sensor.CurrentCanInteract)
+            if (candidate != null)
             {
-                return ExecuteTarget(candidate, sensor.CurrentKind, context);
+                if (sensor.CurrentCanInteract)
+                {
+                    return ExecuteTarget(candidate, sensor.CurrentKind, context);
+                }
+
+                return InteractionExecution.Failure(
+                    new InteractionCommand(
+                        tick,
+                        sensor.CurrentKind,
+                        candidate.StableId?.Value ?? string.Empty,
+                        context.ActorPosition),
+                    sensor.CurrentFailureReason);
             }
 
             if (_carriedBattery != null)
@@ -65,17 +76,14 @@ namespace EchoShift.Interaction.Recorded
                 return ExecuteTarget(_carriedBattery, InteractionKind.DropBattery, context);
             }
 
-            string targetId = candidate?.StableId?.Value ?? string.Empty;
             InteractionCommand failedCommand = new InteractionCommand(
                 tick,
                 sensor.CurrentKind,
-                targetId,
+                string.Empty,
                 context.ActorPosition);
             return InteractionExecution.Failure(
                 failedCommand,
-                candidate == null
-                    ? InteractionFailureReason.NoCandidate
-                    : sensor.CurrentFailureReason);
+                InteractionFailureReason.NoCandidate);
         }
 
         public bool TryCreateLiveRequest(
@@ -102,8 +110,21 @@ namespace EchoShift.Interaction.Recorded
             IInteractable candidate = sensor.CurrentTarget;
             InteractionKind kind;
             IInteractable target;
-            if (candidate != null && sensor.CurrentCanInteract)
+            if (candidate != null)
             {
+                if (!sensor.CurrentCanInteract)
+                {
+                    InteractionCommand rejectedCommand = new InteractionCommand(
+                        tick,
+                        sensor.CurrentKind,
+                        candidate.StableId?.Value ?? string.Empty,
+                        transform.position);
+                    rejectedExecution = InteractionExecution.Failure(
+                        rejectedCommand,
+                        sensor.CurrentFailureReason);
+                    return false;
+                }
+
                 target = candidate;
                 kind = sensor.CurrentKind;
             }
@@ -114,17 +135,14 @@ namespace EchoShift.Interaction.Recorded
             }
             else
             {
-                string rejectedTargetId = candidate?.StableId?.Value ?? string.Empty;
                 InteractionCommand rejectedCommand = new InteractionCommand(
                     tick,
                     sensor.CurrentKind,
-                    rejectedTargetId,
+                    string.Empty,
                     transform.position);
                 rejectedExecution = InteractionExecution.Failure(
                     rejectedCommand,
-                    candidate == null
-                        ? InteractionFailureReason.NoCandidate
-                        : sensor.CurrentFailureReason);
+                    InteractionFailureReason.NoCandidate);
                 return false;
             }
 
@@ -163,7 +181,8 @@ namespace EchoShift.Interaction.Recorded
                     InteractionFailureReason.TargetNotFound);
             }
 
-            InteractionContext context = CreateContext(command.Tick, true);
+            bool isReplay = actor != null && actor.Kind == LoopActorKind.Echo;
+            InteractionContext context = CreateContext(command.Tick, isReplay);
             if (!target.CanInteract(context, command.Kind, out InteractionFailureReason reason))
             {
                 return InteractionExecution.Failure(command, reason);

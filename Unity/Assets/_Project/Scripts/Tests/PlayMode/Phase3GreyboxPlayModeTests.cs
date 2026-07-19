@@ -31,6 +31,8 @@ namespace EchoShift.Tests
             ConfigureRoutes(coordinator, sections);
             int advances = 0;
             int maximumEchoes = 0;
+            bool section2OpenedByRecordedInsertion = false;
+            bool section3OpenedByRecordedInsertion = false;
             while (coordinator.State != GameplayState.Completed && advances++ < 4000)
             {
                 if (coordinator.State == GameplayState.Playing)
@@ -39,6 +41,17 @@ namespace EchoShift.Tests
                         coordinator.ActiveSection.Director.EchoCount);
                     coordinator.ActiveSection.Director.AdvanceOneTickForTests();
                     coordinator.EvaluateActiveSectionForTests();
+                    PowerSocket activeSocket = coordinator.ActiveSection
+                        .GetComponentInChildren<PowerSocket>();
+                    if (activeSocket != null && activeSocket.RequestsDoorOpen)
+                    {
+                        Assert.That(activeSocket.InsertedByReplay, Is.True,
+                            "A P3 powered Door must be opened by a recorded Echo insertion.");
+                        if (coordinator.ActiveSectionNumber == 2)
+                            section2OpenedByRecordedInsertion = true;
+                        else if (coordinator.ActiveSectionNumber == 3)
+                            section3OpenedByRecordedInsertion = true;
+                    }
                 }
                 else
                 {
@@ -72,6 +85,8 @@ namespace EchoShift.Tests
             Assert.That(snapshot.Outcome, Is.EqualTo(PlaytestOutcome.Completed));
             Assert.That(snapshot.InteractionFailureCount, Is.Zero);
             Assert.That(snapshot.InteractionSuccessCount, Is.EqualTo(4));
+            Assert.That(section2OpenedByRecordedInsertion, Is.True);
+            Assert.That(section3OpenedByRecordedInsertion, Is.True);
             Assert.That(snapshot.MaximumDrift, Is.LessThanOrEqualTo(0.05f));
             Assert.That(File.Exists(coordinator.Telemetry.LastSavedPath), Is.True);
             Assert.That(coordinator.Telemetry.GenerateJson(), Does.Not.Contain("ReplayFrame"));

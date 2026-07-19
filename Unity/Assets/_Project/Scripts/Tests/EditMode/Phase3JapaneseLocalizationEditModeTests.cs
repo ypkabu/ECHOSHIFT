@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using EchoShift.Core;
 using EchoShift.Editor;
+using EchoShift.Gameplay;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using NUnit.Framework;
@@ -74,6 +75,7 @@ namespace EchoShift.Tests
                 Is.EqualTo("A / ×：電池を置く"));
             Assert.That(catalog.EndLoop, Does.Contain("ループを終了"));
             Assert.That(catalog.PausePrompt, Does.Contain("一時停止"));
+            Assert.That(catalog.StartPrompt, Does.Contain("開始"));
             UnityEngine.Object.DestroyImmediate(catalog);
         }
 
@@ -99,6 +101,10 @@ namespace EchoShift.Tests
             Assert.That(hud.TextCatalog.ContainsLegacyEnglishPlayerText(), Is.False);
             Assert.That(font.ApplyNow(), Is.True);
             Assert.That(font.HasRequiredGlyphs, Is.True);
+            SectionTransitionCoordinator coordinator = UnityEngine.Object
+                .FindObjectsByType<SectionTransitionCoordinator>(FindObjectsInactive.Include)
+                .Single();
+            Assert.That(coordinator.WaitForInteractiveStart, Is.True);
             EventSystem eventSystem = UnityEngine.Object
                 .FindObjectsByType<EventSystem>(FindObjectsInactive.Include).Single();
             Assert.That(eventSystem.GetComponent<InputSystemUIInputModule>(), Is.Not.Null,
@@ -199,6 +205,57 @@ namespace EchoShift.Tests
                 .transform.Find("Echo Identity Label").GetComponent<WorldBillboardLabel>();
             Assert.That(Quaternion.Angle(
                 echoBillboard.WorldRotation, expectedLabelRotation), Is.LessThan(0.01f));
+        }
+
+        [Test]
+        public void BuilderAuthorsUnitScaleWorldLabelsAndNonOverlappingHudSafeArea()
+        {
+            P3SceneBuilder.BuildScene();
+            WorldBillboardLabel[] billboards = UnityEngine.Object
+                .FindObjectsByType<WorldBillboardLabel>(FindObjectsInactive.Include);
+            Assert.That(billboards, Is.Not.Empty);
+            foreach (WorldBillboardLabel billboard in billboards)
+            {
+                Assert.That(billboard.transform.lossyScale.x, Is.EqualTo(1f).Within(0.001f),
+                    billboard.name);
+                Assert.That(billboard.transform.lossyScale.y, Is.EqualTo(1f).Within(0.001f),
+                    billboard.name);
+                Assert.That(billboard.transform.lossyScale.z, Is.EqualTo(1f).Within(0.001f),
+                    billboard.name);
+            }
+
+            TextMesh[] labels = UnityEngine.Object.FindObjectsByType<TextMesh>(
+                FindObjectsInactive.Include);
+            TextMesh[] exitLabels = labels.Where(value => value.text == "出口").ToArray();
+            TextMesh[] doorLabels = labels.Where(value => value.text == "扉").ToArray();
+            Assert.That(exitLabels, Has.Length.EqualTo(3));
+            Assert.That(doorLabels, Has.Length.EqualTo(4));
+            Assert.That(exitLabels.All(value => value.transform.position.y >= 2.25f), Is.True);
+            Assert.That(doorLabels.All(value => value.transform.position.y >= 3.5f), Is.True);
+
+            GameplayHud hud = UnityEngine.Object.FindObjectsByType<GameplayHud>(
+                FindObjectsInactive.Include).Single();
+            string[] rowNames = { "Tutorial", "Prompt", "EndLoop", "PausePrompt" };
+            RectTransform[] rows = rowNames.Select(name =>
+                hud.transform.Find(name).GetComponent<RectTransform>()).ToArray();
+            foreach (RectTransform row in rows)
+            {
+                Assert.That(row.anchorMin, Is.EqualTo(Vector2.one), row.name);
+                Assert.That(row.anchorMax, Is.EqualTo(Vector2.one), row.name);
+                Assert.That(row.pivot, Is.EqualTo(Vector2.one), row.name);
+            }
+            for (int i = 0; i < rows.Length; i++)
+            for (int j = i + 1; j < rows.Length; j++)
+            {
+                float firstTop = rows[i].anchoredPosition.y;
+                float firstBottom = firstTop - rows[i].sizeDelta.y;
+                float secondTop = rows[j].anchoredPosition.y;
+                float secondBottom = secondTop - rows[j].sizeDelta.y;
+                float overlap = Mathf.Min(firstTop, secondTop) -
+                                Mathf.Max(firstBottom, secondBottom);
+                Assert.That(overlap, Is.LessThanOrEqualTo(0f),
+                    $"HUD safe-area rows overlap: {rows[i].name} / {rows[j].name}");
+            }
         }
 
         [Test]

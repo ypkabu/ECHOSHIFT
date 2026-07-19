@@ -43,8 +43,8 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 Batch-mode commands are documented in `Docs/TestPlan.md`. The latest verification with Unity `6000.4.6f1` produced:
 
 - Phase 3 Scene Builder: successful and repeatable; old Scene files remain unchanged; P3/P2/P1/P0 Build Settings order
-- EditMode: `60/60` passed, including Japanese catalog, glyph/layout, repeatable Scene generation, and telemetry de-duplication checks
-- PlayMode: `54/54` passed, including P0-P3 real-Scene integration and Japanese/black-box regressions
+- EditMode: `61/61` passed, including Japanese catalog, glyph/layout safe areas, repeatable Scene generation, and telemetry de-duplication checks
+- PlayMode: `59/59` passed, including P0-P3 real-Scene integration, actionable Socket prompts, recorded-only P3 Door power, start-input consumption, the interactive start gate, and Japanese/black-box regressions
 - P3 automated solution: all three sections completed in 1,081 advances; Replay Drift `0 m`; interactions `4` successful, `0` failed
 - Japanese Windows x86_64 Development Build: exit code `0`, zero BuildReport warnings, expected EXE/Data output generated at `Builds/Phase3-JA`
 - Headless Standalone probe: `ja-JP`, `Noto Sans JP`, required glyphs, HUD, and telemetry initialized; JSON was saved and the player exited naturally with code `0`

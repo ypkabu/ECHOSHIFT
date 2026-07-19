@@ -17,6 +17,7 @@ namespace EchoShift.Tests
     public sealed class Phase1InteractionPlayModeTests
     {
         private const float TickDuration = 1f / 60f;
+        private const int InteractionTestLayer = 31;
 
         [UnityTest]
         public IEnumerator PlayerCanPickUpBattery()
@@ -65,6 +66,27 @@ namespace EchoShift.Tests
             Assert.That(execution.Command.Kind, Is.EqualTo(InteractionKind.DropBattery));
             Assert.That(rig.Battery.Holder, Is.Null);
             Assert.That(rig.First.Interactor.CarriedBattery, Is.Null);
+            yield return DestroyRig(rig);
+        }
+
+        [UnityTest]
+        public IEnumerator InvalidSocketCandidateDoesNotFallbackToDroppingHeldBattery()
+        {
+            TestRig rig = CreateRig();
+            Assert.That(PickUp(rig.Battery, rig.First, 0), Is.True);
+            rig.First.GameObject.transform.position =
+                rig.Socket.transform.position + Vector3.back * 2.25f;
+            Physics.SyncTransforms();
+
+            InteractionExecution execution = rig.First.Interactor.TryLiveInteraction(1);
+
+            Assert.That(rig.First.Interactor.Sensor.CurrentTarget, Is.SameAs(rig.Socket));
+            Assert.That(rig.First.Interactor.Sensor.CurrentCanInteract, Is.False);
+            Assert.That(execution.Succeeded, Is.False);
+            Assert.That(execution.Command.Kind, Is.EqualTo(InteractionKind.InsertBattery));
+            Assert.That(execution.FailureReason, Is.EqualTo(InteractionFailureReason.OutOfRange));
+            Assert.That(rig.First.Interactor.CarriedBattery, Is.SameAs(rig.Battery));
+            Assert.That(rig.Battery.Holder, Is.SameAs(rig.First.Interactor));
             yield return DestroyRig(rig);
         }
 
@@ -393,7 +415,7 @@ namespace EchoShift.Tests
             carryObject.transform.SetParent(actorObject.transform, false);
             carryObject.transform.localPosition = new Vector3(0f, 0.5f, 0.5f);
             InteractionSensor sensor = actorObject.AddComponent<InteractionSensor>();
-            sensor.Configure(2f, ~0);
+            sensor.Configure(2f, 1 << InteractionTestLayer);
             Interactor interactor = actorObject.AddComponent<Interactor>();
             interactor.Configure(actor, sensor, carryObject.transform, registry);
             return new TestActor(actorObject, actor, motor, carryObject.transform, interactor);
@@ -407,6 +429,7 @@ namespace EchoShift.Tests
         {
             GameObject batteryObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             batteryObject.name = id;
+            batteryObject.layer = InteractionTestLayer;
             batteryObject.transform.SetParent(parent);
             batteryObject.transform.position = position;
             Collider interactionCollider = batteryObject.GetComponent<Collider>();
@@ -430,6 +453,7 @@ namespace EchoShift.Tests
         {
             GameObject socketObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             socketObject.name = id;
+            socketObject.layer = InteractionTestLayer;
             socketObject.transform.SetParent(parent);
             socketObject.transform.position = position;
             socketObject.GetComponent<Collider>().isTrigger = true;

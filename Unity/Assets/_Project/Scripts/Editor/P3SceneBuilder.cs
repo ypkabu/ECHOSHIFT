@@ -308,7 +308,7 @@ namespace EchoShift.Editor
             GameObject obj = Primitive("Pressure Plate", PrimitiveType.Cube, local,
                 new Vector3(2.4f, 0.2f, 2.4f), material, parent, layer, true);
             obj.GetComponent<Collider>().isTrigger = true;
-            CreateMarker(obj.transform, catalog.SwitchMarker, new Vector3(0f, 0.7f, 0f), material);
+            CreateMarker(obj.transform, catalog.SwitchMarker, new Vector3(0f, 0.6f, 0f), material);
             return obj.AddComponent<PressurePlate>();
         }
 
@@ -328,7 +328,7 @@ namespace EchoShift.Editor
             CarryableBattery battery = obj.AddComponent<CarryableBattery>();
             battery.Configure(id, collider, body);
             id.Configure(stableValue, registry, battery);
-            CreateMarker(obj.transform, catalog.BatteryMarker, new Vector3(0f, 1.1f, 0f), material);
+            CreateMarker(obj.transform, catalog.BatteryMarker, new Vector3(0f, 0.9f, 0f), material);
             return battery;
         }
 
@@ -345,9 +345,9 @@ namespace EchoShift.Editor
             insertion.localPosition = new Vector3(0f, 0.75f, 0f);
             StableId id = obj.AddComponent<StableId>();
             PowerSocket socket = obj.AddComponent<PowerSocket>();
-            socket.Configure(id, insertion);
+            socket.Configure(id, insertion, true);
             id.Configure(stableValue, registry, socket);
-            CreateMarker(obj.transform, catalog.PowerMarker, new Vector3(0f, 1.2f, 0f), material);
+            CreateMarker(obj.transform, catalog.PowerMarker, new Vector3(0f, 1f, 0f), material);
             return socket;
         }
 
@@ -358,10 +358,10 @@ namespace EchoShift.Editor
             GameObject obj = Primitive(name, PrimitiveType.Cube, local,
                 new Vector3(4f, 3f, 0.45f), material, parent, layer, true);
             DoorController controller = obj.AddComponent<DoorController>();
-            controller.Configure(new[] { source }, new Vector3(0f, 3.5f, 0f), 5f);
+            controller.Configure(new[] { source }, new Vector3(4.5f, 0f, 0f), 5f);
             DoorVisualFeedback visual = obj.AddComponent<DoorVisualFeedback>();
             visual.Configure(controller, obj.GetComponent<Renderer>());
-            CreateMarker(obj.transform, catalog.GateMarker, new Vector3(0f, 0.8f, 0.55f), material);
+            CreateMarker(obj.transform, catalog.GateMarker, new Vector3(0f, 2f, 0.35f), material);
             return controller;
         }
 
@@ -372,7 +372,7 @@ namespace EchoShift.Editor
             GameObject obj = Primitive("Goal Exit", PrimitiveType.Cylinder, local,
                 new Vector3(1.8f, 0.12f, 1.8f), material, parent, layer, true);
             obj.GetComponent<Collider>().isTrigger = true;
-            CreateMarker(obj.transform, catalog.ExitMarker, new Vector3(0f, 5f, 0f), material);
+            CreateMarker(obj.transform, catalog.ExitMarker, new Vector3(0f, 2f, 0f), material);
             return obj.AddComponent<GoalVolume>();
         }
 
@@ -428,19 +428,26 @@ namespace EchoShift.Editor
         }
 
         private static void CreateMarker(
-            Transform parent, string markerName, Vector3 local, Material material)
+            Transform parent, string markerName, Vector3 worldOffset, Material material)
         {
+            GameObject anchorObject = new GameObject($"{markerName} Marker Anchor");
+            Transform anchor = anchorObject.transform;
+            anchor.position = parent.position + (parent.rotation * worldOffset);
+            anchor.rotation = Quaternion.identity;
+            anchor.localScale = Vector3.one;
+            anchor.SetParent(parent, true);
+
             GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             marker.name = $"{markerName} Marker";
-            marker.transform.SetParent(parent, false);
-            marker.transform.localPosition = local;
+            marker.transform.SetParent(anchor, false);
+            marker.transform.localPosition = Vector3.zero;
             marker.transform.localScale = Vector3.one * 0.22f;
             marker.GetComponent<Renderer>().sharedMaterial = material;
             Object.DestroyImmediate(marker.GetComponent<Collider>());
 
             GameObject labelObject = new GameObject($"{markerName} Label");
-            labelObject.transform.SetParent(parent, false);
-            labelObject.transform.localPosition = local + new Vector3(0f, 0.28f, 0f);
+            labelObject.transform.SetParent(anchor, false);
+            labelObject.transform.localPosition = new Vector3(0f, 0.28f, 0f);
             TextMesh label = labelObject.AddComponent<TextMesh>();
             label.text = markerName;
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -514,10 +521,10 @@ namespace EchoShift.Editor
                 new Vector2(340f, 44f), TextAnchor.UpperLeft, 22);
             Text carry = Text(canvasObject.transform, "Carry", new Vector2(24f, -252f),
                 new Vector2(420f, 44f), TextAnchor.UpperLeft, 22);
-            Text tutorial = BottomText(canvasObject.transform, "Tutorial", 170f, 24);
-            Text prompt = BottomText(canvasObject.transform, "Prompt", 105f, 30);
-            Text endLoop = BottomText(canvasObject.transform, "EndLoop", 55f, 20);
-            Text pausePrompt = BottomText(canvasObject.transform, "PausePrompt", 18f, 17);
+            Text tutorial = TopRightText(canvasObject.transform, "Tutorial", -24f, 90f, 24);
+            Text prompt = TopRightText(canvasObject.transform, "Prompt", -122f, 54f, 30);
+            Text endLoop = TopRightText(canvasObject.transform, "EndLoop", -184f, 40f, 20);
+            Text pausePrompt = TopRightText(canvasObject.transform, "PausePrompt", -232f, 34f, 17);
             Text state = CenterText(canvasObject.transform, "State", 90f, 34);
             Text failure = CenterText(canvasObject.transform, "Failure", 20f, 28);
             failure.color = new Color(1f, 0.35f, 0.2f, 1f);
@@ -591,13 +598,23 @@ namespace EchoShift.Editor
             return text;
         }
 
-        private static Text BottomText(Transform parent, string name, float y, int fontSize)
+        private static Text TopRightText(
+            Transform parent, string name, float y, float height, int fontSize)
         {
-            Text text = CenterAnchoredText(parent, name, fontSize);
-            RectTransform rect = text.rectTransform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
-            rect.pivot = new Vector2(0.5f, 0f);
-            rect.anchoredPosition = new Vector2(0f, y);
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(parent, false);
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-24f, y);
+            rect.sizeDelta = new Vector2(820f, height);
+            Text text = obj.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = fontSize;
+            text.alignment = TextAnchor.UpperRight;
+            text.color = Color.white;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             return text;
         }
 

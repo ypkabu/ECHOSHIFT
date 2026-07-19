@@ -4,11 +4,14 @@ using EchoShift.Core;
 using EchoShift.Debugging;
 using EchoShift.Gameplay;
 using EchoShift.Input;
+using EchoShift.Interaction;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -40,6 +43,75 @@ namespace EchoShift.Tests
             Assert.That(coordinator.Hud.CurrentPrompt, Is.EqualTo("WASD：移動"));
             Assert.That(coordinator.Hud.ResolvePrompt(InputPromptDevice.Gamepad, false),
                 Is.EqualTo("左スティック：移動"));
+        }
+
+        [UnityTest]
+        public IEnumerator InteractiveStartGateFreezesFirstLoopUntilConfirmed()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            PuzzleSectionController section = coordinator.ActiveSection;
+            int tick = section.Director.CurrentTick;
+            Vector3 position = section.Player.transform.position;
+
+            if (!coordinator.IsAwaitingInteractiveStart)
+                Assert.That(coordinator.ArmInteractiveStartForTests(), Is.True);
+            Assert.That(coordinator.IsAwaitingInteractiveStart, Is.True);
+            Assert.That(coordinator.Hud.CurrentStateMessage,
+                Is.EqualTo("画面をクリック、またはキー／ボタンを押して開始"));
+            for (int i = 0; i < 10; i++) section.Director.AdvanceOneTickForTests();
+            Assert.That(section.Director.CurrentTick, Is.EqualTo(tick));
+            Assert.That(section.Player.transform.position, Is.EqualTo(position));
+
+            Assert.That(coordinator.ConfirmInteractiveStartForTests(), Is.True);
+            Assert.That(coordinator.IsAwaitingInteractiveStart, Is.False);
+            Assert.That(coordinator.Hud.CurrentStateMessage, Is.Empty);
+            section.Director.AdvanceOneTickForTests();
+            Assert.That(section.Director.CurrentTick, Is.EqualTo(tick + 1));
+        }
+
+        [UnityTest]
+        public IEnumerator InteractiveStartConsumesKeyboardAndGamepadActionLatches()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            PuzzleSectionController section = coordinator.ActiveSection;
+            InputSystemInputSource source = section.Player.GetComponent<InputSystemInputSource>();
+            Keyboard keyboard = InputSystem.AddDevice<Keyboard>();
+            Gamepad gamepad = InputSystem.AddDevice<Gamepad>();
+            try
+            {
+                if (!coordinator.IsAwaitingInteractiveStart)
+                    Assert.That(coordinator.ArmInteractiveStartForTests(), Is.True);
+                InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E, Key.R));
+                InputSystem.Update();
+                Assert.That(coordinator.ConfirmInteractiveStartForTests(), Is.True);
+                EchoShift.Replay.InputCommand keyboardCommand =
+                    source.Sample(section.Director.CurrentTick);
+                Assert.That(keyboardCommand.HasButton(
+                    EchoShift.Replay.InputButtonFlags.Interact), Is.False);
+                Assert.That(keyboardCommand.HasButton(
+                    EchoShift.Replay.InputButtonFlags.EndLoop), Is.False);
+
+                Assert.That(coordinator.ArmInteractiveStartForTests(), Is.True);
+                GamepadState gamepadState = new GamepadState()
+                    .WithButton(GamepadButton.South)
+                    .WithButton(GamepadButton.Start);
+                InputSystem.QueueStateEvent(gamepad, gamepadState);
+                InputSystem.Update();
+                Assert.That(coordinator.ConfirmInteractiveStartForTests(), Is.True);
+                EchoShift.Replay.InputCommand gamepadCommand =
+                    source.Sample(section.Director.CurrentTick);
+                Assert.That(gamepadCommand.HasButton(
+                    EchoShift.Replay.InputButtonFlags.Interact), Is.False);
+                Assert.That(gamepadCommand.HasButton(
+                    EchoShift.Replay.InputButtonFlags.EndLoop), Is.False);
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(gamepad);
+                InputSystem.RemoveDevice(keyboard);
+            }
         }
 
         [UnityTest]
@@ -193,6 +265,116 @@ namespace EchoShift.Tests
         }
 
         [UnityTest]
+        public IEnumerator Section2OutOfRangeSocketPreservesBatteryAndRecordsOnlyInsert()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            coordinator.SetTransitionDurationsForTests(0f, 0f);
+            AdvanceSection(coordinator);
+            PuzzleSectionController section = coordinator.ActiveSection;
+            CarryableBattery battery = UnityEngine.Object.FindAnyObjectByType<CarryableBattery>();
+            PowerSocket socket = UnityEngine.Object.FindAnyObjectByType<PowerSocket>();
+            DoorController door = UnityEngine.Object.FindAnyObjectByType<DoorController>();
+            AlwaysInteractJapaneseInputSource interact = section.Player.gameObject
+                .AddComponent<AlwaysInteractJapaneseInputSource>();
+            section.Player.Configure(interact, section.Player.Motor, section.Player.Interactor);
+
+            section.Player.Motor.ResetPose(battery.transform.position, Quaternion.identity);
+            Physics.SyncTransforms();
+            section.Director.AdvanceOneTickForTests();
+            Assert.That(section.Player.Interactor.CarriedBattery, Is.SameAs(battery));
+            Assert.That(section.Director.CurrentInteractionCount, Is.EqualTo(1));
+
+            float outsideCenterRange = section.Player.Interactor.Sensor.InteractionRange + 0.25f;
+            section.Player.Motor.ResetPose(
+                socket.transform.position + Vector3.back * outsideCenterRange,
+                Quaternion.identity);
+            Physics.SyncTransforms();
+            section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
+            coordinator.Hud.RefreshNow();
+            Assert.That(section.Player.Interactor.Sensor.CurrentTarget, Is.SameAs(socket));
+            Assert.That(section.Player.Interactor.Sensor.CurrentCanInteract, Is.False);
+            Assert.That(section.Player.Interactor.Sensor.CurrentFailureReason,
+                Is.EqualTo(InteractionFailureReason.OutOfRange));
+            Assert.That(coordinator.Hud.CurrentPrompt, Is.EqualTo("もう少し近づいてください"));
+
+            section.Director.AdvanceOneTickForTests();
+            Assert.That(section.Player.Interactor.CarriedBattery, Is.SameAs(battery),
+                "An invalid Socket candidate must not silently become Drop.");
+            Assert.That(socket.IsPowered, Is.False);
+            Assert.That(section.Director.CurrentInteractionCount, Is.EqualTo(1));
+            Assert.That(coordinator.Hud.LastFailureText, Is.EqualTo("もう少し近づいてください"));
+
+            section.Player.Motor.ResetPose(socket.transform.position, Quaternion.identity);
+            Physics.SyncTransforms();
+            section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
+            coordinator.Hud.RefreshNow();
+            Assert.That(coordinator.Hud.CurrentPrompt,
+                Is.EqualTo("E：紫の電源に電池を入れる"));
+            section.Director.AdvanceOneTickForTests();
+            Assert.That(socket.IsPowered, Is.True);
+            Assert.That(socket.InsertedByReplay, Is.False);
+            Assert.That(socket.RequestsDoorOpen, Is.False,
+                "P3 must teach recorded interaction instead of opening from the live insertion.");
+            Assert.That(section.Player.Interactor.CarriedBattery, Is.Null);
+
+            NoInputJapaneseSource idle = section.Player.gameObject
+                .AddComponent<NoInputJapaneseSource>();
+            section.Player.Configure(idle, section.Player.Motor, section.Player.Interactor);
+            section.Director.AdvanceOneTickForTests();
+            Assert.That(door.IsOpen, Is.False);
+
+            AlwaysEndLoopInputSource end = section.Player.gameObject
+                .AddComponent<AlwaysEndLoopInputSource>();
+            section.Player.Configure(end, section.Player.Motor, section.Player.Interactor);
+            section.Director.AdvanceOneTickForTests();
+            section.Player.Configure(idle, section.Player.Motor, section.Player.Interactor);
+            section.Director.AdvanceOneTickForTests();
+
+            InteractionRecording interactions =
+                section.Director.LastCompletedRecording.Interactions;
+            InteractionKind[] recorded = new InteractionKind[interactions.Count];
+            for (int i = 0; i < interactions.Count; i++)
+                recorded[i] = interactions[i].Kind;
+            Assert.That(recorded, Is.EqualTo(new[]
+            {
+                InteractionKind.PickupBattery,
+                InteractionKind.InsertBattery
+            }));
+            Assert.That(recorded.Contains(InteractionKind.DropBattery), Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator Section1OpenDoorSlidesOutOfTheAuthoredOpening()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            PuzzleSectionController section = coordinator.ActiveSection;
+            PressurePlate plate = UnityEngine.Object.FindAnyObjectByType<PressurePlate>();
+            DoorController door = UnityEngine.Object.FindAnyObjectByType<DoorController>();
+            Vector3 closedPosition = door.transform.position;
+            NoInputJapaneseSource idle = section.Player.gameObject
+                .AddComponent<NoInputJapaneseSource>();
+            section.Player.Configure(idle, section.Player.Motor, section.Player.Interactor);
+            section.Player.Motor.ResetPose(
+                new Vector3(plate.transform.position.x, 1f, plate.transform.position.z),
+                Quaternion.identity);
+            Physics.SyncTransforms();
+
+            section.Director.AdvanceOneTickForTests();
+            section.Director.AdvanceOneTickForTests();
+
+            Assert.That(door.IsOpen, Is.True);
+            Assert.That(door.transform.position.x - closedPosition.x,
+                Is.EqualTo(4.5f).Within(0.001f));
+            Assert.That(door.transform.position.y, Is.EqualTo(closedPosition.y).Within(0.001f));
+            Assert.That(door.transform.position.z, Is.EqualTo(closedPosition.z).Within(0.001f));
+            Vector3 openingCenter = closedPosition;
+            Assert.That(door.GetComponent<Renderer>().bounds.Contains(openingCenter), Is.False);
+            Assert.That(door.GetComponent<Collider>().bounds.Contains(openingCenter), Is.False);
+        }
+
+        [UnityTest]
         public IEnumerator InteractionWithoutCandidateShowsJapaneseFailureFromRealInputPath()
         {
             SectionTransitionCoordinator coordinator = null;
@@ -340,5 +522,12 @@ namespace EchoShift.Tests
         public EchoShift.Replay.InputCommand Sample(int tick) =>
             new EchoShift.Replay.InputCommand(
                 tick, Vector2.zero, EchoShift.Replay.InputButtonFlags.Interact);
+    }
+
+    public sealed class NoInputJapaneseSource : MonoBehaviour, EchoShift.Input.IInputSource
+    {
+        public EchoShift.Replay.InputCommand Sample(int tick) =>
+            new EchoShift.Replay.InputCommand(
+                tick, Vector2.zero, EchoShift.Replay.InputButtonFlags.None);
     }
 }

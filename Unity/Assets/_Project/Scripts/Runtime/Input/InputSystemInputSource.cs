@@ -110,6 +110,12 @@ namespace EchoShift.Input
             return new InputCommand(tick, move, buttons);
         }
 
+        public void ClearPendingButtons()
+        {
+            _interactLatched = false;
+            _endLoopLatched = false;
+        }
+
         private void ResolveActions()
         {
             _gameplayMap = inputActions?.FindActionMap(ActionMapName, false);

@@ -21,7 +21,7 @@ namespace EchoShift.Presentation
             "prompt.move.keyboard", "prompt.move.gamepad", "prompt.interact.keyboard",
             "prompt.interact.gamepad", "prompt.pickup.keyboard", "prompt.pickup.gamepad",
             "prompt.insert.keyboard", "prompt.insert.gamepad", "prompt.drop.keyboard",
-            "prompt.drop.gamepad", "prompt.end-loop", "prompt.pause",
+            "prompt.drop.gamepad", "prompt.end-loop", "prompt.pause", "prompt.start",
             "hud.loop", "hud.time", "hud.echoes", "hud.battery-carried",
             "marker.player", "marker.switch", "marker.battery", "marker.power",
             "marker.gate", "marker.exit",
@@ -76,6 +76,8 @@ namespace EchoShift.Presentation
         [SerializeField] private string dropBatteryGamepad = "A / ×：電池を置く";
         [SerializeField] private string endLoop = "R / START：ループを終了";
         [SerializeField] private string pausePrompt = "ESC / SELECT：一時停止";
+        [SerializeField] private string startPrompt =
+            "画面をクリック、またはキー／ボタンを押して開始";
         [SerializeField] private string loopLabel = "ループ";
         [SerializeField] private string timeLabel = "残り時間";
         [SerializeField] private string echoesLabel = "エコー";
@@ -130,6 +132,7 @@ namespace EchoShift.Presentation
         public string DropBatteryGamepad => dropBatteryGamepad;
         public string EndLoop => endLoop;
         public string PausePrompt => pausePrompt;
+        public string StartPrompt => startPrompt;
         public string LoopRecorded => loopRecorded;
         public string NextLoop => nextLoop;
         public string SectionCompleted => sectionCompleted;
@@ -301,6 +304,7 @@ namespace EchoShift.Presentation
             yield return dropBatteryGamepad;
             yield return endLoop;
             yield return pausePrompt;
+            yield return startPrompt;
             yield return loopLabel;
             yield return timeLabel;
             yield return echoesLabel;
@@ -362,6 +366,7 @@ namespace EchoShift.Presentation
             dropBatteryGamepad = "A / ×：電池を置く";
             endLoop = "R / START：ループを終了";
             pausePrompt = "ESC / SELECT：一時停止";
+            startPrompt = "画面をクリック、またはキー／ボタンを押して開始";
             loopLabel = "ループ";
             timeLabel = "残り時間";
             echoesLabel = "エコー";

@@ -10,6 +10,8 @@ The greybox teaches one concept per section without a long instruction screen. S
 
 The Japanese black-box High correction keeps manual `R` loop completion and changes only the Phase 3 authoring to a 45-second ceiling. Staged in-game guidance now advances after reaching the Plate, recording the first loop, and completing Battery interactions. The Camera follows position with fixed rotation, the foreground wall has a low visible mesh plus a full-height invisible collision boundary, and world labels/rings identify the current Player, Echo generations, and puzzle devices. These changes address observed first-session comprehension and do not modify Phase 0 through Phase 2 settings or Replay formats.
 
+The clean-context Fresh3 retest exposed a second interaction High: a Socket whose collider was sensed just outside its center-distance range advertised Insert while the live request silently fell back to Drop. A non-actionable candidate will now report its own failure and preserve the carried Battery; Drop remains available only when no candidate exists. The HUD follows the same actionable-candidate rule. In P3, `IsPowered` means the Battery is visibly connected, while `RequestsDoorOpen` additionally requires a replay Actor to have performed that insertion; the live insertion therefore provides success feedback and the staged tutorial can require recording before passage. The same correction moves an open P3 Door laterally out of the camera-framed opening, authors world markers at unit world scale, and holds the first Loop paused behind an explicit input-to-start prompt in interactive Standalone sessions. Starting with E/A or R/START consumes those one-shot action latches before simulation resumes. Batchmode tests and the `-phase3AutoQuit` package probe bypass that start gate.
+
 ## Three-section introduction order
 
 1. **Echo Basics**: Player, Plate, one Door, Goal. No Battery or Socket.
@@ -51,7 +53,7 @@ On completion, the coordinator atomically enters SectionTransition, pauses the a
 
 ## Camera, HUD, and visual feedback
 
-No Cinemachine package is installed. A small position-only smooth-follow camera with fixed rotation is sufficient and avoids a new dependency. Offset, smoothing, look offset, and section framing are stored in a ScriptableObject. The HUD uses a scaled Canvas, last-device prompts, section/loop/time/Echo/carry state, transition/completion text, and a separate pause panel. Interaction prompts name Battery pickup, Battery drop, and Socket insertion instead of using one generic device label. F3 toggles the existing debug overlay.
+No Cinemachine package is installed. A small position-only smooth-follow camera with fixed rotation is sufficient and avoids a new dependency. Offset, smoothing, look offset, and section framing are stored in a ScriptableObject. The HUD uses a scaled Canvas, last-device prompts, section/loop/time/Echo/carry state, transition/completion text, and a separate pause panel. Interaction prompts name Battery pickup, Battery drop, and Socket insertion instead of using one generic device label; an invalid sensed target shows the localized failure instead of advertising an action that will not run. The bottom guidance occupies non-overlapping safe-area rows at 1280x720. F3 toggles the existing debug overlay.
 
 Greybox visuals combine color with geometry, emission, trails, target highlight, state color, and floor wiring. Runtime changes use MaterialPropertyBlock. Echoes retain visible alpha, generation colors, a trail, interaction pulse, stopped state, and failure indication.
 
@@ -59,7 +61,7 @@ Greybox visuals combine color with geometry, emission, trails, target highlight,
 
 EditMode additions cover the state transition graph, pause/duplicate-transition gates, section reset models, tutorial progress, device prompt changes, immutable telemetry aggregates/schema/no replay references, HUD/history/telemetry loop consistency, non-empty text catalog, and P3 Builder idempotence including P0-P2 Scene hashes and Stable IDs.
 
-PlayMode additions use injected tick advancement and zero-duration transitions to cover all three section solutions, Player spawns, old Echo/holding/device cleanup, pause/resume, section/game restart, Completed gating, prompts, failure HUD, debug overlay independence, P0-P2 regressions, P3 full completion, drift/failure metrics, telemetry output, quit request, and missing references/components.
+PlayMode additions use injected tick advancement and zero-duration transitions to cover all three section solutions, Player spawns, old Echo/holding/device cleanup, pause/resume, section/game restart, Completed gating, prompts, failure HUD, debug overlay independence, P0-P2 regressions, P3 full completion, drift/failure metrics, telemetry output, quit request, and missing references/components. The second Japanese correction adds real-Scene coverage for the Socket collider/range boundary, carried-Battery preservation, exact Pickup/Insert recording, powered-Door opening, lateral Door clearance, and the interactive start gate pausing/resuming Loop ticks.
 
 ## Playtest measurements
 

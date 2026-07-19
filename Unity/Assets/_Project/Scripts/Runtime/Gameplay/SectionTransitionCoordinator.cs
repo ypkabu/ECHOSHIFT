@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using EchoShift.Core;
+using EchoShift.Input;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using EchoShift.Telemetry;
@@ -20,12 +21,14 @@ namespace EchoShift.Gameplay
         [SerializeField] private PlaytestTelemetry telemetry;
         [SerializeField, Min(0f)] private float loopTransitionSeconds = 0.75f;
         [SerializeField, Min(0f)] private float sectionTransitionSeconds = 1f;
+        [SerializeField] private bool waitForInteractiveStart = true;
 
         private readonly GameplayStateController _state = new GameplayStateController();
         private int _activeSectionIndex;
         private float _transitionRemaining;
         private bool _quitRequested;
         private bool _started;
+        private bool _awaitingInteractiveStart;
 
         public GameplayState State => _state.State;
         public string LastTransitionReason => _state.LastReason;
@@ -36,6 +39,8 @@ namespace EchoShift.Gameplay
         public PlaytestTelemetry Telemetry => telemetry;
         public GameplayHud Hud => hud;
         public PauseMenuController PauseMenu => pauseMenu;
+        public bool IsAwaitingInteractiveStart => _awaitingInteractiveStart;
+        public bool WaitForInteractiveStart => waitForInteractiveStart;
         public bool HasValidReferences => sections.Length == 3 &&
             sectionCamera != null && hud != null && pauseMenu != null && telemetry != null;
 
@@ -68,6 +73,15 @@ namespace EchoShift.Gameplay
 
         private void Update()
         {
+            if (_awaitingInteractiveStart)
+            {
+                if (HasInteractiveStartInput())
+                {
+                    ConfirmInteractiveStartForTests();
+                }
+                return;
+            }
+
             HandlePauseInput();
             if (State == GameplayState.LoopTransition ||
                 State == GameplayState.SectionTransition)
@@ -118,6 +132,11 @@ namespace EchoShift.Gameplay
             hud.SetStateMessage(string.Empty);
             _started = true;
             Debug.Log("PHASE3_STATE Playing reason=BootComplete section=1", this);
+            if (waitForInteractiveStart && !Application.isBatchMode &&
+                !HasCommandLineFlag("-phase3AutoQuit"))
+            {
+                ArmInteractiveStartForTests();
+            }
         }
 
         public bool BeginSectionCompletion()
@@ -197,6 +216,7 @@ namespace EchoShift.Gameplay
 
         public void RestartGameInPlaceForTests()
         {
+            _awaitingInteractiveStart = false;
             ActiveSection.DeactivateSection();
             _state.Reset();
             _activeSectionIndex = 0;
@@ -210,6 +230,38 @@ namespace EchoShift.Gameplay
             telemetry.SectionStarted(1);
             _state.TryTransition(GameplayState.Playing, "RestartGameTest");
             hud.Bind(this);
+        }
+
+        public bool ArmInteractiveStartForTests()
+        {
+            if (_awaitingInteractiveStart || State != GameplayState.Playing ||
+                ActiveSection == null)
+            {
+                return false;
+            }
+
+            _awaitingInteractiveStart = true;
+            ActiveSection.Director.SetSimulationPaused(true);
+            hud.SetStateMessage(hud.TextCatalog.StartPrompt);
+            Debug.Log("PHASE3_INTERACTIVE_START waiting=true", this);
+            return true;
+        }
+
+        public bool ConfirmInteractiveStartForTests()
+        {
+            if (!_awaitingInteractiveStart || State != GameplayState.Playing ||
+                ActiveSection == null)
+            {
+                return false;
+            }
+
+            _awaitingInteractiveStart = false;
+            ActiveSection.Player.GetComponent<InputSystemInputSource>()?
+                .ClearPendingButtons();
+            ActiveSection.Director.SetSimulationPaused(false);
+            hud.SetStateMessage(string.Empty);
+            Debug.Log("PHASE3_INTERACTIVE_START waiting=false", this);
+            return true;
         }
 
         public void RequestQuit()
@@ -415,6 +467,31 @@ namespace EchoShift.Gameplay
                 return;
             }
             SetPaused(State != GameplayState.Paused);
+        }
+
+        private static bool HasInteractiveStartInput()
+        {
+            bool keyboard = Keyboard.current != null &&
+                            Keyboard.current.anyKey.wasPressedThisFrame;
+            bool mouse = Mouse.current != null &&
+                         (Mouse.current.leftButton.wasPressedThisFrame ||
+                          Mouse.current.rightButton.wasPressedThisFrame ||
+                          Mouse.current.middleButton.wasPressedThisFrame);
+            Gamepad currentGamepad = Gamepad.current;
+            bool gamepad = currentGamepad != null &&
+                           (currentGamepad.leftStick.ReadValue().sqrMagnitude >= 0.04f ||
+                            currentGamepad.dpad.ReadValue().sqrMagnitude >= 0.25f ||
+                            currentGamepad.buttonSouth.wasPressedThisFrame ||
+                            currentGamepad.buttonNorth.wasPressedThisFrame ||
+                            currentGamepad.buttonEast.wasPressedThisFrame ||
+                            currentGamepad.buttonWest.wasPressedThisFrame ||
+                            currentGamepad.startButton.wasPressedThisFrame ||
+                            currentGamepad.selectButton.wasPressedThisFrame ||
+                            currentGamepad.leftShoulder.wasPressedThisFrame ||
+                            currentGamepad.rightShoulder.wasPressedThisFrame ||
+                            currentGamepad.leftStickButton.wasPressedThisFrame ||
+                            currentGamepad.rightStickButton.wasPressedThisFrame);
+            return keyboard || mouse || gamepad;
         }
 
         private IEnumerator AutoQuitProbe()

@@ -102,15 +102,22 @@ namespace EchoShift.Presentation
             Interactor interactor = section.Player.Interactor;
             InteractionSensor sensor = interactor?.Sensor;
             bool hasCandidate = sensor?.CurrentTarget != null;
-            InteractionKind promptKind = hasCandidate
-                ? sensor.CurrentKind
-                : interactor?.CarriedBattery != null
-                    ? InteractionKind.DropBattery
-                    : InteractionKind.None;
-            CurrentPrompt = ResolvePrompt(
-                source != null ? source.LastPromptDevice : InputPromptDevice.Keyboard,
-                promptKind,
-                promptKind != InteractionKind.None);
+            if (hasCandidate && !sensor.CurrentCanInteract)
+            {
+                CurrentPrompt = textCatalog.GetFailureText(sensor.CurrentFailureReason);
+            }
+            else
+            {
+                InteractionKind promptKind = hasCandidate
+                    ? sensor.CurrentKind
+                    : interactor?.CarriedBattery != null
+                        ? InteractionKind.DropBattery
+                        : InteractionKind.None;
+                CurrentPrompt = ResolvePrompt(
+                    source != null ? source.LastPromptDevice : InputPromptDevice.Keyboard,
+                    promptKind,
+                    promptKind != InteractionKind.None);
+            }
             promptText.text = CurrentPrompt;
             endLoopText.text = textCatalog.EndLoop;
             pausePromptText.text = textCatalog.PausePrompt;
