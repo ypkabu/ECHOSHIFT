@@ -2,7 +2,7 @@
 
 ## EditMode
 
-The 35-case suite retains all Phase 0 and Phase 1 cases and additionally covers:
+The 50-case suite retains all Phase 0-2 cases and adds 15 Phase 3 cases covering:
 
 - replay frame ordering, capacity, overflow rejection, immutable finalization, and short prefixes;
 - LoopSettings validation and drift monitoring;
@@ -15,10 +15,16 @@ The 35-case suite retains all Phase 0 and Phase 1 cases and additionally covers:
 - P2 15-second/900-tick settings, recorder preallocation, invalid settings, and the 36,000-tick limit;
 - Actor generation ordering, oldest-Echo conflict priority, Player-last priority, Stable-ID tie-break, `TargetBusy`, and no fallback;
 - immutable Loop history values, bounded rollover, Evicted state without runtime references, and one-tick Door application.
+- legal and illegal game-state transitions, duplicate-transition rejection, and paused simulation clocks;
+- section/game restart state, authored reset baselines, and replay-reference cleanup;
+- per-section tutorial progress and keyboard/gamepad prompt selection;
+- telemetry aggregation, deterministic schema, immutable snapshot arrays, and exclusion of replay payloads;
+- complete centralized text catalog values;
+- repeatable P3 Scene generation, unchanged P0-P2 Scene hashes, unique Stable IDs, and P3/P2/P1/P0 build order.
 
 ## PlayMode
 
-The 32-case suite retains all P0/P1 coverage and adds:
+The 39-case suite retains all P0-P2 coverage and adds seven grouped Phase 3 tests covering at least 25 runtime assertions:
 
 - unchanged movement replay, pressure-plate lifecycle cleanup, actor collision matrix, short replay, Echo cap, and generated Phase 0 flow;
 - Player pickup, carry-socket following, deterministic drop, Socket insertion, and powered Door opening;
@@ -32,6 +38,13 @@ The 32-case suite retains all P0/P1 coverage and adds:
 - generated `P1_InteractionLab` references, Stable IDs, Reset Registry, overlay, two-loop interaction replay, Door opening, current-Player Goal completion, unexpected-log absence, interaction counts, and drift;
 - generated `P2_CoordinationLab` references, collision matrix, deterministic Battery conflict, four-Replay eviction cleanup, and P0/P1 load regression;
 - a tick-driven three-loop real-Scene solution proving Echo 1 Plate/Gate A, Echo 2 Battery/Socket/Gate B, two simultaneous Echoes, Goal completion, drift tolerance, and zero unexpected interaction failures.
+- the actual generated P3 Scene completing all three sections in sequence without Scene reload;
+- section cleanup, active-root switching, two simultaneous Echoes, four exact successful interactions, zero failures, and drift tolerance;
+- pause freezing timer, Player, Echo/Door simulation and resuming on the same tick;
+- restart section and restart game scope, Loop/tick/history reset, and no stale Echoes;
+- keyboard/gamepad prompts, reason-specific interaction feedback, and hidden debug overlay not affecting simulation;
+- quit intent, telemetry JSON persistence, Completed-state replay suppression, and P0-P3 Scene load regression;
+- recursive Missing Component traversal of the generated P3 Scene.
 
 ## Batch commands
 
@@ -39,26 +52,28 @@ From the repository root in PowerShell:
 
 ```powershell
 $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P2SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\phase2-scene-builder.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\phase2-edit.xml" -logFile "$PWD\Logs\phase2-edit.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\phase2-play.xml" -logFile "$PWD\Logs\phase2-play.log"
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase2BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\phase2-build.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\phase3-scene-builder.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\phase3-edit.xml" -logFile "$PWD\Logs\phase3-edit.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\phase3-play.xml" -logFile "$PWD\Logs\phase3-play.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\phase3-build.log"
+& "$PWD\Builds\Phase3\ECHOSHIFT_Phase3.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-standalone.log"
 ```
 
 Review XML contents and logs. A process exit code alone is not sufficient evidence. Do not add `-quit` to test commands: Unity Test Framework exits after writing XML, while an early generic quit can occur before the runner starts.
 
-`Phase2BuildPipeline` regenerates required Scenes, builds P2/P1/P0 in that order, targets Windows x86_64, enables Development Build, and writes `Builds/Phase2/ECHOSHIFT_Phase2.exe`.
+`Phase3BuildPipeline` regenerates P3, builds P3/P2/P1/P0 in that order, targets Windows x86_64, enables Development Build, and writes `Builds/Phase3/ECHOSHIFT_Phase3.exe`. `-phase3AutoQuit` is probe-only and does not affect ordinary play.
 
 ## Latest verified results
 
 Executed with Unity `6000.4.6f1` on 2026-07-19:
 
-- Phase 2 Scene Builder: completed; generated Scene retains stable Battery/PowerSocket IDs and P2/P1/P0 Build Settings order.
-- EditMode: 35 passed, 0 failed, 0 skipped.
-- PlayMode: 32 passed, 0 failed, 0 skipped.
+- Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
+- EditMode: 50 passed, 0 failed, 0 skipped.
+- PlayMode: 39 passed, 0 failed, 0 skipped.
 - Phase 0 integration maximum drift: `0 m`.
 - Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
 - Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
-- Windows x86_64 Development Build: return code `0`, BuildReport succeeded, zero warnings, expected EXE/Data output generated at `Builds/Phase2`.
-- Headless Standalone smoke: ran for 30 seconds, reached Input System, PhysX, and `P2_CoordinationLab`; startup logged 60 Hz, 15 seconds, 900 ticks, max Echoes 3, drift tolerance 0.05, Player present, and initial Echo count 0. The audit then stopped the process because the game has no automatic quit path. Matched exception, error, missing-script, and missing-reference counts were zero.
-- Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase2Validation.md`.
+- Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
+- Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,269,622 bytes, expected EXE/Data output generated at `Builds/Phase3`.
+- Headless Standalone probe: P3 reached Playing with HUD and telemetry, saved schema 1 JSON, requested the normal quit path, and exited naturally with code 0. Matched exception/error/missing-reference messages were zero.
+- Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3Validation.md`.

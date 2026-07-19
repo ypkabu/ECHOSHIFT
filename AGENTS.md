@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-The current implementation milestone is Phase 2. It validates deterministic multi-Echo ordering, same-tick interaction arbitration, coordinated Door timing, bounded Loop history, and a three-loop two-Gate puzzle while retaining Phase 0 and Phase 1.
+The current implementation milestone is Phase 3 automation-passed. It packages P0-P2 mechanics into one three-section playable greybox with explicit game states, in-place section lifecycle, runtime UI/camera feedback, local telemetry, and a natural Standalone quit path. Formal Phase 3 validation still requires the human acceptance checklist.
 
 ## Required workflow
 
@@ -23,7 +23,7 @@ After changing files:
 3. Review the diff.
 4. Report changed files, tests, manual verification steps, and unresolved risks.
 
-Do not commit, push, create branches, or rewrite Git history unless the active user request explicitly authorizes the specific operation. Never push or rewrite history for Phase 2.
+Do not commit, tag, push, create branches, or rewrite Git history unless the active user request explicitly authorizes the specific operation. Never push or rewrite history for Phase 3. Do not create `phase3-validated` until every required manual acceptance item is recorded and accepted.
 
 ## Architecture rules
 
@@ -72,9 +72,9 @@ At minimum, maintain tests for:
 
 Tests must not depend on Asset Store content.
 
-## Scope restrictions after Phase 2
+## Scope restrictions after Phase 3
 
-Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, VFX, or menus.
+Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, or VFX. The Phase 3 pause/HUD flow is allowed; do not expand it into a production front end without a later plan.
 
 Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Use Unity primitives and temporary materials until an art milestone explicitly replaces them.
 

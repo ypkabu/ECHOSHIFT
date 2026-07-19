@@ -74,3 +74,17 @@ P0/P1 share a 600-tick asset; P2 owns a 900-tick asset. Recorder arrays are allo
 `CharacterMotor` performs deterministic X-then-Z capsule casts against the Environment layer and updates the Transform directly. Player and Echo use separate non-trigger actor layers and kinematic rigidbodies. The generated Layer Collision Matrix disables Player/Player, Player/Echo, and Echo/Echo contacts while retaining actor/Environment, actor/InteractionTrigger, and actor/InteractionTarget relationships.
 
 Plain classes hold clock, immutable command, recorder, candidate comparison, and drift logic. MonoBehaviours adapt Input System actions, transforms, colliders/triggers, lifecycle, Gizmos, and OnGUI. Editor-only Stable ID generation/repair, layer setup, Scene creation, and build orchestration live in `EchoShift.Editor`.
+
+## Phase 3 gameplay shell
+
+`SectionTransitionCoordinator` owns the Scene-level flow, while each `PuzzleSectionController` owns one section's Director, Player, Goal, spawn, and root. The explicit state graph is `Booting -> Playing -> LoopTransition/SectionTransition/Paused -> Playing`, with `SectionTransition -> Completed`. Duplicate or illegal transitions are rejected. Section changes never reload the Scene: carried references and Echoes are released, the outgoing Director shuts down, authored state resets, and only the next root activates.
+
+`LoopDirector` remains the fixed-tick simulation owner. Phase 3 only added pause/restart/shutdown lifecycle methods and aggregate loop/interaction events. It does not own camera, HUD, tutorial, section order, telemetry persistence, or application quit policy.
+
+## Presentation and input prompts
+
+`SectionCameraController` provides a configurable damped top-down follow camera without adding Cinemachine. `GameplayHud`, `PauseMenuController`, and `TutorialGuide` consume centralized `Phase3TextCatalog` strings. `InputSystemInputSource` records the most recently used keyboard/mouse or gamepad class so prompts can switch without affecting deterministic commands. MaterialPropertyBlocks, line renderers, and Echo trails communicate target focus, wiring, Door state, replay generation, and stopped playback without instantiating materials per frame.
+
+## Local telemetry boundary
+
+`PlaytestTelemetry` records value-only session aggregates: build/Unity version, section duration and loops, manual/timer loop endings, restarts, interaction result counts, maximum drift, final section, and outcome. It emits schema-versioned JSON under `Application.persistentDataPath/EchoShiftPlaytests`. It intentionally stores no `ReplayRecording`, per-tick command, position, stable object reference, or cross-session mutable singleton.
