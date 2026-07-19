@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LoopSettings_P3
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Core.LoopSettings
   tickRate: 60
-  loopDurationSeconds: 15
+  loopDurationSeconds: 45
   maxEchoes: 3
   moveSpeed: 4
   driftTolerance: 0.05

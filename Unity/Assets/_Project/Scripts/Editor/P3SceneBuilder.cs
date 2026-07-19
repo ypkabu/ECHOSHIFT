@@ -61,6 +61,8 @@ namespace EchoShift.Editor
             LoopSettings settings = CreateSettings();
             Phase3TextCatalog catalog = CreateCatalog();
             Phase3CameraSettings cameraSettings = CreateCameraSettings();
+            Quaternion worldLabelRotation = Quaternion.LookRotation(
+                cameraSettings.LookOffset - cameraSettings.Offset, Vector3.up);
             InputActionAsset actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(
                 P0SceneBuilder.InputActionsPath);
             ValidateInput(actions);
@@ -75,7 +77,8 @@ namespace EchoShift.Editor
             Material goal = Material("Goal", new Color(0.12f, 1f, 0.42f, 0.65f), true);
             Material plateWire = Material("PlateWire", new Color(0.1f, 0.75f, 1f, 1f), false, true);
             Material powerWire = Material("PowerWire", new Color(0.8f, 0.2f, 1f, 1f), false, true);
-            EchoPlayback echoPrefab = CreateEchoPrefab(plateWire, echoLayer);
+            EchoPlayback echoPrefab = CreateEchoPrefab(
+                plateWire, echoLayer, worldLabelRotation);
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             GameObject sectionContainer = new GameObject("Puzzle Sections");
@@ -100,6 +103,7 @@ namespace EchoShift.Editor
 
             GameObject global = new GameObject("Phase 3 Systems");
             SectionCameraController camera = CreateCamera(global.transform, cameraSettings);
+            ConfigureWorldLabels(sectionContainer.transform, worldLabelRotation);
             CreateLight(global.transform);
             PlaytestTelemetry telemetry = global.AddComponent<PlaytestTelemetry>();
             GameplayHud hud = CreateHud(global.transform, catalog);
@@ -109,13 +113,14 @@ namespace EchoShift.Editor
             JapaneseFontApplier fontApplier = global.AddComponent<JapaneseFontApplier>();
             fontApplier.Configure(catalog, new[] { sectionContainer.transform, global.transform });
             hud.SetFontApplier(fontApplier);
-            coordinator.Configure(sections, camera, hud, pauseMenu, telemetry);
+            coordinator.Configure(sections, camera, hud, pauseMenu, telemetry, 1.5f, 1f);
 
             for (int i = 0; i < sections.Length; i++)
             {
                 TutorialGuide guide = sections[i].gameObject.AddComponent<TutorialGuide>();
                 guide.Configure(sections[i], catalog, hud);
-                CreateTutorialTrigger(sections[i].transform, guide, catalog, i, triggerLayer);
+                guide.SetTrigger(CreateTutorialTrigger(
+                    sections[i].transform, guide, catalog, i, triggerLayer));
             }
 
             StableIdValidationResult validation =
@@ -292,6 +297,7 @@ namespace EchoShift.Editor
             simulation.Configure(input, motor, interactor);
             resettable = obj.AddComponent<TransformResettable>();
             CreateMarker(obj.transform, catalog.PlayerMarker, new Vector3(0f, 1.4f, 0f), material);
+            CreateIdentityRing(obj.transform, "Player Identity Ring", material, playerLayer, 1.35f);
             return simulation;
         }
 
@@ -380,8 +386,16 @@ namespace EchoShift.Editor
                 new Vector3(0.5f, 3f, length + 0.5f), wall, parent, layer, true);
             Primitive("Wall East", PrimitiveType.Cube, new Vector3(7.25f, 1.5f, 0f),
                 new Vector3(0.5f, 3f, length + 0.5f), wall, parent, layer, true);
-            Primitive("Wall South", PrimitiveType.Cube, new Vector3(0f, 1.5f, -half - 0.25f),
-                new Vector3(14.5f, 3f, 0.5f), wall, parent, layer, true);
+            GameObject southVisual = Primitive("Wall South", PrimitiveType.Cube,
+                new Vector3(0f, 0.35f, -half - 0.25f),
+                new Vector3(14.5f, 0.7f, 0.5f), wall, parent, layer, true);
+            Object.DestroyImmediate(southVisual.GetComponent<Collider>());
+            GameObject southBoundary = new GameObject("South Boundary Collider");
+            southBoundary.transform.SetParent(parent, false);
+            southBoundary.transform.localPosition = new Vector3(0f, 1.5f, -half - 0.25f);
+            southBoundary.layer = layer;
+            BoxCollider southCollider = southBoundary.AddComponent<BoxCollider>();
+            southCollider.size = new Vector3(14.5f, 3f, 0.5f);
             Primitive("Wall North", PrimitiveType.Cube, new Vector3(0f, 1.5f, half + 0.25f),
                 new Vector3(14.5f, 3f, 0.5f), wall, parent, layer, true);
         }
@@ -423,6 +437,31 @@ namespace EchoShift.Editor
             marker.transform.localScale = Vector3.one * 0.22f;
             marker.GetComponent<Renderer>().sharedMaterial = material;
             Object.DestroyImmediate(marker.GetComponent<Collider>());
+
+            GameObject labelObject = new GameObject($"{markerName} Label");
+            labelObject.transform.SetParent(parent, false);
+            labelObject.transform.localPosition = local + new Vector3(0f, 0.28f, 0f);
+            TextMesh label = labelObject.AddComponent<TextMesh>();
+            label.text = markerName;
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 48;
+            label.characterSize = 0.06f;
+            label.anchor = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignment.Center;
+            label.color = Color.white;
+            labelObject.AddComponent<WorldBillboardLabel>();
+            label.GetComponent<MeshRenderer>().sortingOrder = 5;
+        }
+
+        private static Renderer CreateIdentityRing(
+            Transform parent, string name, Material material, int layer, float diameter)
+        {
+            GameObject ring = Primitive(name, PrimitiveType.Cylinder,
+                new Vector3(0f, -0.96f, 0f),
+                new Vector3(diameter, 0.025f, diameter),
+                material, parent, layer, true);
+            Object.DestroyImmediate(ring.GetComponent<Collider>());
+            return ring.GetComponent<Renderer>();
         }
 
         private static SectionCameraController CreateCamera(
@@ -606,23 +645,25 @@ namespace EchoShift.Editor
             return button;
         }
 
-        private static void CreateTutorialTrigger(
+        private static TutorialTrigger CreateTutorialTrigger(
             Transform parent, TutorialGuide guide, Phase3TextCatalog catalog,
             int sectionIndex, int layer)
         {
-            if (sectionIndex >= 2) return;
-            GameObject obj = new GameObject("Tutorial Trigger - Move");
+            if (sectionIndex != 0) return null;
+            GameObject obj = new GameObject("Tutorial Trigger - Plate");
             obj.transform.SetParent(parent, false);
-            obj.transform.localPosition = new Vector3(0f, 1f, -5.5f);
+            obj.transform.localPosition = new Vector3(-2f, 1f, -3f);
             obj.layer = layer;
             BoxCollider collider = obj.AddComponent<BoxCollider>();
             collider.isTrigger = true;
-            collider.size = new Vector3(5f, 2f, 2f);
+            collider.size = new Vector3(2.8f, 2.5f, 2.8f);
             TutorialTrigger trigger = obj.AddComponent<TutorialTrigger>();
-            trigger.Configure(guide, 0, catalog.GetTutorialText(sectionIndex, 0));
+            trigger.Configure(guide, 1, catalog.GetTutorialText(sectionIndex, 1));
+            return trigger;
         }
 
-        private static EchoPlayback CreateEchoPrefab(Material trailMaterial, int echoLayer)
+        private static EchoPlayback CreateEchoPrefab(
+            Material trailMaterial, int echoLayer, Quaternion worldLabelRotation)
         {
             if (AssetDatabase.LoadAssetAtPath<EchoPlayback>(EchoPrefabPath) == null &&
                 !AssetDatabase.CopyAsset(P2EchoPrefabPath, EchoPrefabPath))
@@ -638,11 +679,62 @@ namespace EchoShift.Editor
             trail.endWidth = 0.02f;
             trail.sharedMaterial = trailMaterial;
             trail.minVertexDistance = 0.08f;
-            if (root.GetComponent<EchoVisualFeedback>() == null)
-                root.AddComponent<EchoVisualFeedback>();
+            Transform ringTransform = root.transform.Find("Echo Identity Ring");
+            GameObject ringObject;
+            if (ringTransform == null)
+            {
+                ringObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                ringObject.name = "Echo Identity Ring";
+                ringObject.transform.SetParent(root.transform, false);
+                Object.DestroyImmediate(ringObject.GetComponent<Collider>());
+            }
+            else ringObject = ringTransform.gameObject;
+            ringObject.layer = echoLayer;
+            ringObject.transform.localPosition = new Vector3(0f, -0.96f, 0f);
+            ringObject.transform.localRotation = Quaternion.identity;
+            ringObject.transform.localScale = new Vector3(1.05f, 0.025f, 1.05f);
+            Renderer ringRenderer = ringObject.GetComponent<Renderer>();
+            ringRenderer.sharedMaterial = trailMaterial;
+
+            Transform labelTransform = root.transform.Find("Echo Identity Label");
+            GameObject labelObject;
+            if (labelTransform == null)
+            {
+                labelObject = new GameObject("Echo Identity Label");
+                labelObject.transform.SetParent(root.transform, false);
+            }
+            else labelObject = labelTransform.gameObject;
+            labelObject.transform.localPosition = new Vector3(0f, 1.75f, 0f);
+            TextMesh identityLabel = labelObject.GetComponent<TextMesh>();
+            if (identityLabel == null) identityLabel = labelObject.AddComponent<TextMesh>();
+            identityLabel.text = "E";
+            identityLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            identityLabel.fontSize = 52;
+            identityLabel.characterSize = 0.075f;
+            identityLabel.anchor = TextAnchor.MiddleCenter;
+            identityLabel.alignment = TextAlignment.Center;
+            identityLabel.color = Color.cyan;
+            WorldBillboardLabel billboard = labelObject.GetComponent<WorldBillboardLabel>();
+            if (billboard == null) billboard = labelObject.AddComponent<WorldBillboardLabel>();
+            billboard.Configure(worldLabelRotation);
+            identityLabel.GetComponent<MeshRenderer>().sortingOrder = 6;
+
+            EchoVisualFeedback feedback = root.GetComponent<EchoVisualFeedback>();
+            if (feedback == null) feedback = root.AddComponent<EchoVisualFeedback>();
+            feedback.ConfigureIdentity(ringRenderer, identityLabel);
             PrefabUtility.SaveAsPrefabAsset(root, EchoPrefabPath);
             PrefabUtility.UnloadPrefabContents(root);
             return AssetDatabase.LoadAssetAtPath<EchoPlayback>(EchoPrefabPath);
+        }
+
+        private static void ConfigureWorldLabels(Transform root, Quaternion worldRotation)
+        {
+            WorldBillboardLabel[] labels =
+                root.GetComponentsInChildren<WorldBillboardLabel>(true);
+            for (int i = 0; i < labels.Length; i++)
+            {
+                labels[i].Configure(worldRotation);
+            }
         }
 
         private static LoopSettings CreateSettings()
@@ -655,7 +747,7 @@ namespace EchoShift.Editor
             }
             SerializedObject serialized = new SerializedObject(asset);
             serialized.FindProperty("tickRate").intValue = 60;
-            serialized.FindProperty("loopDurationSeconds").intValue = 15;
+            serialized.FindProperty("loopDurationSeconds").intValue = 45;
             serialized.FindProperty("maxEchoes").intValue = 3;
             serialized.FindProperty("moveSpeed").floatValue = 4f;
             serialized.FindProperty("driftTolerance").floatValue = 0.05f;
@@ -687,6 +779,11 @@ namespace EchoShift.Editor
                 asset = ScriptableObject.CreateInstance<Phase3CameraSettings>();
                 AssetDatabase.CreateAsset(asset, CameraSettingsPath);
             }
+            SerializedObject serialized = new SerializedObject(asset);
+            serialized.FindProperty("offset").vector3Value = new Vector3(0f, 15f, -11f);
+            serialized.FindProperty("lookOffset").vector3Value = new Vector3(0f, 0f, 1.25f);
+            serialized.FindProperty("smoothTime").floatValue = 0.18f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);
             return asset;
         }

@@ -40,7 +40,11 @@ namespace EchoShift.Presentation
         private void ApplyPose(Vector3 position)
         {
             transform.position = position;
-            transform.LookAt(target.position + settings.LookOffset, Vector3.up);
+            Vector3 fixedLookDirection = settings.LookOffset - settings.Offset;
+            if (fixedLookDirection.sqrMagnitude > 0.0001f)
+            {
+                transform.rotation = Quaternion.LookRotation(fixedLookDirection, Vector3.up);
+            }
         }
     }
 }

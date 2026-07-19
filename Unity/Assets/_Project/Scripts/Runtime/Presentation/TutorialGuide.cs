@@ -8,6 +8,7 @@ namespace EchoShift.Presentation
         [SerializeField] private PuzzleSectionController section;
         [SerializeField] private Phase3TextCatalog catalog;
         [SerializeField] private GameplayHud hud;
+        [SerializeField] private TutorialTrigger trigger;
         private readonly TutorialProgress _progress = new TutorialProgress();
 
         public TutorialProgress Progress => _progress;
@@ -29,9 +30,28 @@ namespace EchoShift.Presentation
         {
             if (_progress.Advance(step))
             {
-                CurrentGuidance = message ?? string.Empty;
-                hud?.SetTutorialMessage(CurrentGuidance);
+                ShowMessage(message);
             }
+        }
+
+        public void ShowMessage(string message)
+        {
+            CurrentGuidance = message ?? string.Empty;
+            hud?.SetTutorialMessage(CurrentGuidance);
+        }
+
+        public void SetTrigger(TutorialTrigger tutorialTrigger)
+        {
+            trigger = tutorialTrigger;
+        }
+
+        public void ResetForSection()
+        {
+            int sectionIndex = Mathf.Max(0, section.SectionNumber - 1);
+            _progress.ResetSection(sectionIndex);
+            CurrentGuidance = catalog.GetInitialTutorial(sectionIndex);
+            hud?.SetTutorialMessage(CurrentGuidance);
+            trigger?.ResetTrigger();
         }
     }
 

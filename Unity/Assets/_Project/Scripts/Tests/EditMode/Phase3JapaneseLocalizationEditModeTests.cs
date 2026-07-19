@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using EchoShift.Core;
 using EchoShift.Editor;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
@@ -65,6 +66,12 @@ namespace EchoShift.Tests
             Assert.That(catalog.MoveGamepad, Does.Contain("左スティック").And.Contain("移動"));
             Assert.That(catalog.InteractKeyboard, Does.StartWith("E：").And.Contain("装置を調べる"));
             Assert.That(catalog.InteractGamepad, Does.Contain("A / ×").And.Contain("装置を調べる"));
+            Assert.That(catalog.GetInteractionPrompt(InteractionKind.PickupBattery, false),
+                Is.EqualTo("E：オレンジの電池を持つ"));
+            Assert.That(catalog.GetInteractionPrompt(InteractionKind.InsertBattery, false),
+                Is.EqualTo("E：紫の電源に電池を入れる"));
+            Assert.That(catalog.GetInteractionPrompt(InteractionKind.DropBattery, true),
+                Is.EqualTo("A / ×：電池を置く"));
             Assert.That(catalog.EndLoop, Does.Contain("ループを終了"));
             Assert.That(catalog.PausePrompt, Does.Contain("一時停止"));
             UnityEngine.Object.DestroyImmediate(catalog);
@@ -133,6 +140,77 @@ namespace EchoShift.Tests
                 Assert.That(label.resizeTextForBestFit, Is.True);
                 Assert.That(label.horizontalOverflow, Is.EqualTo(HorizontalWrapMode.Wrap));
             }
+        }
+
+        [Test]
+        public void BuilderAuthorsReadableFramingLabelsAndLongerPhase3Loop()
+        {
+            P3SceneBuilder.BuildScene();
+            LoopSettings settings = UnityEditor.AssetDatabase.LoadAssetAtPath<LoopSettings>(
+                "Assets/_Project/Settings/LoopSettings_P3.asset");
+            Assert.That(settings.LoopDurationSeconds, Is.EqualTo(45));
+            Phase3CameraSettings cameraSettings = UnityEditor.AssetDatabase
+                .LoadAssetAtPath<Phase3CameraSettings>(
+                    "Assets/_Project/Settings/Phase3CameraSettings.asset");
+            Quaternion expectedLabelRotation = Quaternion.LookRotation(
+                cameraSettings.LookOffset - cameraSettings.Offset, Vector3.up);
+
+            Transform[] transforms = UnityEngine.Object.FindObjectsByType<Transform>(
+                FindObjectsInactive.Include);
+            Transform southVisual = transforms.First(value =>
+                value.gameObject.activeInHierarchy && value.name == "Wall South");
+            Transform southBoundary = transforms.First(value =>
+                value.gameObject.activeInHierarchy && value.name == "South Boundary Collider");
+            Assert.That(southVisual.localScale.y, Is.EqualTo(0.7f).Within(0.001f));
+            Assert.That(southVisual.GetComponent<Collider>(), Is.Null);
+            Assert.That(southBoundary.GetComponent<BoxCollider>().size.y,
+                Is.EqualTo(3f).Within(0.001f));
+            TutorialTrigger[] triggers = UnityEngine.Object.FindObjectsByType<TutorialTrigger>(
+                FindObjectsInactive.Include);
+            Assert.That(triggers, Has.Length.EqualTo(1));
+            Assert.That(triggers[0].transform.localPosition,
+                Is.EqualTo(new Vector3(-2f, 1f, -3f)));
+            UnityEditor.SerializedObject serializedTrigger =
+                new UnityEditor.SerializedObject(triggers[0]);
+            Assert.That(serializedTrigger.FindProperty("step").intValue, Is.EqualTo(1));
+
+            string[] labels = UnityEngine.Object.FindObjectsByType<TextMesh>(
+                    FindObjectsInactive.Include)
+                .Select(value => value.text).ToArray();
+            Assert.That(labels, Does.Contain("自分"));
+            Assert.That(labels, Does.Contain("スイッチ"));
+            Assert.That(labels, Does.Contain("電池"));
+            Assert.That(labels, Does.Contain("電源"));
+            Assert.That(labels, Does.Contain("扉"));
+            Assert.That(labels, Does.Contain("出口"));
+            WorldBillboardLabel[] billboards = UnityEngine.Object
+                .FindObjectsByType<WorldBillboardLabel>(FindObjectsInactive.Include);
+            Assert.That(billboards, Is.Not.Empty);
+            Assert.That(billboards.All(value =>
+                Quaternion.Angle(value.WorldRotation, expectedLabelRotation) < 0.01f), Is.True);
+
+            GameObject echoPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/_Project/Prefabs/Actors/P3_Echo.prefab");
+            EchoVisualFeedback feedback = echoPrefab.GetComponent<EchoVisualFeedback>();
+            Assert.That(feedback, Is.Not.Null);
+            Assert.That(echoPrefab.transform.Find("Echo Identity Label"), Is.Not.Null);
+            Assert.That(echoPrefab.transform.Find("Echo Identity Ring"), Is.Not.Null);
+            WorldBillboardLabel echoBillboard = echoPrefab
+                .transform.Find("Echo Identity Label").GetComponent<WorldBillboardLabel>();
+            Assert.That(Quaternion.Angle(
+                echoBillboard.WorldRotation, expectedLabelRotation), Is.LessThan(0.01f));
+        }
+
+        [Test]
+        public void TutorialProgressCanResetASectionForRestart()
+        {
+            TutorialProgress progress = new TutorialProgress();
+            progress.BeginSection(0);
+            Assert.That(progress.Advance(2), Is.True);
+            Assert.That(progress.CurrentStep, Is.EqualTo(3));
+            progress.ResetSection(0);
+            Assert.That(progress.CurrentStep, Is.Zero);
+            Assert.That(progress.Advance(1), Is.True);
         }
 
         private static Phase3TextCatalog JapaneseCatalog()

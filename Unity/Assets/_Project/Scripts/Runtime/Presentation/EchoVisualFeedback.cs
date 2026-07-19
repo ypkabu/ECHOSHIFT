@@ -8,26 +8,49 @@ namespace EchoShift.Presentation
     {
         [SerializeField] private EchoPlayback playback;
         [SerializeField] private TrailRenderer trail;
+        [SerializeField] private Renderer identityRing;
+        [SerializeField] private TextMesh identityLabel;
         private Vector3 _baseScale;
         private int _lastSuccess;
         private int _lastFailure;
         private float _pulse;
 
         public bool IsStopped => playback != null && playback.PlaybackTick >= playback.RecordingLength;
+        public string IdentityText => identityLabel != null ? identityLabel.text : string.Empty;
+        public bool HasIdentityRing => identityRing != null;
+
+        public void ConfigureIdentity(Renderer ring, TextMesh label)
+        {
+            identityRing = ring;
+            identityLabel = label;
+        }
 
         private void Awake()
         {
             playback ??= GetComponent<EchoPlayback>();
             trail ??= GetComponent<TrailRenderer>();
+            if (identityRing == null)
+            {
+                Transform ring = transform.Find("Echo Identity Ring");
+                identityRing = ring != null ? ring.GetComponent<Renderer>() : null;
+            }
+            if (identityLabel == null)
+            {
+                Transform label = transform.Find("Echo Identity Label");
+                identityLabel = label != null ? label.GetComponent<TextMesh>() : null;
+            }
             _baseScale = transform.localScale;
         }
 
         private void Start()
         {
-            if (trail == null) return;
-            trail.startColor = playback.GenerationColor;
-            trail.endColor = new Color(playback.GenerationColor.r, playback.GenerationColor.g,
-                playback.GenerationColor.b, 0f);
+            if (trail != null)
+            {
+                trail.startColor = playback.GenerationColor;
+                trail.endColor = new Color(playback.GenerationColor.r, playback.GenerationColor.g,
+                    playback.GenerationColor.b, 0f);
+            }
+            ApplyIdentity();
         }
 
         private void LateUpdate()
@@ -46,6 +69,23 @@ namespace EchoShift.Presentation
             float scale = IsStopped ? 0.92f : 1f + Mathf.Abs(_pulse) * 0.18f;
             transform.localScale = _baseScale * scale;
             if (trail != null) trail.emitting = !IsStopped;
+        }
+
+        private void ApplyIdentity()
+        {
+            if (playback == null) return;
+            Color color = playback.GenerationColor;
+            if (identityLabel != null)
+            {
+                identityLabel.text = $"E{playback.ReplayGeneration}";
+                identityLabel.color = new Color(color.r, color.g, color.b, 1f);
+            }
+            if (identityRing == null) return;
+            MaterialPropertyBlock properties = new MaterialPropertyBlock();
+            identityRing.GetPropertyBlock(properties);
+            properties.SetColor("_BaseColor", new Color(color.r, color.g, color.b, 1f));
+            properties.SetColor("_EmissionColor", color * 1.6f);
+            identityRing.SetPropertyBlock(properties);
         }
     }
 }

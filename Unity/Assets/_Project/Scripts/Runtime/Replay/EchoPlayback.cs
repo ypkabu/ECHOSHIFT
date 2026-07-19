@@ -175,7 +175,11 @@ namespace EchoShift.Replay
                 2 => new Color(1f, 0.25f, 0.8f, 0.58f),
                 _ => new Color(0.45f, 1f, 0.35f, 0.58f)
             };
-            Renderer actorRenderer = GetComponentInChildren<Renderer>();
+            Renderer actorRenderer = GetComponent<Renderer>();
+            if (actorRenderer == null)
+            {
+                actorRenderer = GetComponentInChildren<Renderer>();
+            }
             if (actorRenderer == null)
             {
                 return;

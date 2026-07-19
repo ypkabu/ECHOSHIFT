@@ -135,7 +135,8 @@ namespace EchoShift.Telemetry
             if (summary.EndReason == LoopEndReason.Manual) _manualEnds++;
             if (summary.EndReason == LoopEndReason.Timer) _timerEnds++;
             _successCount += summary.InteractionSuccessCount;
-            _failureCount += summary.InteractionFailureCount;
+            // Failures arrive through InteractionResolved so their reason can be retained.
+            // Adding the loop summary here would count the same Player failure twice.
             _maximumDrift = Mathf.Max(_maximumDrift, summary.MaximumDrift);
         }
 

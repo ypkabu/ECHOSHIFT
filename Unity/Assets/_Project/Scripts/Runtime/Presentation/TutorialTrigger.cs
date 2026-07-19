@@ -18,6 +18,11 @@ namespace EchoShift.Presentation
             message = text;
         }
 
+        public void ResetTrigger()
+        {
+            _consumed = false;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (_consumed || other.GetComponentInParent<LoopActor>()?.Kind != LoopActorKind.Player)

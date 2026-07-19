@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Phase3CameraSettings
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase3CameraSettings
   offset: {x: 0, y: 15, z: -11}
-  lookOffset: {x: 0, y: 0, z: 2.5}
-  smoothTime: 0.35
+  lookOffset: {x: 0, y: 0, z: 1.25}
+  smoothTime: 0.18

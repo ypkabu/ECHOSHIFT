@@ -4,14 +4,14 @@ This validation is separate from `Phase3Validation.md` and from formal human acc
 
 ## Environment and baseline
 
-- Date: 2026-07-19 (Asia/Tokyo)
+- Date: 2026-07-20 (Asia/Tokyo)
 - Unity Editor: `6000.4.6f1`
 - URP: `17.4.0`
 - Input System: `1.19.0`
 - Unity Test Framework: `1.6.0`
 - Platform: Windows x86_64 Development Build
 - Branch: `feature/phase3-playable-greybox`
-- Starting commit and unchanged `phase3-automation-passed`: `ff28b97bc5679eadaa239df9553a3021077cd511`
+- High-correction baseline commit: `866a4646fd3501e39e1b05c918d424762de00b06`
 - Starting worktree: clean
 - `phase3-validated`: absent
 
@@ -31,9 +31,9 @@ Section 3 initially shows only `2体のエコーと協力して出口へ進む`;
 
 ## Automated tests
 
-Final EditMode XML: **57 passed, 0 failed, 0 skipped**, duration `1.3506917` seconds. Seven Japanese-localization cases cover all requested EditMode categories plus responsive layout, serialized failure-text replacement, and generated EventSystem checks.
+Final EditMode XML: **60 passed, 0 failed, 0 skipped**, duration `1.6551463` seconds. Japanese-localization and High-correction cases cover responsive layout, serialized failure-text replacement, generated EventSystem checks, authored world-label framing, and Telemetry failure de-duplication.
 
-Final PlayMode XML: **49 passed, 0 failed, 0 skipped**, duration `13.1806739` seconds. Ten Japanese/localization and black-box regression cases cover the eight requested PlayMode categories, default Debug Overlay OFF, movement-prompt visibility, and pointer/keyboard Pause Menu operation. Existing P0-P3 tests were retained without disabled cases or loosened tolerances.
+Final PlayMode XML: **54 passed, 0 failed, 0 skipped**, duration `14.6311932` seconds. Japanese/localization and black-box regression cases cover default Debug Overlay OFF, movement-prompt visibility, pointer/keyboard Pause Menu operation, staged guidance, context-specific Battery/Socket/Drop prompts, Pickup-to-Drop non-completion, fixed Camera rotation, and Player/Echo identity. Existing P0-P3 tests were retained without disabled cases or loosened tolerances.
 
 The actual P3 integration still completed all three sections in **1,081** advances with maximum Replay Drift **0 m**, interaction success **4**, and interaction failure **0**.
 
@@ -43,9 +43,9 @@ Raw XML and logs remain ignored because they contain timestamps and machine path
 
 `EchoShift.Editor.Phase3BuildPipeline.BuildJapaneseWindowsDevelopment` completed with process exit code 0 and marker:
 
-`PHASE3_JA_BUILD_OK path=.../Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe;size=166307570;warnings=0`
+`PHASE3_JA_BUILD_OK path=.../Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe;size=166327358;warnings=0`
 
-The output contains `ECHOSHIFT_Phase3_JA.exe`, `ECHOSHIFT_Phase3_JA_Data`, and 290 required files. Compiler warning count was 0; log matches for compiler errors, Missing Font/Glyph, Missing Script/Reference, NullReference, and unhandled exceptions were 0.
+The output contains `ECHOSHIFT_Phase3_JA.exe`, `ECHOSHIFT_Phase3_JA_Data`, and 290 required files totalling 166,522,490 bytes. Compiler warning count was 0; log matches for compiler errors, Missing Font/Glyph, Missing Script/Reference, NullReference, and unhandled exceptions were 0.
 
 ## Standalone probe and telemetry
 
@@ -57,7 +57,7 @@ It then logged `PHASE3_QUIT_REQUESTED` with a newly generated schema-1 telemetry
 
 ## Playtest package
 
-`Playtest/Phase3-JA-BlackBox/` contains the 290-file corrected runtime, a source-free launch note, a blank result template, retained cropped screenshots, and ignored runtime logs. Source and package relative file sets match; all file sizes match, and the source/package `globalgamemanagers` SHA-256 is `A323A1370C26DF1904900E8377E6A6FB203B8FA3D86871F7ED8D11558E3CE353`. The two excluded invalid-attempt full-desktop PNGs were deleted and are not part of the handoff package.
+`Playtest/Phase3-JA-BlackBox/` contains the 290-file corrected runtime, a source-free launch note, a blank result template, retained cropped screenshots, and ignored runtime logs. Source and package relative file sets, sizes, and SHA-256 hashes match exactly. The source/package `globalgamemanagers` SHA-256 is `80CEA4D1D96CC6921F74ED8BB27820DBE6BCE17B56B29497DFACC7C23009E518`; the EXE SHA-256 is `098A43C3B20762E4BDF938771C36F0FB116126AEC8932B2A77EB403F0CB77938`. The two excluded invalid-attempt full-desktop PNGs were deleted and are not part of the handoff package.
 
 ## Codex black-box pretest
 

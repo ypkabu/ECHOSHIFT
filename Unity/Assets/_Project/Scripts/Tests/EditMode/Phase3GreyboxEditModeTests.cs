@@ -132,6 +132,23 @@ namespace EchoShift.Tests
         }
 
         [Test]
+        public void TelemetryDoesNotDoubleCountResolvedFailureAtLoopEnd()
+        {
+            PlaytestTelemetry telemetry = CreateTelemetry();
+            telemetry.RecordInteraction(InteractionExecution.Failure(
+                new InteractionCommand(1, InteractionKind.None, string.Empty, Vector3.zero),
+                InteractionFailureReason.NoCandidate));
+            telemetry.RecordLoop(new LoopHistorySummary(1, 10, 0, 1, 0f, 0, 1,
+                ReplayHistoryState.Active, LoopEndReason.Manual));
+
+            PlaytestTelemetrySnapshot snapshot = telemetry.Snapshot();
+            Assert.That(snapshot.InteractionFailureCount, Is.EqualTo(1));
+            Assert.That(snapshot.GetFailureCount(InteractionFailureReason.NoCandidate),
+                Is.EqualTo(1));
+            UnityEngine.Object.DestroyImmediate(telemetry.gameObject);
+        }
+
+        [Test]
         public void TelemetrySnapshotDoesNotRetainReplayPayload()
         {
             Assert.That(typeof(PlaytestTelemetrySnapshot)

@@ -19,7 +19,9 @@ namespace EchoShift.Presentation
             "tutorial.2.1", "tutorial.2.2", "tutorial.2.3", "tutorial.2.4",
             "tutorial.3.1", "tutorial.3.2", "tutorial.3.3",
             "prompt.move.keyboard", "prompt.move.gamepad", "prompt.interact.keyboard",
-            "prompt.interact.gamepad", "prompt.end-loop", "prompt.pause",
+            "prompt.interact.gamepad", "prompt.pickup.keyboard", "prompt.pickup.gamepad",
+            "prompt.insert.keyboard", "prompt.insert.gamepad", "prompt.drop.keyboard",
+            "prompt.drop.gamepad", "prompt.end-loop", "prompt.pause",
             "hud.loop", "hud.time", "hud.echoes", "hud.battery-carried",
             "marker.player", "marker.switch", "marker.battery", "marker.power",
             "marker.gate", "marker.exit",
@@ -42,14 +44,22 @@ namespace EchoShift.Presentation
         [SerializeField] private string section2Objective = "電池で扉に電力を送る";
         [SerializeField] private string section3Objective = "2体のエコーと協力して出口へ進む";
 
-        [SerializeField] private string section1Tutorial1 = "スイッチの上に乗る";
-        [SerializeField] private string section1Tutorial2 = "ループを終了する";
-        [SerializeField] private string section1Tutorial3 = "エコーは過去の行動を繰り返す";
-        [SerializeField] private string section1Tutorial4 = "エコーと協力して扉を通る";
-        [SerializeField] private string section2Tutorial1 = "電池を持つ";
-        [SerializeField] private string section2Tutorial2 = "電源ソケットへ運ぶ";
-        [SerializeField] private string section2Tutorial3 = "ソケットに電池を入れる";
-        [SerializeField] private string section2Tutorial4 = "エコーは操作も繰り返す";
+        [SerializeField] private string section1Tutorial1 =
+            "黄色の「自分」を青いスイッチまで移動する（WASD / 左スティック）";
+        [SerializeField] private string section1Tutorial2 =
+            "スイッチ上で R / START：ループを終了してエコーを作る";
+        [SerializeField] private string section1Tutorial3 =
+            "E1・E2…のエコーは、それぞれ記録した過去の動きを繰り返す";
+        [SerializeField] private string section1Tutorial4 =
+            "エコーを青いスイッチに残し、黄色の「自分」で緑の扉へ進む";
+        [SerializeField] private string section2Tutorial1 =
+            "オレンジの電池に近づき E / A・× で持つ";
+        [SerializeField] private string section2Tutorial2 =
+            "電池を持ったまま紫の電源へ運ぶ";
+        [SerializeField] private string section2Tutorial3 =
+            "電池を入れたら R / START で操作を記録する";
+        [SerializeField] private string section2Tutorial4 =
+            "エコーが電池を運ぶ間に、黄色の「自分」で緑の扉へ進む";
         [SerializeField] private string section3Tutorial1 = "1体目にスイッチを任せる";
         [SerializeField] private string section3Tutorial2 = "2体目に電池を運ばせる";
         [SerializeField] private string section3Tutorial3 = "過去の自分たちと協力する";
@@ -58,13 +68,19 @@ namespace EchoShift.Presentation
         [SerializeField] private string moveGamepad = "左スティック：移動";
         [SerializeField] private string interactKeyboard = "E：装置を調べる";
         [SerializeField] private string interactGamepad = "A / ×：装置を調べる";
+        [SerializeField] private string pickupBatteryKeyboard = "E：オレンジの電池を持つ";
+        [SerializeField] private string pickupBatteryGamepad = "A / ×：オレンジの電池を持つ";
+        [SerializeField] private string insertBatteryKeyboard = "E：紫の電源に電池を入れる";
+        [SerializeField] private string insertBatteryGamepad = "A / ×：紫の電源に電池を入れる";
+        [SerializeField] private string dropBatteryKeyboard = "E：電池を置く";
+        [SerializeField] private string dropBatteryGamepad = "A / ×：電池を置く";
         [SerializeField] private string endLoop = "R / START：ループを終了";
         [SerializeField] private string pausePrompt = "ESC / SELECT：一時停止";
         [SerializeField] private string loopLabel = "ループ";
         [SerializeField] private string timeLabel = "残り時間";
         [SerializeField] private string echoesLabel = "エコー";
-        [SerializeField] private string batteryCarried = "電池を保持中";
-        [SerializeField] private string playerMarker = "プレイヤー";
+        [SerializeField] private string batteryCarried = "電池を保持中：紫の電源へ運ぶ";
+        [SerializeField] private string playerMarker = "自分";
         [SerializeField] private string switchMarker = "スイッチ";
         [SerializeField] private string batteryMarker = "電池";
         [SerializeField] private string powerMarker = "電源";
@@ -106,6 +122,12 @@ namespace EchoShift.Presentation
         public string MoveGamepad => moveGamepad;
         public string InteractKeyboard => interactKeyboard;
         public string InteractGamepad => interactGamepad;
+        public string PickupBatteryKeyboard => pickupBatteryKeyboard;
+        public string PickupBatteryGamepad => pickupBatteryGamepad;
+        public string InsertBatteryKeyboard => insertBatteryKeyboard;
+        public string InsertBatteryGamepad => insertBatteryGamepad;
+        public string DropBatteryKeyboard => dropBatteryKeyboard;
+        public string DropBatteryGamepad => dropBatteryGamepad;
         public string EndLoop => endLoop;
         public string PausePrompt => pausePrompt;
         public string LoopRecorded => loopRecorded;
@@ -177,6 +199,17 @@ namespace EchoShift.Presentation
             $"{loopRecorded}\n{FormatEchoCreated(generation)}\n{nextLoop}";
         public string FormatGameCompleted() =>
             $"{gameCompleted}\n{synchronizationCompleted}";
+
+        public string GetInteractionPrompt(InteractionKind kind, bool gamepad) => kind switch
+        {
+            InteractionKind.PickupBattery => gamepad
+                ? pickupBatteryGamepad : pickupBatteryKeyboard,
+            InteractionKind.InsertBattery => gamepad
+                ? insertBatteryGamepad : insertBatteryKeyboard,
+            InteractionKind.DropBattery => gamepad
+                ? dropBatteryGamepad : dropBatteryKeyboard,
+            _ => gamepad ? interactGamepad : interactKeyboard
+        };
 
         public string GetFailureText(InteractionFailureReason reason) => reason switch
         {
@@ -260,6 +293,12 @@ namespace EchoShift.Presentation
             yield return moveGamepad;
             yield return interactKeyboard;
             yield return interactGamepad;
+            yield return pickupBatteryKeyboard;
+            yield return pickupBatteryGamepad;
+            yield return insertBatteryKeyboard;
+            yield return insertBatteryGamepad;
+            yield return dropBatteryKeyboard;
+            yield return dropBatteryGamepad;
             yield return endLoop;
             yield return pausePrompt;
             yield return loopLabel;
@@ -300,14 +339,14 @@ namespace EchoShift.Presentation
             section1Objective = "スイッチを使って扉を開ける";
             section2Objective = "電池で扉に電力を送る";
             section3Objective = "2体のエコーと協力して出口へ進む";
-            section1Tutorial1 = "スイッチの上に乗る";
-            section1Tutorial2 = "ループを終了する";
-            section1Tutorial3 = "エコーは過去の行動を繰り返す";
-            section1Tutorial4 = "エコーと協力して扉を通る";
-            section2Tutorial1 = "電池を持つ";
-            section2Tutorial2 = "電源ソケットへ運ぶ";
-            section2Tutorial3 = "ソケットに電池を入れる";
-            section2Tutorial4 = "エコーは操作も繰り返す";
+            section1Tutorial1 = "黄色の「自分」を青いスイッチまで移動する（WASD / 左スティック）";
+            section1Tutorial2 = "スイッチ上で R / START：ループを終了してエコーを作る";
+            section1Tutorial3 = "E1・E2…のエコーは、それぞれ記録した過去の動きを繰り返す";
+            section1Tutorial4 = "エコーを青いスイッチに残し、黄色の「自分」で緑の扉へ進む";
+            section2Tutorial1 = "オレンジの電池に近づき E / A・× で持つ";
+            section2Tutorial2 = "電池を持ったまま紫の電源へ運ぶ";
+            section2Tutorial3 = "電池を入れたら R / START で操作を記録する";
+            section2Tutorial4 = "エコーが電池を運ぶ間に、黄色の「自分」で緑の扉へ進む";
             section3Tutorial1 = "1体目にスイッチを任せる";
             section3Tutorial2 = "2体目に電池を運ばせる";
             section3Tutorial3 = "過去の自分たちと協力する";
@@ -315,13 +354,19 @@ namespace EchoShift.Presentation
             moveGamepad = "左スティック：移動";
             interactKeyboard = "E：装置を調べる";
             interactGamepad = "A / ×：装置を調べる";
+            pickupBatteryKeyboard = "E：オレンジの電池を持つ";
+            pickupBatteryGamepad = "A / ×：オレンジの電池を持つ";
+            insertBatteryKeyboard = "E：紫の電源に電池を入れる";
+            insertBatteryGamepad = "A / ×：紫の電源に電池を入れる";
+            dropBatteryKeyboard = "E：電池を置く";
+            dropBatteryGamepad = "A / ×：電池を置く";
             endLoop = "R / START：ループを終了";
             pausePrompt = "ESC / SELECT：一時停止";
             loopLabel = "ループ";
             timeLabel = "残り時間";
             echoesLabel = "エコー";
-            batteryCarried = "電池を保持中";
-            playerMarker = "プレイヤー";
+            batteryCarried = "電池を保持中：紫の電源へ運ぶ";
+            playerMarker = "自分";
             switchMarker = "スイッチ";
             batteryMarker = "電池";
             powerMarker = "電源";
@@ -366,6 +411,12 @@ namespace EchoShift.Presentation
         public void BeginSection(int zeroBasedSection)
         {
             ActiveSection = Mathf.Clamp(zeroBasedSection, 0, 2);
+        }
+
+        public void ResetSection(int zeroBasedSection)
+        {
+            ActiveSection = Mathf.Clamp(zeroBasedSection, 0, 2);
+            _steps[ActiveSection] = 0;
         }
 
         public bool Advance(byte completedStep)

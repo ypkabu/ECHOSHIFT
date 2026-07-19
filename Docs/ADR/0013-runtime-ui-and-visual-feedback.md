@@ -6,7 +6,7 @@ Accepted for Phase 3 automation; subject to manual acceptance.
 
 ## Decision
 
-Use built-in uGUI, a centralized `Phase3TextCatalog`, configurable damped camera follow, temporary URP materials, line renderers, Echo trails, and MaterialPropertyBlocks. HUD shows section, objective, loop/timer/Echo count, current input-device prompt, carry state, transition, and reason-specific interaction failure. F3 hides the diagnostic overlay. No Cinemachine or third-party presentation package is added.
+Use built-in uGUI, a centralized `Phase3TextCatalog`, configurable position-damped camera follow with fixed rotation, temporary URP materials, line renderers, Echo trails, world-space identity labels/rings, and MaterialPropertyBlocks. HUD shows section, objective, loop/timer/Echo count, interaction-kind-specific input prompt, carry state, transition, and reason-specific interaction failure. F3 hides the diagnostic overlay. No Cinemachine or third-party presentation package is added.
 
 ## Reasons
 

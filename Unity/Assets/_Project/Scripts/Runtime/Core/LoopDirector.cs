@@ -364,12 +364,21 @@ namespace EchoShift.Core
             ActorSimulationOrder playerOrder = playerActor != null
                 ? playerActor.SimulationOrder
                 : new ActorSimulationOrder(LoopActorKind.Player, _nextReplayGeneration);
+            bool playerRequestedInteraction =
+                playerCommand.HasButton(InputButtonFlags.Interact);
             if (playerSimulation.TryCreateInteractionRequest(
                     playerCommand,
                     playerOrder,
                     out InteractionRequest playerRequest))
             {
                 _requests[requestCount++] = playerRequest;
+            }
+            else if (playerRequestedInteraction &&
+                     playerSimulation.LastInteractionExecution.FailureReason !=
+                     InteractionFailureReason.None)
+            {
+                InteractionResolved?.Invoke(
+                    playerSimulation.LastInteractionExecution, playerActor);
             }
 
             int resolutionCount = _conflictResolver.Resolve(

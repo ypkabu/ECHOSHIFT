@@ -99,10 +99,18 @@ namespace EchoShift.Presentation
             timerText.text = textCatalog.FormatTime(remaining);
             echoText.text = textCatalog.FormatEchoCount(director.EchoCount, director.MaxEchoes);
             InputSystemInputSource source = section.Player.GetComponent<InputSystemInputSource>();
-            bool hasCandidate = section.Player.Interactor?.Sensor?.CurrentTarget != null;
+            Interactor interactor = section.Player.Interactor;
+            InteractionSensor sensor = interactor?.Sensor;
+            bool hasCandidate = sensor?.CurrentTarget != null;
+            InteractionKind promptKind = hasCandidate
+                ? sensor.CurrentKind
+                : interactor?.CarriedBattery != null
+                    ? InteractionKind.DropBattery
+                    : InteractionKind.None;
             CurrentPrompt = ResolvePrompt(
                 source != null ? source.LastPromptDevice : InputPromptDevice.Keyboard,
-                hasCandidate);
+                promptKind,
+                promptKind != InteractionKind.None);
             promptText.text = CurrentPrompt;
             endLoopText.text = textCatalog.EndLoop;
             pausePromptText.text = textCatalog.PausePrompt;
@@ -137,11 +145,23 @@ namespace EchoShift.Presentation
 
         public string ResolvePrompt(InputPromptDevice device, bool hasCandidate)
         {
+            return ResolvePrompt(device, InteractionKind.None, hasCandidate);
+        }
+
+        public string ResolvePrompt(
+            InputPromptDevice device,
+            InteractionKind interactionKind,
+            bool hasCandidate)
+        {
             if (device == InputPromptDevice.Gamepad)
             {
-                return hasCandidate ? textCatalog.InteractGamepad : textCatalog.MoveGamepad;
+                return hasCandidate
+                    ? textCatalog.GetInteractionPrompt(interactionKind, true)
+                    : textCatalog.MoveGamepad;
             }
-            return hasCandidate ? textCatalog.InteractKeyboard : textCatalog.MoveKeyboard;
+            return hasCandidate
+                ? textCatalog.GetInteractionPrompt(interactionKind, false)
+                : textCatalog.MoveKeyboard;
         }
     }
 }

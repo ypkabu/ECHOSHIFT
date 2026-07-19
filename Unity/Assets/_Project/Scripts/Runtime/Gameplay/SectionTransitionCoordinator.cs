@@ -178,6 +178,7 @@ namespace EchoShift.Gameplay
             }
             telemetry.RecordRestartSection();
             ActiveSection.RestartSection(false);
+            ActiveSection.GetComponent<TutorialGuide>()?.ResetForSection();
             if (State == GameplayState.Paused)
             {
                 _state.TryTransition(GameplayState.Playing, "RestartSection");
@@ -202,6 +203,7 @@ namespace EchoShift.Gameplay
             sections[0].gameObject.SetActive(true);
             sections[0].ActivateSection(false);
             sections[0].RestartSection(false);
+            sections[0].GetComponent<TutorialGuide>()?.ResetForSection();
             Subscribe(sections[0]);
             sectionCamera.SetTarget(sections[0].Player.transform, true);
             telemetry.RecordRestartGame();
@@ -270,7 +272,9 @@ namespace EchoShift.Gameplay
             telemetry.SectionStarted(ActiveSectionNumber);
             hud.Bind(this);
             hud.SetObjective(hud.TextCatalog.GetSectionObjective(_activeSectionIndex));
-            hud.SetTutorialMessage(hud.TextCatalog.GetInitialTutorial(_activeSectionIndex));
+            TutorialGuide guide = section.GetComponent<TutorialGuide>();
+            if (guide != null) guide.ResetForSection();
+            else hud.SetTutorialMessage(hud.TextCatalog.GetInitialTutorial(_activeSectionIndex));
             hud.SetStateMessage(string.Empty);
         }
 
@@ -291,6 +295,7 @@ namespace EchoShift.Gameplay
         private void OnLoopCompleted(LoopHistorySummary summary)
         {
             telemetry.RecordLoop(summary);
+            AdvanceTutorialAfterLoop(summary);
             if (State != GameplayState.Playing ||
                 !_state.TryTransition(GameplayState.LoopTransition, "LoopRecorded"))
             {
@@ -313,6 +318,53 @@ namespace EchoShift.Gameplay
             if (!execution.Succeeded)
             {
                 hud.ShowInteractionFailure(execution.FailureReason);
+                return;
+            }
+
+            if (ActiveSectionNumber != 2 ||
+                actor == null || actor.Kind != EchoShift.Player.LoopActorKind.Player)
+            {
+                return;
+            }
+
+            TutorialGuide guide = ActiveSection.GetComponent<TutorialGuide>();
+            if (execution.Command.Kind == InteractionKind.PickupBattery)
+            {
+                guide?.ShowStep(1, hud.TextCatalog.GetTutorialText(1, 1));
+            }
+            else if (execution.Command.Kind == InteractionKind.InsertBattery)
+            {
+                guide?.ShowStep(2, hud.TextCatalog.GetTutorialText(1, 2));
+            }
+        }
+
+        private void AdvanceTutorialAfterLoop(LoopHistorySummary summary)
+        {
+            TutorialGuide guide = ActiveSection.GetComponent<TutorialGuide>();
+            if (guide == null) return;
+
+            if (ActiveSectionNumber == 1)
+            {
+                guide.ShowStep(2,
+                    $"{hud.TextCatalog.GetTutorialText(0, 2)}\n" +
+                    hud.TextCatalog.GetTutorialText(0, 3));
+                return;
+            }
+
+            if (ActiveSectionNumber != 2 || summary.InteractionEventCount <= 0)
+            {
+                return;
+            }
+
+            if (summary.InteractionEventCount >= 2 && guide.Progress.CurrentStep >= 3)
+            {
+                guide.ShowStep(3, hud.TextCatalog.GetTutorialText(1, 3));
+            }
+            else
+            {
+                guide.ShowMessage(
+                    $"{hud.TextCatalog.GetTutorialText(1, 1)}\n" +
+                    hud.TextCatalog.GetTutorialText(1, 2));
             }
         }
 

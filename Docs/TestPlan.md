@@ -2,7 +2,7 @@
 
 ## EditMode
 
-The 57-case suite retains all Phase 0-3 cases and adds seven Japanese-localization cases covering:
+The 60-case suite retains all Phase 0-3 cases and adds Japanese-localization and High-fix regression coverage for:
 
 - replay frame ordering, capacity, overflow rejection, immutable finalization, and short prefixes;
 - LoopSettings validation and drift monitoring;
@@ -26,7 +26,7 @@ The 57-case suite retains all Phase 0-3 cases and adds seven Japanese-localizati
 
 ## PlayMode
 
-The 49-case suite retains all P0-P3 coverage and adds ten Japanese/localization and black-box regression tests:
+The 54-case suite retains all P0-P3 coverage and adds Japanese/localization and black-box regression tests:
 
 - unchanged movement replay, pressure-plate lifecycle cleanup, actor collision matrix, short replay, Echo cap, and generated Phase 0 flow;
 - Player pickup, carry-socket following, deterministic drop, Socket insertion, and powered Door opening;
@@ -48,6 +48,8 @@ The 49-case suite retains all P0-P3 coverage and adds ten Japanese/localization 
 - quit intent, telemetry JSON persistence, Completed-state replay suppression, and P0-P3 Scene load regression;
 - recursive Missing Component traversal of the generated P3 Scene;
 - Japanese objectives for all three sections, Japanese loop transition/completion/failure/Pause text, and no English placeholder tutorial with Debug Overlay OFF;
+- staged Section 1/2 Japanese guidance, Restart guidance reset, Battery/Socket/Drop-specific prompts, live no-target interaction failure routing, and no Pickup/Drop false-positive completion hint;
+- fixed Camera rotation during Player follow, low visible foreground wall plus full collision boundary, Player/device world labels, and Echo generation identity labels/rings;
 - generated P3 starting with Debug Overlay OFF, device-appropriate movement prompt before an interaction target, and EventSystem pointer/keyboard submit paths for Pause actions.
 
 ## Batch commands
@@ -71,15 +73,15 @@ Review XML contents and logs. A process exit code alone is not sufficient eviden
 
 ## Latest verified results
 
-Executed with Unity `6000.4.6f1` on 2026-07-19:
+Executed with Unity `6000.4.6f1` on 2026-07-20:
 
 - Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
-- EditMode: 57 passed, 0 failed, 0 skipped; duration 1.3506917 seconds.
-- PlayMode: 49 passed, 0 failed, 0 skipped; duration 13.1806739 seconds.
+- EditMode: 60 passed, 0 failed, 0 skipped; duration 1.6551463 seconds.
+- PlayMode: 54 passed, 0 failed, 0 skipped; duration 14.6311932 seconds.
 - Phase 0 integration maximum drift: `0 m`.
 - Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
 - Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
 - Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
-- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,307,570 bytes, expected EXE/Data output generated at `Builds/Phase3-JA`.
+- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,327,358 bytes; the 290-file output tree totals 166,522,490 bytes at `Builds/Phase3-JA`.
 - Headless Japanese Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it saved schema 1 JSON, requested the normal quit path, and exited naturally with code 0. Matched exception/font/glyph/missing-reference messages were zero.
 - Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.

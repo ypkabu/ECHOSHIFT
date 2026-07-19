@@ -8,6 +8,8 @@ Phase 2 was fast-forwarded into `main` at `f88ff829fb15ef28bba72ae4a46b25c37aafc
 
 The greybox teaches one concept per section without a long instruction screen. Section 1 teaches movement, ending a loop, and an Echo holding a PressurePlate. Section 2 introduces recorded Battery pickup and PowerSocket insertion. Section 3 combines both ideas into the validated two-Echo coordination puzzle. Short objectives, prompts, floor wiring, framing, and object state feedback replace explanatory menus. The expected first-session duration is five to ten minutes; this duration remains a manual acceptance item.
 
+The Japanese black-box High correction keeps manual `R` loop completion and changes only the Phase 3 authoring to a 45-second ceiling. Staged in-game guidance now advances after reaching the Plate, recording the first loop, and completing Battery interactions. The Camera follows position with fixed rotation, the foreground wall has a low visible mesh plus a full-height invisible collision boundary, and world labels/rings identify the current Player, Echo generations, and puzzle devices. These changes address observed first-session comprehension and do not modify Phase 0 through Phase 2 settings or Replay formats.
+
 ## Three-section introduction order
 
 1. **Echo Basics**: Player, Plate, one Door, Goal. No Battery or Socket.
@@ -49,7 +51,7 @@ On completion, the coordinator atomically enters SectionTransition, pauses the a
 
 ## Camera, HUD, and visual feedback
 
-No Cinemachine package is installed. A small smooth-follow camera is sufficient and avoids a new dependency. Offset, smoothing, look offset, and section framing are stored in a ScriptableObject. The HUD uses a scaled Canvas, last-device prompts, section/loop/time/Echo/carry state, transition/completion text, and a separate pause panel. F3 toggles the existing debug overlay.
+No Cinemachine package is installed. A small position-only smooth-follow camera with fixed rotation is sufficient and avoids a new dependency. Offset, smoothing, look offset, and section framing are stored in a ScriptableObject. The HUD uses a scaled Canvas, last-device prompts, section/loop/time/Echo/carry state, transition/completion text, and a separate pause panel. Interaction prompts name Battery pickup, Battery drop, and Socket insertion instead of using one generic device label. F3 toggles the existing debug overlay.
 
 Greybox visuals combine color with geometry, emission, trails, target highlight, state color, and floor wiring. Runtime changes use MaterialPropertyBlock. Echoes retain visible alpha, generation colors, a trail, interaction pulse, stopped state, and failure indication.
 
