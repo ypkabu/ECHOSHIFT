@@ -4,6 +4,12 @@ using UnityEngine.InputSystem;
 
 namespace EchoShift.Input
 {
+    public enum InputPromptDevice : byte
+    {
+        Keyboard,
+        Gamepad
+    }
+
     public sealed class InputSystemInputSource : MonoBehaviour, IInputSource
     {
         private const string ActionMapName = "Gameplay";
@@ -27,6 +33,8 @@ namespace EchoShift.Input
             _moveAction != null &&
             _interactAction != null &&
             _endLoopAction != null;
+        public InputPromptDevice LastPromptDevice { get; private set; } =
+            InputPromptDevice.Keyboard;
 
         public void Configure(InputActionAsset actions)
         {
@@ -119,6 +127,7 @@ namespace EchoShift.Input
 
             _interactAction.performed += OnInteractPerformed;
             _endLoopAction.performed += OnEndLoopPerformed;
+            _moveAction.performed += OnMovePerformed;
             _callbacksAttached = true;
         }
 
@@ -131,17 +140,37 @@ namespace EchoShift.Input
 
             _interactAction.performed -= OnInteractPerformed;
             _endLoopAction.performed -= OnEndLoopPerformed;
+            _moveAction.performed -= OnMovePerformed;
             _callbacksAttached = false;
         }
 
         private void OnInteractPerformed(InputAction.CallbackContext context)
         {
+            UpdatePromptDevice(context);
             _interactLatched = true;
         }
 
         private void OnEndLoopPerformed(InputAction.CallbackContext context)
         {
+            UpdatePromptDevice(context);
             _endLoopLatched = true;
+        }
+
+        private void OnMovePerformed(InputAction.CallbackContext context)
+        {
+            UpdatePromptDevice(context);
+        }
+
+        public void SetPromptDeviceForTests(InputPromptDevice device)
+        {
+            LastPromptDevice = device;
+        }
+
+        private void UpdatePromptDevice(InputAction.CallbackContext context)
+        {
+            LastPromptDevice = context.control?.device is Gamepad
+                ? InputPromptDevice.Gamepad
+                : InputPromptDevice.Keyboard;
         }
     }
 }

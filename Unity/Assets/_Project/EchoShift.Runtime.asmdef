@@ -2,7 +2,8 @@
   "name": "EchoShift.Runtime",
   "rootNamespace": "EchoShift",
   "references": [
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "UnityEngine.UI"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

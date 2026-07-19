@@ -3,6 +3,7 @@ using EchoShift.Interaction;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Player;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace EchoShift.Debugging
 {
@@ -18,6 +19,22 @@ namespace EchoShift.Debugging
 
         private GUIStyle _labelStyle;
         private GUIStyle _titleStyle;
+        private bool _isVisible = true;
+
+        public bool IsVisible => _isVisible;
+
+        public void SetVisible(bool visible)
+        {
+            _isVisible = visible;
+        }
+
+        private void Update()
+        {
+            if (Keyboard.current != null && Keyboard.current.f3Key.wasPressedThisFrame)
+            {
+                _isVisible = !_isVisible;
+            }
+        }
 
         public bool HasValidReferences =>
             loopDirector != null &&
@@ -78,7 +95,7 @@ namespace EchoShift.Debugging
 
         private void OnGUI()
         {
-            if (!HasValidReferences)
+            if (!HasValidReferences || !_isVisible)
             {
                 return;
             }

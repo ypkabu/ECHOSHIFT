@@ -11,6 +11,9 @@ namespace EchoShift.Core
 {
     public sealed class LoopDirector : MonoBehaviour
     {
+        public event Action<LoopHistorySummary> LoopCompleted;
+        public event Action<InteractionExecution, LoopActor> InteractionResolved;
+
         [SerializeField] private LoopSettings settings;
         [SerializeField] private PlayerSimulation playerSimulation;
         [SerializeField] private TransformResettable playerReset;
@@ -43,6 +46,7 @@ namespace EchoShift.Core
         private bool _loopEndRequested;
         private LoopEndReason _pendingEndReason = LoopEndReason.Manual;
         private int _nextReplayGeneration = 1;
+        private bool _externallyPaused;
 
         public int CurrentTick { get; private set; }
         public int LoopNumber { get; private set; } = 1;
@@ -57,6 +61,7 @@ namespace EchoShift.Core
         public LoopEndReason LastLoopEndReason { get; private set; } = LoopEndReason.Manual;
         public LoopHistory History { get; private set; } = new LoopHistory();
         public bool IsInitialized => _isInitialized;
+        public bool IsSimulationPaused => _externallyPaused;
         public bool HasValidReferences =>
             settings != null && playerSimulation != null && playerReset != null &&
             resetRegistry != null && echoPrefab != null && echoContainer != null &&
@@ -151,7 +156,7 @@ namespace EchoShift.Core
 
         private void Update()
         {
-            if (!_isInitialized)
+            if (!_isInitialized || _externallyPaused)
             {
                 return;
             }
@@ -180,7 +185,7 @@ namespace EchoShift.Core
 
         public void RequestLoopEnd(LoopEndReason reason)
         {
-            if (_isInitialized && !_isTransitioning)
+            if (_isInitialized && !_isTransitioning && !_externallyPaused)
             {
                 _pendingEndReason = reason;
                 _loopEndRequested = true;
@@ -192,7 +197,76 @@ namespace EchoShift.Core
             return _echoes[index];
         }
 
+        public void SetSimulationPaused(bool paused)
+        {
+            _externallyPaused = paused;
+            if (_clock == null)
+            {
+                return;
+            }
+
+            if (paused)
+            {
+                _clock.Pause();
+            }
+            else if (_isInitialized && !_isTransitioning)
+            {
+                _clock.Resume();
+            }
+        }
+
+        public void RestartSectionLifecycle()
+        {
+            if (!_isInitialized)
+            {
+                return;
+            }
+
+            _clock.Pause();
+            ReleaseActorHeldObjects();
+            ClearEchoes();
+            resetRegistry.RestoreInitialStates();
+            playerReset.RestoreInitialState();
+            playerSimulation.Motor.ResetPose(_actorStartPosition, _actorStartRotation);
+            playerSimulation.GetComponent<LoopActor>()?.Configure(LoopActorKind.Player, 1);
+            playerSimulation.ResetInteractionStatistics();
+            Physics.SyncTransforms();
+            _recorder = new ReplayRecorder(settings.MaxTicks);
+            History = new LoopHistory();
+            LastCompletedRecording = null;
+            CurrentTick = 0;
+            LoopNumber = 1;
+            _nextReplayGeneration = 1;
+            _loopEndRequested = false;
+            _pendingEndReason = LoopEndReason.Manual;
+            _clock.Reset();
+            if (!_externallyPaused)
+            {
+                _clock.Resume();
+            }
+        }
+
+        public void ShutdownSectionLifecycle()
+        {
+            if (!_isInitialized)
+            {
+                return;
+            }
+
+            _externallyPaused = true;
+            _clock.Pause();
+            ReleaseActorHeldObjects();
+            ClearEchoes();
+            resetRegistry.RestoreInitialStates();
+            _loopEndRequested = false;
+        }
+
         public bool InitializeForTests()
+        {
+            return _isInitialized || TryInitialize();
+        }
+
+        public bool EnsureInitialized()
         {
             return _isInitialized || TryInitialize();
         }
@@ -202,6 +276,11 @@ namespace EchoShift.Core
             if (!InitializeForTests())
             {
                 throw new InvalidOperationException("LoopDirector test initialization failed.");
+            }
+
+            if (_externallyPaused)
+            {
+                return;
             }
 
             if (_loopEndRequested)
@@ -382,9 +461,13 @@ namespace EchoShift.Core
 
         private void ApplyInteractionResolution(InteractionResolution resolution)
         {
+            LoopActor resolvedActor = resolution.Request.Interactor != null
+                ? resolution.Request.Interactor.Actor
+                : null;
             if (resolution.Request.Interactor == playerSimulation.Interactor)
             {
                 playerSimulation.CompleteInteraction(resolution.Execution);
+                InteractionResolved?.Invoke(resolution.Execution, resolvedActor);
                 return;
             }
 
@@ -393,6 +476,7 @@ namespace EchoShift.Core
                 if (resolution.Request.Interactor == _echoes[i].Interactor)
                 {
                     _echoes[i].CompleteInteraction(resolution.Execution);
+                    InteractionResolved?.Invoke(resolution.Execution, resolvedActor);
                     return;
                 }
             }
@@ -421,7 +505,7 @@ namespace EchoShift.Core
             }
 
             AddEcho(LastCompletedRecording, generation);
-            History.Add(new LoopHistorySummary(
+            LoopHistorySummary completedSummary = new LoopHistorySummary(
                 LoopNumber,
                 LastCompletedRecording.Count,
                 LastCompletedRecording.Interactions.Count,
@@ -430,7 +514,8 @@ namespace EchoShift.Core
                 playerSimulation.InteractionSuccessCount,
                 playerSimulation.InteractionFailureCount,
                 ReplayHistoryState.Active,
-                LastLoopEndReason));
+                LastLoopEndReason);
+            History.Add(completedSummary);
             _nextReplayGeneration++;
 
             playerReset.RestoreInitialState();
@@ -448,6 +533,7 @@ namespace EchoShift.Core
             _clock.Reset();
             _clock.Resume();
             _isTransitioning = false;
+            LoopCompleted?.Invoke(completedSummary);
         }
 
         private void AddEcho(ReplayRecording recording, int generation)
@@ -499,6 +585,24 @@ namespace EchoShift.Core
             {
                 _echoes[i].ReleaseCarriedForReset();
             }
+        }
+
+        private void ClearEchoes()
+        {
+            for (int i = 0; i < _echoes.Count; i++)
+            {
+                EchoPlayback echo = _echoes[i];
+                if (echo == null)
+                {
+                    continue;
+                }
+
+                echo.ReleaseCarriedForReset();
+                echo.gameObject.SetActive(false);
+                Destroy(echo.gameObject);
+            }
+
+            _echoes.Clear();
         }
     }
 }

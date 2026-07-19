@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03e1f88bd5aeec4408e3ea76dabd9df0, type: 3}
+  m_Name: Phase3TextCatalog
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase3TextCatalog
+  section1Name: "SECTION 1  \u2022  ECHO BASICS"
+  section2Name: "SECTION 2  \u2022  RECORDED INTERACTION"
+  section3Name: "SECTION 3  \u2022  MULTI-ECHO COORDINATION"
+  section1Objective: "STAND ON THE SWITCH  \u2022  END THE LOOP"
+  section2Objective: "CARRY THE CELL  \u2022  POWER THE DOOR"
+  section3Objective: WORK WITH YOUR PAST SELVES
+  interactKeyboard: E  INTERACT
+  interactGamepad: SOUTH  INTERACT
+  endLoop: R / START  END LOOP
+  loopRecorded: LOOP RECORDED
+  sectionCompleted: SECTION COMPLETE
+  gameCompleted: ECHO//SHIFT COMPLETE
+  paused: PAUSED
+  sectionRestarted: SECTION RESTARTED

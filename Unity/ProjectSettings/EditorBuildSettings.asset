@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/P3_PlayableGreybox.unity
+    guid: a7af144b89bb99d47b3b0756e065b09c
+  - enabled: 1
     path: Assets/_Project/Scenes/P2_CoordinationLab.unity
     guid: 9db165878f2c66e49bb32406bed0b863
   - enabled: 1
