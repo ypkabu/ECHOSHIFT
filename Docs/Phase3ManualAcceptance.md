@@ -1,8 +1,8 @@
 # Phase 3 Manual Acceptance
 
-Phase 3 automation is complete, but formal validation is not. Every item below is intentionally unchecked and has no inferred result. A human tester must run the normal graphical build without `-phase3AutoQuit`, record Pass or Fail, add a comment, and assign `Critical`, `High`, `Medium`, or `Low` when improvement is needed.
+Phase 3 Japanese automation is complete, but formal validation is not. The Codex black-box pretest in `Phase3CodexBlackBoxPlaytest.md` ended `PRETEST FAIL` and is reference evidence only; it does not fill or replace this checklist. Every item below is intentionally unchecked and has no inferred result. A human tester must run the normal graphical build without `-phase3AutoQuit`, record Pass or Fail, add a comment, and assign `Critical`, `High`, `Medium`, or `Low` when improvement is needed.
 
-Build under test: `Builds/Phase3/ECHOSHIFT_Phase3.exe`
+Build under test: `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe`
 
 | Done | Required check | Pass / Fail | Comment | Improvement priority |
 |---|---|---|---|---|

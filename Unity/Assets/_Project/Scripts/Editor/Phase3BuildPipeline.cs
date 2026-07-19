@@ -9,13 +9,26 @@ namespace EchoShift.Editor
     public static class Phase3BuildPipeline
     {
         private const string BuildRelativePath = "Builds/Phase3/ECHOSHIFT_Phase3.exe";
+        private const string JapaneseBuildRelativePath =
+            "Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe";
 
         [MenuItem("ECHO SHIFT/Build Phase 3 Windows Development")]
         public static void BuildWindowsDevelopment()
         {
+            BuildWindowsDevelopment(BuildRelativePath, "PHASE3_BUILD_OK");
+        }
+
+        [MenuItem("ECHO SHIFT/Build Phase 3 Japanese Windows Development")]
+        public static void BuildJapaneseWindowsDevelopment()
+        {
+            BuildWindowsDevelopment(JapaneseBuildRelativePath, "PHASE3_JA_BUILD_OK");
+        }
+
+        private static void BuildWindowsDevelopment(string relativePath, string successMarker)
+        {
             P3SceneBuilder.BuildScene();
             string repositoryRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
-            string output = Path.Combine(repositoryRoot, BuildRelativePath);
+            string output = Path.Combine(repositoryRoot, relativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(output) ?? repositoryRoot);
             BuildPlayerOptions options = new BuildPlayerOptions
             {
@@ -36,7 +49,7 @@ namespace EchoShift.Editor
                 throw new InvalidOperationException(
                     $"Phase 3 build failed: {summary.result};errors={summary.totalErrors};" +
                     $"warnings={summary.totalWarnings}");
-            Debug.Log($"PHASE3_BUILD_OK path={output};size={summary.totalSize};" +
+            Debug.Log($"{successMarker} path={output};size={summary.totalSize};" +
                       $"warnings={summary.totalWarnings}");
         }
     }

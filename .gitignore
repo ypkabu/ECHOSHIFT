@@ -13,6 +13,8 @@
 /Unity/[Bb]uilds/
 /TestResults/
 /Logs/
+/Playtest/Phase3-JA-BlackBox/Runtime/
+/Playtest/Phase3-JA-BlackBox/Logs/
 
 # IDE and local tooling
 .vs/

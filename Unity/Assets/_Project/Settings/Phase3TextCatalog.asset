@@ -12,17 +12,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03e1f88bd5aeec4408e3ea76dabd9df0, type: 3}
   m_Name: Phase3TextCatalog
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase3TextCatalog
-  section1Name: "SECTION 1  \u2022  ECHO BASICS"
-  section2Name: "SECTION 2  \u2022  RECORDED INTERACTION"
-  section3Name: "SECTION 3  \u2022  MULTI-ECHO COORDINATION"
-  section1Objective: "STAND ON THE SWITCH  \u2022  END THE LOOP"
-  section2Objective: "CARRY THE CELL  \u2022  POWER THE DOOR"
-  section3Objective: WORK WITH YOUR PAST SELVES
-  interactKeyboard: E  INTERACT
-  interactGamepad: SOUTH  INTERACT
-  endLoop: R / START  END LOOP
-  loopRecorded: LOOP RECORDED
-  sectionCompleted: SECTION COMPLETE
-  gameCompleted: ECHO//SHIFT COMPLETE
-  paused: PAUSED
-  sectionRestarted: SECTION RESTARTED
+  languageCode: ja-JP
+  section1Name: "\u30BB\u30AF\u30B7\u30E7\u30F31\uFF1A\u904E\u53BB\u306E\u81EA\u5206"
+  section2Name: "\u30BB\u30AF\u30B7\u30E7\u30F32\uFF1A\u8A18\u9332\u3055\u308C\u305F\u64CD\u4F5C"
+  section3Name: "\u30BB\u30AF\u30B7\u30E7\u30F33\uFF1A\u904E\u53BB\u3068\u306E\u5354\u529B"
+  section1Objective: "\u30B9\u30A4\u30C3\u30C1\u3092\u4F7F\u3063\u3066\u6249\u3092\u958B\u3051\u308B"
+  section2Objective: "\u96FB\u6C60\u3067\u6249\u306B\u96FB\u529B\u3092\u9001\u308B"
+  section3Objective: "2\u4F53\u306E\u30A8\u30B3\u30FC\u3068\u5354\u529B\u3057\u3066\u51FA\u53E3\u3078\u9032\u3080"
+  section1Tutorial1: "\u30B9\u30A4\u30C3\u30C1\u306E\u4E0A\u306B\u4E57\u308B"
+  section1Tutorial2: "\u30EB\u30FC\u30D7\u3092\u7D42\u4E86\u3059\u308B"
+  section1Tutorial3: "\u30A8\u30B3\u30FC\u306F\u904E\u53BB\u306E\u884C\u52D5\u3092\u7E70\u308A\u8FD4\u3059"
+  section1Tutorial4: "\u30A8\u30B3\u30FC\u3068\u5354\u529B\u3057\u3066\u6249\u3092\u901A\u308B"
+  section2Tutorial1: "\u96FB\u6C60\u3092\u6301\u3064"
+  section2Tutorial2: "\u96FB\u6E90\u30BD\u30B1\u30C3\u30C8\u3078\u904B\u3076"
+  section2Tutorial3: "\u30BD\u30B1\u30C3\u30C8\u306B\u96FB\u6C60\u3092\u5165\u308C\u308B"
+  section2Tutorial4: "\u30A8\u30B3\u30FC\u306F\u64CD\u4F5C\u3082\u7E70\u308A\u8FD4\u3059"
+  section3Tutorial1: "1\u4F53\u76EE\u306B\u30B9\u30A4\u30C3\u30C1\u3092\u4EFB\u305B\u308B"
+  section3Tutorial2: "2\u4F53\u76EE\u306B\u96FB\u6C60\u3092\u904B\u3070\u305B\u308B"
+  section3Tutorial3: "\u904E\u53BB\u306E\u81EA\u5206\u305F\u3061\u3068\u5354\u529B\u3059\u308B"
+  moveKeyboard: "WASD\uFF1A\u79FB\u52D5"
+  moveGamepad: "\u5DE6\u30B9\u30C6\u30A3\u30C3\u30AF\uFF1A\u79FB\u52D5"
+  interactKeyboard: "E\uFF1A\u88C5\u7F6E\u3092\u8ABF\u3079\u308B"
+  interactGamepad: "A / \xD7\uFF1A\u88C5\u7F6E\u3092\u8ABF\u3079\u308B"
+  endLoop: "R / START\uFF1A\u30EB\u30FC\u30D7\u3092\u7D42\u4E86"
+  pausePrompt: "ESC / SELECT\uFF1A\u4E00\u6642\u505C\u6B62"
+  loopLabel: "\u30EB\u30FC\u30D7"
+  timeLabel: "\u6B8B\u308A\u6642\u9593"
+  echoesLabel: "\u30A8\u30B3\u30FC"
+  batteryCarried: "\u96FB\u6C60\u3092\u4FDD\u6301\u4E2D"
+  playerMarker: "\u30D7\u30EC\u30A4\u30E4\u30FC"
+  switchMarker: "\u30B9\u30A4\u30C3\u30C1"
+  batteryMarker: "\u96FB\u6C60"
+  powerMarker: "\u96FB\u6E90"
+  gateMarker: "\u6249"
+  exitMarker: "\u51FA\u53E3"
+  loopRecorded: "\u884C\u52D5\u3092\u8A18\u9332\u3057\u307E\u3057\u305F"
+  echoCreated: "\u30A8\u30B3\u30FC{0}\u3092\u751F\u6210"
+  nextLoop: "\u6B21\u306E\u30EB\u30FC\u30D7\u3092\u958B\u59CB"
+  sectionCompleted: "\u30BB\u30AF\u30B7\u30E7\u30F3\u5B8C\u4E86"
+  gameCompleted: "\u3059\u3079\u3066\u306E\u5B9F\u9A13\u3092\u5B8C\u4E86\u3057\u307E\u3057\u305F"
+  synchronizationCompleted: "\u904E\u53BB\u306E\u81EA\u5206\u305F\u3061\u3068\u306E\u540C\u671F\u306B\u6210\u529F"
+  paused: "\u4E00\u6642\u505C\u6B62"
+  sectionRestarted: "\u3053\u306E\u30BB\u30AF\u30B7\u30E7\u30F3\u3092\u3084\u308A\u76F4\u3057\u307E\u3057\u305F"
+  resume: "\u30B2\u30FC\u30E0\u306B\u623B\u308B"
+  restartSection: "\u3053\u306E\u30BB\u30AF\u30B7\u30E7\u30F3\u3092\u3084\u308A\u76F4\u3059"
+  restartGame: "\u6700\u521D\u304B\u3089\u3084\u308A\u76F4\u3059"
+  quit: "\u30B2\u30FC\u30E0\u3092\u7D42\u4E86\u3059\u308B"
+  confirmRestartSection: "\u3053\u306E\u30BB\u30AF\u30B7\u30E7\u30F3\u3092\u3084\u308A\u76F4\u3057\u307E\u3059\u304B\uFF1F\n\u3082\u3046\u4E00\u5EA6\u62BC\u3059\u3068\u5B9F\u884C\u3057\u307E\u3059"
+  confirmRestartGame: "\u6700\u521D\u304B\u3089\u3084\u308A\u76F4\u3057\u307E\u3059\u304B\uFF1F\n\u3082\u3046\u4E00\u5EA6\u62BC\u3059\u3068\u5B9F\u884C\u3057\u307E\u3059"
+  confirmQuit: "\u30B2\u30FC\u30E0\u3092\u7D42\u4E86\u3057\u307E\u3059\u304B\uFF1F\n\u3082\u3046\u4E00\u5EA6\u62BC\u3059\u3068\u5B9F\u884C\u3057\u307E\u3059"

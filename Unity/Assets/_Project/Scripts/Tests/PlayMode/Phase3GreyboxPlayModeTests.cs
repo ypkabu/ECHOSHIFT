@@ -144,7 +144,7 @@ namespace EchoShift.Tests
             Assert.That(hud.ResolvePrompt(InputPromptDevice.Gamepad, true),
                 Is.EqualTo(hud.TextCatalog.InteractGamepad));
             hud.ShowInteractionFailure(InteractionFailureReason.TargetBusy);
-            Assert.That(hud.LastFailureText, Is.EqualTo("TARGET BUSY"));
+            Assert.That(hud.LastFailureText, Is.EqualTo("ほかのエコーが使用中です"));
             Phase0DebugOverlay overlay = UnityEngine.Object.FindObjectsByType<Phase0DebugOverlay>()
                 .First(value => value.gameObject.activeInHierarchy);
             overlay.SetVisible(false);

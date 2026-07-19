@@ -79,17 +79,17 @@ namespace EchoShift.Editor
             GameObject sectionContainer = new GameObject("Puzzle Sections");
             PuzzleSectionController[] sections = new PuzzleSectionController[3];
             sections[0] = CreateSection(
-                1, "ECHO BASICS", new Vector3(0f, 0f, 0f), sectionContainer.transform,
+                1, catalog.GetSectionName(0), catalog, new Vector3(0f, 0f, 0f), sectionContainer.transform,
                 settings, actions, echoPrefab, floor, wall, player, plate, battery,
                 socket, door, goal, plateWire, powerWire, playerLayer,
                 environmentLayer, triggerLayer, targetLayer);
             sections[1] = CreateSection(
-                2, "RECORDED INTERACTION", new Vector3(30f, 0f, 0f), sectionContainer.transform,
+                2, catalog.GetSectionName(1), catalog, new Vector3(30f, 0f, 0f), sectionContainer.transform,
                 settings, actions, echoPrefab, floor, wall, player, plate, battery,
                 socket, door, goal, plateWire, powerWire, playerLayer,
                 environmentLayer, triggerLayer, targetLayer);
             sections[2] = CreateSection(
-                3, "MULTI-ECHO COORDINATION", new Vector3(65f, 0f, 0f), sectionContainer.transform,
+                3, catalog.GetSectionName(2), catalog, new Vector3(65f, 0f, 0f), sectionContainer.transform,
                 settings, actions, echoPrefab, floor, wall, player, plate, battery,
                 socket, door, goal, plateWire, powerWire, playerLayer,
                 environmentLayer, triggerLayer, targetLayer);
@@ -103,14 +103,17 @@ namespace EchoShift.Editor
             GameplayHud hud = CreateHud(global.transform, catalog);
             SectionTransitionCoordinator coordinator =
                 global.AddComponent<SectionTransitionCoordinator>();
-            PauseMenuController pauseMenu = CreatePauseMenu(global.transform, coordinator);
+            PauseMenuController pauseMenu = CreatePauseMenu(global.transform, coordinator, catalog);
+            JapaneseFontApplier fontApplier = global.AddComponent<JapaneseFontApplier>();
+            fontApplier.Configure(catalog, new[] { sectionContainer.transform, global.transform });
+            hud.SetFontApplier(fontApplier);
             coordinator.Configure(sections, camera, hud, pauseMenu, telemetry);
 
             for (int i = 0; i < sections.Length; i++)
             {
                 TutorialGuide guide = sections[i].gameObject.AddComponent<TutorialGuide>();
-                guide.Configure(sections[i], catalog);
-                CreateTutorialTrigger(sections[i].transform, guide, triggerLayer);
+                guide.Configure(sections[i], catalog, hud);
+                CreateTutorialTrigger(sections[i].transform, guide, catalog, i, triggerLayer);
             }
 
             StableIdValidationResult validation =
@@ -119,7 +122,7 @@ namespace EchoShift.Editor
 
             PlayerSettings.companyName = "Echo Shift Prototype";
             PlayerSettings.productName = "ECHO SHIFT";
-            PlayerSettings.bundleVersion = "0.3.0-automation";
+            PlayerSettings.bundleVersion = "0.3.0-ja-pretest";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             EditorSettings.serializationMode = SerializationMode.ForceText;
             EditorSceneManager.MarkSceneDirty(scene);
@@ -137,7 +140,8 @@ namespace EchoShift.Editor
         }
 
         private static PuzzleSectionController CreateSection(
-            int number, string displayName, Vector3 worldOffset, Transform parent,
+            int number, string displayName, Phase3TextCatalog catalog,
+            Vector3 worldOffset, Transform parent,
             LoopSettings settings, InputActionAsset actions, EchoPlayback echoPrefab,
             Material floor, Material wall, Material playerMaterial, Material plateMaterial,
             Material batteryMaterial, Material socketMaterial, Material doorMaterial,
@@ -165,7 +169,8 @@ namespace EchoShift.Editor
             spawn.localPosition = startLocal;
             PlayerSimulation player = CreatePlayer(
                 gameplay.transform, startLocal, playerMaterial, settings, actions, registry,
-                playerLayer, environmentLayer, targetLayer, out TransformResettable playerReset);
+                playerLayer, environmentLayer, targetLayer, catalog,
+                out TransformResettable playerReset);
 
             PressurePlate pressurePlate = null;
             CarryableBattery battery = null;
@@ -176,13 +181,13 @@ namespace EchoShift.Editor
             if (number == 1)
             {
                 pressurePlate = CreatePlate(gameplay.transform,
-                    new Vector3(-2f, 0.1f, -3f), plateMaterial, triggerLayer);
+                    new Vector3(-2f, 0.1f, -3f), plateMaterial, catalog, triggerLayer);
                 gateA = CreateDoor("Plate Door", gameplay.transform,
                     new Vector3(0f, 1.5f, 0f), doorMaterial,
-                    pressurePlate, environmentLayer);
+                    pressurePlate, catalog, environmentLayer);
                 CreateDivider(environment.transform, wall, environmentLayer, 0f);
                 goal = CreateGoal(gameplay.transform,
-                    new Vector3(0f, 0.1f, 5f), goalMaterial, triggerLayer);
+                    new Vector3(0f, 0.1f, 5f), goalMaterial, catalog, triggerLayer);
                 CreateWire(root.transform, new Vector3(-2f, 0.03f, -3f),
                     new Vector3(0f, 0.03f, 0f), plateWire);
             }
@@ -190,39 +195,39 @@ namespace EchoShift.Editor
             {
                 battery = CreateBattery(gameplay.transform,
                     new Vector3(1f, 0.45f, -4f), batteryMaterial, registry,
-                    targetLayer, "p3-s2-battery-063ce56d");
+                    catalog, targetLayer, "p3-s2-battery-063ce56d");
                 powerSocket = CreateSocket(gameplay.transform,
                     new Vector3(1f, 0.4f, -1f), socketMaterial, registry,
-                    targetLayer, "p3-s2-socket-a906013e");
+                    catalog, targetLayer, "p3-s2-socket-a906013e");
                 gateB = CreateDoor("Powered Door", gameplay.transform,
                     new Vector3(0f, 1.5f, 1f), doorMaterial,
-                    powerSocket, environmentLayer);
+                    powerSocket, catalog, environmentLayer);
                 CreateDivider(environment.transform, wall, environmentLayer, 1f);
                 goal = CreateGoal(gameplay.transform,
-                    new Vector3(0f, 0.1f, 5f), goalMaterial, triggerLayer);
+                    new Vector3(0f, 0.1f, 5f), goalMaterial, catalog, triggerLayer);
                 CreateWire(root.transform, new Vector3(1f, 0.03f, -1f),
                     new Vector3(0f, 0.03f, 1f), powerWire);
             }
             else
             {
                 pressurePlate = CreatePlate(gameplay.transform,
-                    new Vector3(-3f, 0.1f, -7f), plateMaterial, triggerLayer);
+                    new Vector3(-3f, 0.1f, -7f), plateMaterial, catalog, triggerLayer);
                 gateA = CreateDoor("Gate A - Plate", gameplay.transform,
                     new Vector3(0f, 1.5f, -3f), doorMaterial,
-                    pressurePlate, environmentLayer);
+                    pressurePlate, catalog, environmentLayer);
                 CreateDivider(environment.transform, wall, environmentLayer, -3f);
                 battery = CreateBattery(gameplay.transform,
                     new Vector3(1.5f, 0.45f, 0f), batteryMaterial, registry,
-                    targetLayer, "p3-s3-battery-3aaf6a48");
+                    catalog, targetLayer, "p3-s3-battery-3aaf6a48");
                 powerSocket = CreateSocket(gameplay.transform,
                     new Vector3(1.5f, 0.4f, 3.2f), socketMaterial, registry,
-                    targetLayer, "p3-s3-socket-852fdd89");
+                    catalog, targetLayer, "p3-s3-socket-852fdd89");
                 gateB = CreateDoor("Gate B - Battery", gameplay.transform,
                     new Vector3(0f, 1.5f, 5f), doorMaterial,
-                    powerSocket, environmentLayer);
+                    powerSocket, catalog, environmentLayer);
                 CreateDivider(environment.transform, wall, environmentLayer, 5f);
                 goal = CreateGoal(gameplay.transform,
-                    new Vector3(0f, 0.1f, 10.2f), goalMaterial, triggerLayer);
+                    new Vector3(0f, 0.1f, 10.2f), goalMaterial, catalog, triggerLayer);
                 CreateWire(root.transform, new Vector3(-3f, 0.03f, -7f),
                     new Vector3(0f, 0.03f, -3f), plateWire);
                 CreateWire(root.transform, new Vector3(1.5f, 0.03f, 3.2f),
@@ -256,6 +261,7 @@ namespace EchoShift.Editor
             Transform parent, Vector3 localPosition, Material material,
             LoopSettings settings, InputActionAsset actions, InteractionRegistry registry,
             int playerLayer, int environmentLayer, int targetLayer,
+            Phase3TextCatalog catalog,
             out TransformResettable resettable)
         {
             GameObject obj = Primitive("Player", PrimitiveType.Capsule, localPosition,
@@ -282,23 +288,25 @@ namespace EchoShift.Editor
             PlayerSimulation simulation = obj.AddComponent<PlayerSimulation>();
             simulation.Configure(input, motor, interactor);
             resettable = obj.AddComponent<TransformResettable>();
-            CreateMarker(obj.transform, "PLAYER", new Vector3(0f, 1.4f, 0f), material);
+            CreateMarker(obj.transform, catalog.PlayerMarker, new Vector3(0f, 1.4f, 0f), material);
             return simulation;
         }
 
         private static PressurePlate CreatePlate(
-            Transform parent, Vector3 local, Material material, int layer)
+            Transform parent, Vector3 local, Material material,
+            Phase3TextCatalog catalog, int layer)
         {
             GameObject obj = Primitive("Pressure Plate", PrimitiveType.Cube, local,
                 new Vector3(2.4f, 0.2f, 2.4f), material, parent, layer, true);
             obj.GetComponent<Collider>().isTrigger = true;
-            CreateMarker(obj.transform, "SWITCH", new Vector3(0f, 0.7f, 0f), material);
+            CreateMarker(obj.transform, catalog.SwitchMarker, new Vector3(0f, 0.7f, 0f), material);
             return obj.AddComponent<PressurePlate>();
         }
 
         private static CarryableBattery CreateBattery(
             Transform parent, Vector3 local, Material material,
-            InteractionRegistry registry, int layer, string stableValue)
+            InteractionRegistry registry, Phase3TextCatalog catalog,
+            int layer, string stableValue)
         {
             GameObject obj = Primitive("Battery Cell", PrimitiveType.Cylinder, local,
                 new Vector3(0.45f, 0.65f, 0.45f), material, parent, layer, true);
@@ -311,13 +319,14 @@ namespace EchoShift.Editor
             CarryableBattery battery = obj.AddComponent<CarryableBattery>();
             battery.Configure(id, collider, body);
             id.Configure(stableValue, registry, battery);
-            CreateMarker(obj.transform, "CELL", new Vector3(0f, 1.1f, 0f), material);
+            CreateMarker(obj.transform, catalog.BatteryMarker, new Vector3(0f, 1.1f, 0f), material);
             return battery;
         }
 
         private static PowerSocket CreateSocket(
             Transform parent, Vector3 local, Material material,
-            InteractionRegistry registry, int layer, string stableValue)
+            InteractionRegistry registry, Phase3TextCatalog catalog,
+            int layer, string stableValue)
         {
             GameObject obj = Primitive("Power Socket", PrimitiveType.Cube, local,
                 new Vector3(1.1f, 0.8f, 1.1f), material, parent, layer, true);
@@ -329,13 +338,13 @@ namespace EchoShift.Editor
             PowerSocket socket = obj.AddComponent<PowerSocket>();
             socket.Configure(id, insertion);
             id.Configure(stableValue, registry, socket);
-            CreateMarker(obj.transform, "POWER", new Vector3(0f, 1.2f, 0f), material);
+            CreateMarker(obj.transform, catalog.PowerMarker, new Vector3(0f, 1.2f, 0f), material);
             return socket;
         }
 
         private static DoorController CreateDoor(
             string name, Transform parent, Vector3 local, Material material,
-            MonoBehaviour source, int layer)
+            MonoBehaviour source, Phase3TextCatalog catalog, int layer)
         {
             GameObject obj = Primitive(name, PrimitiveType.Cube, local,
                 new Vector3(4f, 3f, 0.45f), material, parent, layer, true);
@@ -343,17 +352,18 @@ namespace EchoShift.Editor
             controller.Configure(new[] { source }, new Vector3(0f, 3.5f, 0f), 5f);
             DoorVisualFeedback visual = obj.AddComponent<DoorVisualFeedback>();
             visual.Configure(controller, obj.GetComponent<Renderer>());
-            CreateMarker(obj.transform, "GATE", new Vector3(0f, 0.8f, 0.55f), material);
+            CreateMarker(obj.transform, catalog.GateMarker, new Vector3(0f, 0.8f, 0.55f), material);
             return controller;
         }
 
         private static GoalVolume CreateGoal(
-            Transform parent, Vector3 local, Material material, int layer)
+            Transform parent, Vector3 local, Material material,
+            Phase3TextCatalog catalog, int layer)
         {
             GameObject obj = Primitive("Goal Exit", PrimitiveType.Cylinder, local,
                 new Vector3(1.8f, 0.12f, 1.8f), material, parent, layer, true);
             obj.GetComponent<Collider>().isTrigger = true;
-            CreateMarker(obj.transform, "EXIT", new Vector3(0f, 5f, 0f), material);
+            CreateMarker(obj.transform, catalog.ExitMarker, new Vector3(0f, 5f, 0f), material);
             return obj.AddComponent<GoalVolume>();
         }
 
@@ -451,28 +461,33 @@ namespace EchoShift.Editor
             scaler.matchWidthOrHeight = 0.5f;
             canvasObject.AddComponent<GraphicRaycaster>();
             Text section = Text(canvasObject.transform, "Section", new Vector2(24f, -22f),
-                new Vector2(700f, 54f), TextAnchor.UpperLeft, 28);
-            Text loop = Text(canvasObject.transform, "Loop", new Vector2(24f, -82f),
-                new Vector2(260f, 44f), TextAnchor.UpperLeft, 22);
-            Text timer = Text(canvasObject.transform, "Timer", new Vector2(24f, -126f),
-                new Vector2(260f, 44f), TextAnchor.UpperLeft, 22);
-            Text echoes = Text(canvasObject.transform, "Echoes", new Vector2(24f, -170f),
-                new Vector2(260f, 44f), TextAnchor.UpperLeft, 22);
-            Text carry = Text(canvasObject.transform, "Carry", new Vector2(24f, -214f),
-                new Vector2(320f, 44f), TextAnchor.UpperLeft, 22);
+                new Vector2(840f, 54f), TextAnchor.UpperLeft, 28);
+            Text objective = Text(canvasObject.transform, "Objective", new Vector2(24f, -66f),
+                new Vector2(840f, 50f), TextAnchor.UpperLeft, 22);
+            Text loop = Text(canvasObject.transform, "Loop", new Vector2(24f, -120f),
+                new Vector2(340f, 44f), TextAnchor.UpperLeft, 22);
+            Text timer = Text(canvasObject.transform, "Timer", new Vector2(24f, -164f),
+                new Vector2(340f, 44f), TextAnchor.UpperLeft, 22);
+            Text echoes = Text(canvasObject.transform, "Echoes", new Vector2(24f, -208f),
+                new Vector2(340f, 44f), TextAnchor.UpperLeft, 22);
+            Text carry = Text(canvasObject.transform, "Carry", new Vector2(24f, -252f),
+                new Vector2(420f, 44f), TextAnchor.UpperLeft, 22);
+            Text tutorial = BottomText(canvasObject.transform, "Tutorial", 170f, 24);
             Text prompt = BottomText(canvasObject.transform, "Prompt", 105f, 30);
             Text endLoop = BottomText(canvasObject.transform, "EndLoop", 55f, 20);
+            Text pausePrompt = BottomText(canvasObject.transform, "PausePrompt", 18f, 17);
             Text state = CenterText(canvasObject.transform, "State", 90f, 34);
             Text failure = CenterText(canvasObject.transform, "Failure", 20f, 28);
             failure.color = new Color(1f, 0.35f, 0.2f, 1f);
             GameplayHud hud = canvasObject.AddComponent<GameplayHud>();
-            hud.Configure(catalog, section, loop, timer, echoes, prompt, endLoop,
-                carry, state, failure);
+            hud.Configure(catalog, section, objective, tutorial, loop, timer, echoes,
+                prompt, endLoop, pausePrompt, carry, state, failure);
             return hud;
         }
 
         private static PauseMenuController CreatePauseMenu(
-            Transform parent, SectionTransitionCoordinator coordinator)
+            Transform parent, SectionTransitionCoordinator coordinator,
+            Phase3TextCatalog catalog)
         {
             GameObject canvasObject = new GameObject("Pause Menu Canvas");
             canvasObject.transform.SetParent(parent);
@@ -486,17 +501,24 @@ namespace EchoShift.Editor
             GameObject panel = new GameObject("Pause Panel");
             panel.transform.SetParent(canvasObject.transform, false);
             RectTransform rect = panel.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.36f, 0.18f);
-            rect.anchorMax = new Vector2(0.64f, 0.82f);
+            rect.anchorMin = new Vector2(0.30f, 0.12f);
+            rect.anchorMax = new Vector2(0.70f, 0.88f);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             Image image = panel.AddComponent<Image>();
             image.color = new Color(0.03f, 0.045f, 0.08f, 0.94f);
-            Button resume = Button(panel.transform, "Resume", 120f);
-            Button restartSection = Button(panel.transform, "Restart Section", 20f);
-            Button restartGame = Button(panel.transform, "Restart Game", -80f);
-            Button quit = Button(panel.transform, "Quit to Desktop", -180f);
+            Text title = CenterAnchoredText(panel.transform, "Title", 34);
+            title.text = catalog.Paused;
+            title.rectTransform.anchoredPosition = new Vector2(0f, 240f);
+            Text confirmation = CenterAnchoredText(panel.transform, "Confirmation", 20);
+            confirmation.rectTransform.sizeDelta = new Vector2(620f, 90f);
+            confirmation.rectTransform.anchoredPosition = new Vector2(0f, -230f);
+            Button resume = Button(panel.transform, catalog.Resume, 140f);
+            Button restartSection = Button(panel.transform, catalog.RestartSection, 50f);
+            Button restartGame = Button(panel.transform, catalog.RestartGame, -40f);
+            Button quit = Button(panel.transform, catalog.Quit, -130f);
             PauseMenuController menu = canvasObject.AddComponent<PauseMenuController>();
-            menu.Configure(coordinator, panel, resume, restartSection, restartGame, quit);
+            menu.Configure(coordinator, catalog, panel, title, confirmation,
+                resume, restartSection, restartGame, quit);
             panel.SetActive(false);
             return menu;
         }
@@ -517,7 +539,8 @@ namespace EchoShift.Editor
             text.fontSize = fontSize;
             text.alignment = alignment;
             text.color = Color.white;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             return text;
         }
 
@@ -550,6 +573,8 @@ namespace EchoShift.Editor
             text.fontSize = fontSize;
             text.alignment = TextAnchor.MiddleCenter;
             text.color = Color.white;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             return text;
         }
 
@@ -559,20 +584,25 @@ namespace EchoShift.Editor
             obj.transform.SetParent(parent, false);
             RectTransform rect = obj.AddComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(380f, 70f);
+            rect.sizeDelta = new Vector2(540f, 70f);
             rect.anchoredPosition = new Vector2(0f, y);
             Image image = obj.AddComponent<Image>();
             image.color = new Color(0.12f, 0.2f, 0.32f, 1f);
             Button button = obj.AddComponent<Button>();
             Text text = CenterAnchoredText(obj.transform, "Label", 24);
-            text.text = label.ToUpperInvariant();
+            text.text = label;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 16;
+            text.resizeTextMaxSize = 24;
             text.rectTransform.anchoredPosition = Vector2.zero;
             return button;
         }
 
         private static void CreateTutorialTrigger(
-            Transform parent, TutorialGuide guide, int layer)
+            Transform parent, TutorialGuide guide, Phase3TextCatalog catalog,
+            int sectionIndex, int layer)
         {
+            if (sectionIndex >= 2) return;
             GameObject obj = new GameObject("Tutorial Trigger - Move");
             obj.transform.SetParent(parent, false);
             obj.transform.localPosition = new Vector3(0f, 1f, -5.5f);
@@ -581,7 +611,7 @@ namespace EchoShift.Editor
             collider.isTrigger = true;
             collider.size = new Vector3(5f, 2f, 2f);
             TutorialTrigger trigger = obj.AddComponent<TutorialTrigger>();
-            trigger.Configure(guide, 0, "MOVE");
+            trigger.Configure(guide, 0, catalog.GetTutorialText(sectionIndex, 0));
         }
 
         private static EchoPlayback CreateEchoPrefab(Material trailMaterial, int echoLayer)
@@ -635,6 +665,7 @@ namespace EchoShift.Editor
                 asset = ScriptableObject.CreateInstance<Phase3TextCatalog>();
                 AssetDatabase.CreateAsset(asset, TextCatalogPath);
             }
+            asset.ApplyJapaneseDefaults();
             EditorUtility.SetDirty(asset);
             return asset;
         }

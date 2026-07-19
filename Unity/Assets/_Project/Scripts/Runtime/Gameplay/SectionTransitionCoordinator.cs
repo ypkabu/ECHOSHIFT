@@ -35,6 +35,7 @@ namespace EchoShift.Gameplay
         public bool QuitRequested => _quitRequested;
         public PlaytestTelemetry Telemetry => telemetry;
         public GameplayHud Hud => hud;
+        public PauseMenuController PauseMenu => pauseMenu;
         public bool HasValidReferences => sections.Length == 3 &&
             sectionCamera != null && hud != null && pauseMenu != null && telemetry != null;
 
@@ -183,6 +184,7 @@ namespace EchoShift.Gameplay
             }
             pauseMenu.SetVisible(false);
             hud.SetStateMessage(hud.TextCatalog.SectionRestarted);
+            hud.SetTutorialMessage(hud.TextCatalog.GetInitialTutorial(_activeSectionIndex));
         }
 
         public void RestartGame()
@@ -267,7 +269,9 @@ namespace EchoShift.Gameplay
             sectionCamera.SetTarget(section.Player.transform, _activeSectionIndex == 0);
             telemetry.SectionStarted(ActiveSectionNumber);
             hud.Bind(this);
-            hud.SetStateMessage(hud.TextCatalog.GetSectionObjective(_activeSectionIndex));
+            hud.SetObjective(hud.TextCatalog.GetSectionObjective(_activeSectionIndex));
+            hud.SetTutorialMessage(hud.TextCatalog.GetInitialTutorial(_activeSectionIndex));
+            hud.SetStateMessage(string.Empty);
         }
 
         private void Subscribe(PuzzleSectionController section)
@@ -294,8 +298,7 @@ namespace EchoShift.Gameplay
             }
             ActiveSection.Director.SetSimulationPaused(true);
             _transitionRemaining = loopTransitionSeconds;
-            hud.SetStateMessage($"{hud.TextCatalog.LoopRecorded}  •  " +
-                                $"ECHO {summary.ReplayGeneration}");
+            hud.SetStateMessage(hud.TextCatalog.FormatLoopTransition(summary.ReplayGeneration));
             if (_transitionRemaining <= 0f)
             {
                 FinishPendingTransition();
@@ -337,7 +340,7 @@ namespace EchoShift.Gameplay
             {
                 _state.TryTransition(GameplayState.Completed, "AllSectionsCompleted");
                 telemetry.FinishAndSave(PlaytestOutcome.Completed);
-                hud.SetStateMessage(hud.TextCatalog.GameCompleted);
+                hud.SetStateMessage(hud.TextCatalog.FormatGameCompleted());
                 Debug.Log($"PHASE3_COMPLETED telemetry={telemetry.LastSavedPath}", this);
                 return;
             }
@@ -367,7 +370,9 @@ namespace EchoShift.Gameplay
             yield return null;
             yield return null;
             Debug.Log($"PHASE3_PROBE_OK state={State};section={ActiveSectionNumber};" +
-                      $"hud={hud.HasValidReferences};telemetry={telemetry.SaveDirectory}", this);
+                      $"hud={hud.HasValidReferences};language={hud.TextCatalog.LanguageCode};" +
+                      $"font={hud.JapaneseFontName};glyphs={hud.IsJapaneseReady};" +
+                      $"telemetry={telemetry.SaveDirectory}", this);
             RequestQuit();
         }
 

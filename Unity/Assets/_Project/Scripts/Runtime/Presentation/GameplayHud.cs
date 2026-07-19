@@ -9,12 +9,16 @@ namespace EchoShift.Presentation
     public sealed class GameplayHud : MonoBehaviour
     {
         [SerializeField] private Phase3TextCatalog textCatalog;
+        [SerializeField] private JapaneseFontApplier fontApplier;
         [SerializeField] private Text sectionText;
+        [SerializeField] private Text objectiveText;
+        [SerializeField] private Text tutorialText;
         [SerializeField] private Text loopText;
         [SerializeField] private Text timerText;
         [SerializeField] private Text echoText;
         [SerializeField] private Text promptText;
         [SerializeField] private Text endLoopText;
+        [SerializeField] private Text pausePromptText;
         [SerializeField] private Text carryText;
         [SerializeField] private Text stateText;
         [SerializeField] private Text failureText;
@@ -23,25 +27,38 @@ namespace EchoShift.Presentation
         private float _failureUntil;
 
         public Phase3TextCatalog TextCatalog => textCatalog;
+        public bool IsJapaneseReady => textCatalog != null &&
+            textCatalog.LanguageCode == Phase3TextCatalog.JapaneseLanguageCode &&
+            fontApplier != null && fontApplier.IsReady;
+        public string JapaneseFontName => fontApplier != null
+            ? fontApplier.ResolvedFontName : string.Empty;
         public string CurrentPrompt { get; private set; } = string.Empty;
+        public string CurrentObjective { get; private set; } = string.Empty;
+        public string CurrentTutorial { get; private set; } = string.Empty;
+        public string CurrentStateMessage { get; private set; } = string.Empty;
         public string LastFailureText { get; private set; } = string.Empty;
-        public bool HasValidReferences => textCatalog != null && sectionText != null &&
+        public bool HasValidReferences => textCatalog != null && fontApplier != null && sectionText != null &&
+            objectiveText != null && tutorialText != null &&
             loopText != null && timerText != null && echoText != null &&
-            promptText != null && endLoopText != null && carryText != null &&
+            promptText != null && endLoopText != null && pausePromptText != null && carryText != null &&
             stateText != null && failureText != null;
 
         public void Configure(
-            Phase3TextCatalog catalog, Text section, Text loop, Text timer,
-            Text echoes, Text prompt, Text endLoopLabel, Text carry,
+            Phase3TextCatalog catalog, Text section, Text objective, Text tutorial,
+            Text loop, Text timer, Text echoes, Text prompt, Text endLoopLabel,
+            Text pauseLabel, Text carry,
             Text state, Text failure)
         {
             textCatalog = catalog;
             sectionText = section;
+            objectiveText = objective;
+            tutorialText = tutorial;
             loopText = loop;
             timerText = timer;
             echoText = echoes;
             promptText = prompt;
             endLoopText = endLoopLabel;
+            pausePromptText = pauseLabel;
             carryText = carry;
             stateText = state;
             failureText = failure;
@@ -51,6 +68,11 @@ namespace EchoShift.Presentation
         {
             _coordinator = coordinator;
             RefreshNow();
+        }
+
+        public void SetFontApplier(JapaneseFontApplier applier)
+        {
+            fontApplier = applier;
         }
 
         private void Update()
@@ -70,11 +92,12 @@ namespace EchoShift.Presentation
             PuzzleSectionController section = _coordinator.ActiveSection;
             Core.LoopDirector director = section.Director;
             sectionText.text = textCatalog.GetSectionName(_coordinator.ActiveSectionNumber - 1);
-            loopText.text = $"LOOP  {director.LoopNumber}";
+            SetObjective(textCatalog.GetSectionObjective(_coordinator.ActiveSectionNumber - 1));
+            loopText.text = textCatalog.FormatLoop(director.LoopNumber);
             float remaining = Mathf.Max(0f,
                 (director.MaxTicks - director.CurrentTick) / (float)Mathf.Max(1, director.TickRate));
-            timerText.text = $"TIME  {remaining:00.0}";
-            echoText.text = $"ECHOES  {director.EchoCount}/{director.MaxEchoes}";
+            timerText.text = textCatalog.FormatTime(remaining);
+            echoText.text = textCatalog.FormatEchoCount(director.EchoCount, director.MaxEchoes);
             InputSystemInputSource source = section.Player.GetComponent<InputSystemInputSource>();
             bool hasCandidate = section.Player.Interactor?.Sensor?.CurrentTarget != null;
             CurrentPrompt = ResolvePrompt(
@@ -82,13 +105,27 @@ namespace EchoShift.Presentation
                 hasCandidate);
             promptText.text = CurrentPrompt;
             endLoopText.text = textCatalog.EndLoop;
+            pausePromptText.text = textCatalog.PausePrompt;
             carryText.text = section.Player.Interactor?.CarriedBattery != null
-                ? "CELL  CARRIED" : string.Empty;
+                ? textCatalog.BatteryCarried : string.Empty;
         }
 
         public void SetStateMessage(string message)
         {
-            if (stateText != null) stateText.text = message ?? string.Empty;
+            CurrentStateMessage = message ?? string.Empty;
+            if (stateText != null) stateText.text = CurrentStateMessage;
+        }
+
+        public void SetObjective(string message)
+        {
+            CurrentObjective = message ?? string.Empty;
+            if (objectiveText != null) objectiveText.text = CurrentObjective;
+        }
+
+        public void SetTutorialMessage(string message)
+        {
+            CurrentTutorial = message ?? string.Empty;
+            if (tutorialText != null) tutorialText.text = CurrentTutorial;
         }
 
         public void ShowInteractionFailure(InteractionFailureReason reason)
