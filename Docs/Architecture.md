@@ -1,5 +1,7 @@
 # Architecture
 
+**Phase 3: Validated**
+
 ## Assembly dependency direction
 
 ```text
@@ -77,7 +79,7 @@ Plain classes hold clock, immutable command, recorder, candidate comparison, and
 
 ## Phase 3 gameplay shell
 
-`SectionTransitionCoordinator` owns the Scene-level flow, while each `PuzzleSectionController` owns one section's Director, Player, Goal, spawn, and root. The explicit state graph is `Booting -> Playing -> LoopTransition/SectionTransition/Paused -> Playing`, with `SectionTransition -> Completed`. Duplicate or illegal transitions are rejected. Section changes never reload the Scene: carried references and Echoes are released, the outgoing Director shuts down, authored state resets, and only the next root activates.
+`SectionTransitionCoordinator` owns the Scene-level flow, while each `PuzzleSectionController` owns one section's Director, Player, Goal, spawn, and root. The explicit state graph is `Booting -> Playing -> LoopTransition/SectionTransition/Paused -> Playing`, with `SectionTransition -> Completed`. `Completed` may enter the presentation-only `Paused` state and resume back to `Completed`; it never reactivates the final simulation. The completion Pause Menu disables Restart Section but retains Resume, Restart From Beginning, and two-step Quit. Duplicate or illegal transitions are rejected. Section changes never reload the Scene: carried references and Echoes are released, the outgoing Director shuts down, authored state resets, and only the next root activates.
 
 `LoopDirector` remains the fixed-tick simulation owner. Phase 3 only added pause/restart/shutdown lifecycle methods and aggregate loop/interaction events. It does not own camera, HUD, tutorial, section order, telemetry persistence, or application quit policy.
 
@@ -88,3 +90,9 @@ Plain classes hold clock, immutable command, recorder, candidate comparison, and
 ## Local telemetry boundary
 
 `PlaytestTelemetry` records value-only session aggregates: build/Unity version, section duration and loops, manual/timer loop endings, restarts, interaction result counts, maximum drift, final section, and outcome. It emits schema-versioned JSON under `Application.persistentDataPath/EchoShiftPlaytests`. It intentionally stores no `ReplayRecording`, per-tick command, position, stable object reference, or cross-session mutable singleton.
+
+## Phase 3 validation boundary
+
+The final technical architecture gate is green: Scene generation, 61 EditMode tests, 61 PlayMode tests, P0-P3 real-Scene integration, deterministic P3 completion, and the Windows final-build probe pass with zero BuildReport warning and no matching Missing/Null/unhandled runtime problem. A source-blind graphical run also completed the three-section route and natural Pause/Quit path with no Critical or High issue.
+
+Human acceptance confirms the completed architecture is usable end to end, with Critical 0 and High 0. The single human Medium concerns visual simplicity and does not change the gameplay architecture; it is isolated in `Phase4Backlog.md` with the source-blind presentation candidates. **Phase 3: Validated.** Any Phase 4 visual replacement must preserve the fixed-tick, replay, interaction, reset, and presentation-ownership boundaries described above.

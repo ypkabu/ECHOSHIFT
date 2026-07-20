@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-The current implementation milestone is Phase 3 Japanese pretest. It packages P0-P2 mechanics into one three-section playable greybox with Japanese player-facing UI, explicit game states, in-place section lifecycle, runtime UI/camera feedback, local telemetry, and a natural Standalone quit path. Japanese automation passes, but the source-blind Codex run ended `PRETEST FAIL` in Section 1; its observed High defects were corrected and regression-tested. Formal Phase 3 validation still requires the entirely unchecked human acceptance checklist.
+Phase 3 is formally validated. It packages P0-P2 mechanics into one three-section playable greybox with Japanese player-facing UI, explicit game states, in-place section lifecycle, runtime UI/camera feedback, local telemetry, and a natural Standalone quit path. Final automation, a source-blind Codex retest, and human acceptance pass with Critical 0 and High 0. The accepted Medium visual-simplicity issue and non-blocking presentation observations are recorded in `Docs/Phase4Backlog.md`; Phase 4 implementation has not started.
 
 ## Required workflow
 

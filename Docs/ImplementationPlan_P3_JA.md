@@ -1,5 +1,7 @@
 # Phase 3 Japanese Localization and Codex Pretest Plan
 
+Historical subplan status: this plan's original no-tag gate was followed during localization. Subsequent corrections, a new source-blind retest, final automation, and human acceptance completed successfully. **Phase 3: Validated.**
+
 ## Scope and gate
 
 This work localizes only Phase 3 player-facing presentation and performs one source-blind Codex black-box pretest. It does not replace human acceptance, move `phase3-automation-passed`, create `phase3-validated`, merge to `main`, or begin Phase 4.
@@ -37,4 +39,4 @@ This work localizes only Phase 3 player-facing presentation and performs one sou
 
 - Japanese Scene generation, 57 EditMode tests, 49 PlayMode tests, corrected Windows Development Build, natural-exit probe, font/glyph validation, telemetry JSON, and package synchronization passed.
 - The independent source-blind run was executable but ended `PRETEST FAIL` after 15 minutes in Section 1. It found High defaults/input issues in Debug Overlay, Pause UI, and movement guidance; all received code fixes and regressions.
-- Medium/Low observations were recorded without broad automatic redesign. Formal human acceptance remains entirely unchecked.
+- Medium/Low observations were recorded without broad automatic redesign. At this subplan's original completion point, human acceptance was still unchecked; it was subsequently completed and recorded in `Phase3ManualAcceptance.md`, with Critical 0, High 0, and one non-blocking visual Medium moved to `Phase4Backlog.md`.

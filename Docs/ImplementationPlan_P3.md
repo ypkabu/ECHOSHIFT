@@ -1,5 +1,7 @@
 # Phase 3 Implementation Plan
 
+**Phase 3: Validated**
+
 ## Baseline
 
 Phase 2 was fast-forwarded into `main` at `f88ff829fb15ef28bba72ae4a46b25c37aafc0ec`. Phase 3 work proceeds on `feature/phase3-playable-greybox`. Phase 0 through Phase 2 tags remain unchanged.
@@ -15,6 +17,8 @@ The clean-context Fresh3 retest exposed a second interaction High: a Socket whos
 The subsequent source-blind Fresh4 retest exposed a Section 1 onboarding boundary High. Its oversized tutorial volume changed the guidance to "on the switch" before the Player collider overlapped the actual PressurePlate, so the Player could reasonably end a Loop while the Door was still closed and reproduce the same non-pressing endpoint with an Echo. The tutorial step will use the PressurePlate's own trigger collider, making the instruction and device activation share one physical boundary. Regression coverage will exercise the former false-positive edge, the true Plate boundary, Door state, and an Echo replay from the accepted endpoint. The Windows Security firewall prompt observed during this Development Player run is tracked separately as a test-environment interruption rather than attributed to game logic; the next isolated package will be preflighted at its final path before it is handed to a new blind tester.
 
 Fresh6 completed all three sections source-blind in 2/2/3 Loops, but exposed a post-completion High: the HUD continued to advertise Pause while the state graph made `Completed` terminal, so Escape/Select could not open the Pause Menu and Standalone Quit was unreachable. `Completed` will permit a reversible presentation-only transition to `Paused`; resuming restores the completion message and never resumes the inactive final-section simulation. The completion Pause Menu keeps Resume, Restart From Beginning, and Quit available while disabling Restart Section, whose section root has already been shut down. Regression coverage verifies the completion Pause transition used by the existing Escape/Select input handler, menu/focus state, return to `Completed`, and the non-quitting two-step test Quit path.
+
+Fresh7 used another new source-blind context after that correction and passed: all sections completed in 10:53.2, section times were 2:08 / 3:33 / 4:24, loop counts were 2 / 3 / 3, restarts were 0, and post-completion Pause plus two-step Quit succeeded. It found no Critical or High issue. Human acceptance subsequently passed all recorded gameplay, control, comprehension, visibility, Japanese, Restart, Pause/Resume, and Quit checks with Critical 0 and High 0. One human Medium concerning greybox visual simplicity and the source-blind presentation observations are deferred to `Phase4Backlog.md`. The final technical regression and `Builds/Phase3-Final` probe pass; Phase 3 is formally validated.
 
 ## Three-section introduction order
 

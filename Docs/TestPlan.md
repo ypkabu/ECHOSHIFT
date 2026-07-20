@@ -1,8 +1,10 @@
 # Test Plan
 
+**Phase 3: Validated**
+
 ## EditMode
 
-The 60-case suite retains all Phase 0-3 cases and adds Japanese-localization and High-fix regression coverage for:
+The 61-case suite retains all Phase 0-3 cases and adds Japanese-localization and High-fix regression coverage for:
 
 - replay frame ordering, capacity, overflow rejection, immutable finalization, and short prefixes;
 - LoopSettings validation and drift monitoring;
@@ -26,7 +28,7 @@ The 60-case suite retains all Phase 0-3 cases and adds Japanese-localization and
 
 ## PlayMode
 
-The 54-case suite retains all P0-P3 coverage and adds Japanese/localization and black-box regression tests:
+The 61-case suite retains all P0-P3 coverage and adds Japanese/localization and black-box regression tests:
 
 - unchanged movement replay, pressure-plate lifecycle cleanup, actor collision matrix, short replay, Echo cap, and generated Phase 0 flow;
 - Player pickup, carry-socket following, deterministic drop, Socket insertion, and powered Door opening;
@@ -51,6 +53,8 @@ The 54-case suite retains all P0-P3 coverage and adds Japanese/localization and 
 - staged Section 1/2 Japanese guidance, Restart guidance reset, Battery/Socket/Drop-specific prompts, live no-target interaction failure routing, and no Pickup/Drop false-positive completion hint;
 - fixed Camera rotation during Player follow, low visible foreground wall plus full collision boundary, Player/device world labels, and Echo generation identity labels/rings;
 - generated P3 starting with Debug Overlay OFF, device-appropriate movement prompt before an interaction target, and EventSystem pointer/keyboard submit paths for Pause actions.
+- the exact Section 1 Plate/tutorial boundary and Echo replay from the accepted endpoint;
+- post-completion Escape/Select Pause, Resume back to Completed, disabled completed-section restart, and the non-quitting two-step Quit test seam.
 
 ## Batch commands
 
@@ -65,23 +69,27 @@ $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
 & "$PWD\Builds\Phase3\ECHOSHIFT_Phase3.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-standalone.log"
 & $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildJapaneseWindowsDevelopment -logFile "$PWD\Logs\phase3-ja-build.log"
 & "$PWD\Builds\Phase3-JA\ECHOSHIFT_Phase3_JA.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-ja-standalone.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildFinalWindowsDevelopment -logFile "$PWD\Logs\phase3-final-build.log"
+& "$PWD\Builds\Phase3-Final\ECHOSHIFT_Phase3_Final.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-final-standalone.log"
 ```
 
 Review XML contents and logs. A process exit code alone is not sufficient evidence. Do not add `-quit` to test commands: Unity Test Framework exits after writing XML, while an early generic quit can occur before the runner starts.
 
-`Phase3BuildPipeline` regenerates P3, builds P3/P2/P1/P0 in that order, targets Windows x86_64, and enables Development Build. The standard and Japanese methods write `Builds/Phase3/ECHOSHIFT_Phase3.exe` and `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe` respectively. `-phase3AutoQuit` is probe-only and does not affect ordinary play.
+`Phase3BuildPipeline` regenerates P3, builds P3/P2/P1/P0 in that order, targets Windows x86_64, and enables Development Build. The standard, Japanese, and final methods write `Builds/Phase3/ECHOSHIFT_Phase3.exe`, `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe`, and `Builds/Phase3-Final/ECHOSHIFT_Phase3_Final.exe`. `-phase3AutoQuit` is probe-only and does not affect ordinary play.
 
 ## Latest verified results
 
-Executed with Unity `6000.4.6f1` on 2026-07-20:
+Executed with Unity `6000.4.6f1` on 2026-07-21 after the last code change:
 
 - Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
-- EditMode: 61 passed, 0 failed, 0 skipped; duration 1.9120047 seconds.
-- PlayMode: 59 passed, 0 failed, 0 skipped; duration 15.2049905 seconds.
+- EditMode: 61 passed, 0 failed, 0 skipped; duration 1.8848759 seconds.
+- PlayMode: 61 passed, 0 failed, 0 skipped; duration 16.4244913 seconds.
 - Phase 0 integration maximum drift: `0 m`.
 - Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
 - Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
 - Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
-- Japanese Windows x86_64 Development Build: BuildReport succeeded, zero warnings, 166,333,594 bytes; the 290-file output tree totals 166,528,726 bytes at `Builds/Phase3-JA`.
-- Headless Japanese Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it saved schema 1 JSON, requested the normal quit path, and exited naturally with code 0. Matched exception/font/glyph/missing-reference messages were zero.
+- Final Windows x86_64 Development Build: process exit code 0, BuildReport succeeded with zero warnings, 289 files and 166,334,282 bytes at `Builds/Phase3-Final`; EXE SHA-256 `098A43C3B20762E4BDF938771C36F0FB116126AEC8932B2A77EB403F0CB77938`.
+- Headless final Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it generated one schema-1 JSON, requested the normal quit path, and exited naturally with code 0. Matched Error, Exception, assertion, Missing Script/Reference, and NullReference messages were zero.
+- Source-blind Fresh7 graphical retest: `PRETEST PASS`; 10:53.2 total, sections 2:08 / 3:33 / 4:24, loops 2 / 3 / 3, restarts 0, post-completion Pause and visible two-step Quit successful, Critical/High 0.
+- Human acceptance: full completion and every recorded gameplay/control/comprehension/visibility/Japanese/Restart/Pause/Quit check passed; Critical 0, High 0, Medium 1, Low 0. Unrecorded environment and timing metrics remain unrecorded. The Medium visual-simplicity observation is deferred to `Phase4Backlog.md`.
 - Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.

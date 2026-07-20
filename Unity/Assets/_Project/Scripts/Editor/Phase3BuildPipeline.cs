@@ -11,6 +11,8 @@ namespace EchoShift.Editor
         private const string BuildRelativePath = "Builds/Phase3/ECHOSHIFT_Phase3.exe";
         private const string JapaneseBuildRelativePath =
             "Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe";
+        private const string FinalBuildRelativePath =
+            "Builds/Phase3-Final/ECHOSHIFT_Phase3_Final.exe";
 
         [MenuItem("ECHO SHIFT/Build Phase 3 Windows Development")]
         public static void BuildWindowsDevelopment()
@@ -22,6 +24,12 @@ namespace EchoShift.Editor
         public static void BuildJapaneseWindowsDevelopment()
         {
             BuildWindowsDevelopment(JapaneseBuildRelativePath, "PHASE3_JA_BUILD_OK");
+        }
+
+        [MenuItem("ECHO SHIFT/Build Phase 3 Final Windows Development")]
+        public static void BuildFinalWindowsDevelopment()
+        {
+            BuildWindowsDevelopment(FinalBuildRelativePath, "PHASE3_FINAL_BUILD_OK");
         }
 
         private static void BuildWindowsDevelopment(string relativePath, string successMarker)

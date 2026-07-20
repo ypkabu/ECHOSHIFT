@@ -1,10 +1,12 @@
 # Phase 3 Japanese Localization Validation
 
-This validation is separate from `Phase3Validation.md` and from formal human acceptance. It verifies the Japanese presentation build and records the Codex pretest without creating `phase3-validated`.
+**Phase 3: Validated**
+
+This validation is separate from `Phase3Validation.md` and from formal human acceptance. It verifies the Japanese presentation and the corrected source-blind Codex retest without substituting Codex observations for a human run.
 
 ## Environment and baseline
 
-- Date: 2026-07-20 (Asia/Tokyo)
+- Final technical regression date: 2026-07-21 (Asia/Tokyo)
 - Unity Editor: `6000.4.6f1`
 - URP: `17.4.0`
 - Input System: `1.19.0`
@@ -31,9 +33,9 @@ Section 3 initially shows only `2体のエコーと協力して出口へ進む`;
 
 ## Automated tests
 
-Final EditMode XML: **61 passed, 0 failed, 0 skipped**, duration `1.9120047` seconds. Japanese-localization and High-correction cases cover responsive layout, non-overlapping HUD safe-area rows, unit-scale world labels, serialized failure-text replacement, generated EventSystem checks, authored world-label framing, and Telemetry failure de-duplication.
+Final EditMode XML: **61 passed, 0 failed, 0 skipped**, duration `1.8848759` seconds. Japanese-localization and High-correction cases cover responsive layout, non-overlapping HUD safe-area rows, unit-scale world labels, serialized failure-text replacement, generated EventSystem checks, authored world-label framing, and Telemetry failure de-duplication.
 
-Final PlayMode XML: **59 passed, 0 failed, 0 skipped**, duration `15.2049905` seconds. Japanese/localization and black-box regression cases cover default Debug Overlay OFF, an interactive start gate that freezes the first Loop, real Input System E/R and gamepad action-latch consumption, pointer/keyboard Pause Menu operation, staged guidance, the real-Scene Socket collider/range boundary, invalid-candidate Battery preservation, exact Pickup/Insert recording without a false Drop, Echo-only P3 Door power, lateral Door opening, fixed Camera rotation, and Player/Echo identity. Existing P0-P3 tests were retained without disabled cases or loosened tolerances.
+Final PlayMode XML: **61 passed, 0 failed, 0 skipped**, duration `16.4244913` seconds. Japanese/localization and black-box regression cases cover default Debug Overlay OFF, an interactive start gate that freezes the first Loop, real Input System E/R and gamepad action-latch consumption, pointer/keyboard Pause Menu operation, completed-state Pause/Resume and two-step Quit, staged guidance, the real-Scene Plate/tutorial and Socket collider/range boundaries, invalid-candidate Battery preservation, exact Pickup/Insert recording without a false Drop, Echo-only P3 Door power, lateral Door opening, fixed Camera rotation, and Player/Echo identity. Existing P0-P3 tests were retained without disabled cases or loosened tolerances.
 
 The actual P3 integration still completed all three sections in **1,081** advances with maximum Replay Drift **0 m**, interaction success **4**, and interaction failure **0**.
 
@@ -59,10 +61,12 @@ It then logged `PHASE3_QUIT_REQUESTED` with a newly generated schema-1 telemetry
 
 `Playtest/Phase3-JA-BlackBox/` contains the 290-file corrected runtime, a source-free launch note, a blank result template, retained cropped screenshots, and ignored runtime logs. Source and package relative file sets, sizes, and SHA-256 hashes match exactly. The source/package `globalgamemanagers` SHA-256 is `DB1B7CD28DD820158144CC74067D717A65DF5259FA81DB6ABB0483661DF48155`; the EXE SHA-256 is `098A43C3B20762E4BDF938771C36F0FB116126AEC8932B2A77EB403F0CB77938`. The two excluded invalid-attempt full-desktop PNGs were deleted and are not part of the handoff package.
 
-## Codex black-box pretest
+## Codex black-box retest
 
-The original independent source-blind test remains documented in `Phase3CodexBlackBoxPlaytest.md`. A later clean-context Fresh3 run completed Section 1 but exposed a real Socket boundary defect: the HUD advertised Insert while the request fell back to Drop, preventing Section 2 progress. Its evidence was finalized before source inspection. This second correction makes candidate display/execution agree, makes Recorded Interaction mechanically required in P3, clears the opened Door from the framed opening, and prevents launch-time focus interruptions from consuming the first Loop. A fully new source-blind agent must retest the rebuilt package; that result belongs in `Phase3CodexBlackBoxRetest.md` and is not inferred from automation or the implementation-side GUI smoke.
+The original independent failure remains in `Phase3CodexBlackBoxPlaytest.md`. Subsequent new-context runs exposed and finalized evidence for the Socket boundary, Section 1 Plate/tutorial boundary, and completed-state Quit defects before implementation-side source inspection. Each High was corrected and regression-tested.
+
+Fresh7 then used a new source-blind context, Debug Overlay OFF, 1280x720, and only visible Japanese information. It completed all three sections in 10:53.2, with section times 2:08 / 3:33 / 4:24, loop counts 2 / 3 / 3, and restart count 0. It opened Pause after completion and exited through the visible two-step Quit confirmation. Japanese text had no truncation, mojibake, unreadable required string, or progression blocker. Final result: `PRETEST PASS`, Critical 0, High 0, Medium 1, Low 2. See `Phase3CodexBlackBoxRetest.md`.
 
 ## Gate decision
 
-Japanese localization automation and the corrected build pass their technical gates. The source-blind completion gate remains pending a fully new run, so no automated result is treated as acceptance. All 17 items in `Phase3ManualAcceptance.md` remain unchecked. `phase3-validated` must remain absent, and Phase 4 must not begin until formal human acceptance is recorded and remaining priorities are adjudicated.
+Japanese localization automation, final Build probe, and the new source-blind completion gate pass. Human acceptance also marked Japanese display, HUD, Camera visibility, Echo/device/Door readability, controls, Pause/Resume, Restart, Quit, and Interaction failure feedback Pass, with Critical 0 and High 0. The one human Medium concerns overall greybox visual simplicity rather than localization or progression and is deferred to `Phase4Backlog.md`. Phase 3 is formally validated.

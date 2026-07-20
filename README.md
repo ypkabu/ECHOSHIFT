@@ -1,6 +1,6 @@
 # ECHO//SHIFT
 
-ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 3 turns the validated replay mechanics into one playable greybox: three puzzle sections, in-place transitions, camera and HUD guidance, pause/restart/quit flows, visual feedback, and local playtest telemetry. Player-facing Phase 3 text now defaults to Japanese (`ja-JP`).
+ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 3 packages the validated replay mechanics into one playable greybox: three puzzle sections, in-place transitions, camera and HUD guidance, pause/restart/quit flows, visual feedback, and local playtest telemetry. Player-facing Phase 3 text defaults to Japanese (`ja-JP`). **Phase 3: Validated.**
 
 ## Phase 3 game flow
 
@@ -37,6 +37,7 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 - `ECHO SHIFT/Validate Stable Interaction IDs` rejects empty or duplicate replay-target IDs in the active Scene.
 - `ECHO SHIFT/Build Phase 3 Windows Development` regenerates P3 and builds Windows x86_64 with P3 as the startup Scene.
 - `EchoShift.Editor.Phase3BuildPipeline.BuildJapaneseWindowsDevelopment` regenerates P3 and writes the Japanese Windows x86_64 Development Build to `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe` in batch mode.
+- `EchoShift.Editor.Phase3BuildPipeline.BuildFinalWindowsDevelopment` regenerates P3 and writes the final Windows x86_64 Development Build to `Builds/Phase3-Final/ECHOSHIFT_Phase3_Final.exe`.
 
 ## Automated verification
 
@@ -44,18 +45,16 @@ Batch-mode commands are documented in `Docs/TestPlan.md`. The latest verificatio
 
 - Phase 3 Scene Builder: successful and repeatable; old Scene files remain unchanged; P3/P2/P1/P0 Build Settings order
 - EditMode: `61/61` passed, including Japanese catalog, glyph/layout safe areas, repeatable Scene generation, and telemetry de-duplication checks
-- PlayMode: `59/59` passed, including P0-P3 real-Scene integration, actionable Socket prompts, recorded-only P3 Door power, start-input consumption, the interactive start gate, and Japanese/black-box regressions
+- PlayMode: `61/61` passed, including P0-P3 real-Scene integration, actionable Socket prompts, recorded-only P3 Door power, start-input consumption, the interactive start gate, completed-state Pause/Quit, and Japanese/black-box regressions
 - P3 automated solution: all three sections completed in 1,081 advances; Replay Drift `0 m`; interactions `4` successful, `0` failed
-- Japanese Windows x86_64 Development Build: exit code `0`, zero BuildReport warnings, expected EXE/Data output generated at `Builds/Phase3-JA`
+- Final Windows x86_64 Development Build: exit code `0`, zero BuildReport warnings, 289 files / 166,334,282 bytes at `Builds/Phase3-Final`
 - Headless Standalone probe: `ja-JP`, `Noto Sans JP`, required glyphs, HUD, and telemetry initialized; JSON was saved and the player exited naturally with code `0`
 
-Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`. The source-blind Codex run was executable but ended `PRETEST FAIL` after 15 minutes in Section 1; it is documented in `Docs/Phase3CodexBlackBoxPlaytest.md`. It is a pretest, not formal acceptance, and all subjective checks remain open in `Docs/Phase3ManualAcceptance.md`.
+Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`. The original failure remains historical evidence in `Docs/Phase3CodexBlackBoxPlaytest.md`; a new source-blind Fresh7 run completed all three sections in 10:53.2 and passed Pause/Quit with no Critical or High issue, as recorded in `Docs/Phase3CodexBlackBoxRetest.md`. This remains a Codex pretest, not a substitute for human acceptance.
 
 ## Manual verification
 
-1. Run `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe` without automation flags.
-2. Complete all three sections with a physical keyboard and, separately, a gamepad.
-3. Record every result in `Docs/Phase3ManualAcceptance.md`; do not create `phase3-validated` until the required items pass and Critical/High findings are fixed.
+Human acceptance passed full completion, movement, E/R/Escape, Camera, all three puzzle-comprehension stages, Echo/device/Door readability, HUD routing, Restart, Pause/Resume, Quit, Japanese display, and Interaction failure feedback. Critical and High findings were 0. Unrecorded environment and timing values remain explicitly unrecorded rather than inferred in `Docs/Phase3ManualAcceptance.md`.
 
 ## Project layout
 
@@ -73,5 +72,6 @@ Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`.
 - The prototype resets explicitly registered state, not arbitrary physics state.
 - Telemetry is local JSON only and intentionally excludes replay frames and positions.
 - There is no Steam integration, enemy AI, combat, save data, audio, VFX, or final art.
-- The generated build is a validation build, not a production Steam package; graphical presentation, physical keyboard/gamepad feel, signing, and installer behavior remain manually unverified.
-- The Codex black-box run did not complete Section 1. Echo identification, camera/wall/HUD occlusion, package text-reader compatibility, and Japanese time formatting remain human-priority decisions.
+- The generated build is a Development validation build, not a signed or installable Steam package.
+- Codex pretest backlog: delayed replay progress can resemble an interaction failure (Medium), close world labels can overlap (Low), and a faint duplicate Pause title can appear (Low).
+- Human acceptance recorded one non-blocking Medium: the playable greybox looks too simple for a finished product. Visual Polish / Art Direction is deferred to `Docs/Phase4Backlog.md`.
