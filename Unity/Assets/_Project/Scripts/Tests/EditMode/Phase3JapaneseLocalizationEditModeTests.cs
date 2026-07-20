@@ -3,6 +3,7 @@ using System.Linq;
 using EchoShift.Core;
 using EchoShift.Editor;
 using EchoShift.Gameplay;
+using EchoShift.Interaction;
 using EchoShift.Interaction.Recorded;
 using EchoShift.Presentation;
 using NUnit.Framework;
@@ -174,8 +175,11 @@ namespace EchoShift.Tests
             TutorialTrigger[] triggers = UnityEngine.Object.FindObjectsByType<TutorialTrigger>(
                 FindObjectsInactive.Include);
             Assert.That(triggers, Has.Length.EqualTo(1));
+            Assert.That(triggers[0].gameObject.name, Is.EqualTo("Pressure Plate"));
             Assert.That(triggers[0].transform.localPosition,
-                Is.EqualTo(new Vector3(-2f, 1f, -3f)));
+                Is.EqualTo(new Vector3(-2f, 0.1f, -3f)));
+            Assert.That(triggers[0].GetComponent<Collider>(),
+                Is.SameAs(triggers[0].GetComponent<PressurePlate>().GetComponent<Collider>()));
             UnityEditor.SerializedObject serializedTrigger =
                 new UnityEditor.SerializedObject(triggers[0]);
             Assert.That(serializedTrigger.FindProperty("step").intValue, Is.EqualTo(1));

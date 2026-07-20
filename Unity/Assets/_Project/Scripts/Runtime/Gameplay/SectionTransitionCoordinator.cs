@@ -397,6 +397,12 @@ namespace EchoShift.Gameplay
 
             if (ActiveSectionNumber == 1)
             {
+                if (!ActiveSection.Director.LastCompletedPressurePlateWasPressed)
+                {
+                    guide.ShowMessage(hud.TextCatalog.GetTutorialText(0, 1));
+                    return;
+                }
+
                 guide.ShowStep(2,
                     $"{hud.TextCatalog.GetTutorialText(0, 2)}\n" +
                     hud.TextCatalog.GetTutorialText(0, 3));

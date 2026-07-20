@@ -57,6 +57,7 @@ namespace EchoShift.Core
         public int MaxEchoes => settings != null ? settings.MaxEchoes : 0;
         public float DriftTolerance => settings != null ? settings.DriftTolerance : 0f;
         public ReplayRecording LastCompletedRecording { get; private set; }
+        public bool LastCompletedPressurePlateWasPressed { get; private set; }
         public int CurrentInteractionCount => _recorder?.InteractionCount ?? 0;
         public LoopEndReason LastLoopEndReason { get; private set; } = LoopEndReason.Manual;
         public LoopHistory History { get; private set; } = new LoopHistory();
@@ -234,6 +235,7 @@ namespace EchoShift.Core
             _recorder = new ReplayRecorder(settings.MaxTicks);
             History = new LoopHistory();
             LastCompletedRecording = null;
+            LastCompletedPressurePlateWasPressed = false;
             CurrentTick = 0;
             LoopNumber = 1;
             _nextReplayGeneration = 1;
@@ -502,6 +504,8 @@ namespace EchoShift.Core
             _clock.Pause();
             UpdateHistoryRuntimeResults();
             LastCompletedRecording = _recorder.FinalizeRecording();
+            LastCompletedPressurePlateWasPressed =
+                IsAnyCoordinatedPressurePlatePressed();
             LastLoopEndReason = _pendingEndReason;
             int generation = _nextReplayGeneration;
 
@@ -543,6 +547,20 @@ namespace EchoShift.Core
             _clock.Resume();
             _isTransitioning = false;
             LoopCompleted?.Invoke(completedSummary);
+        }
+
+        private bool IsAnyCoordinatedPressurePlatePressed()
+        {
+            for (int i = 0; i < coordinatedPressurePlates.Length; i++)
+            {
+                if (coordinatedPressurePlates[i] != null &&
+                    coordinatedPressurePlates[i].IsPressed)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void AddEcho(ReplayRecording recording, int generation)

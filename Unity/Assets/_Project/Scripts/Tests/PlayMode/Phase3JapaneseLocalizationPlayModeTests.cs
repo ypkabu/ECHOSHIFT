@@ -146,14 +146,98 @@ namespace EchoShift.Tests
                 Does.Contain("行動を記録しました").And.Contain("エコー1を生成")
                     .And.Contain("次のループを開始"));
             Assert.That(coordinator.Hud.CurrentTutorial,
-                Does.Contain("E1・E2").And.Contain("黄色の「自分」")
-                    .And.Contain("緑の扉"));
+                Is.EqualTo("扉が緑になったら、その場で R / START：ループを終了してエコーを作る"),
+                "An invalid endpoint must not be presented as a successful Plate recording.");
             yield return null;
             EchoVisualFeedback feedback = UnityEngine.Object
                 .FindAnyObjectByType<EchoVisualFeedback>();
             Assert.That(feedback, Is.Not.Null);
             Assert.That(feedback.IdentityText, Is.EqualTo("E1"));
             Assert.That(feedback.HasIdentityRing, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator Section1TutorialUsesRealPlateBoundaryAndAcceptedEndpointReplays()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            PuzzleSectionController section = coordinator.ActiveSection;
+            PressurePlate plate = UnityEngine.Object.FindAnyObjectByType<PressurePlate>();
+            DoorController door = UnityEngine.Object.FindAnyObjectByType<DoorController>();
+            TutorialGuide guide = section.GetComponent<TutorialGuide>();
+            TutorialTrigger tutorialTrigger = plate.GetComponent<TutorialTrigger>();
+            Collider plateCollider = plate.GetComponent<Collider>();
+            Collider playerCollider = section.Player.GetComponent<Collider>();
+
+            Assert.That(tutorialTrigger, Is.Not.Null);
+            Assert.That(tutorialTrigger.GetComponent<Collider>(), Is.SameAs(plateCollider),
+                "Tutorial guidance and Plate activation must share one physical boundary.");
+            Assert.That(coordinator.SetPaused(true), Is.True);
+
+            float formerFalseCueOffset = plateCollider.bounds.extents.x +
+                                         playerCollider.bounds.extents.x + 0.1f;
+            Vector3 nearEdge = plate.transform.position +
+                               Vector3.right * formerFalseCueOffset;
+            nearEdge.y = section.Player.transform.position.y;
+            section.Player.Motor.ResetPose(nearEdge, Quaternion.identity);
+            Physics.SyncTransforms();
+            yield return new WaitForFixedUpdate();
+            plate.RefreshFromPhysics();
+
+            Assert.That(plate.IsPressed, Is.False);
+            Assert.That(guide.CurrentGuidance,
+                Is.EqualTo("黄色の「自分」を青いスイッチまで移動する（WASD / 左スティック）"));
+            Assert.That(door.IsOpenRequested, Is.False);
+
+            Vector3 plateCenter = plate.transform.position;
+            plateCenter.y = section.Player.transform.position.y;
+            section.Player.Motor.ResetPose(plateCenter, Quaternion.identity);
+            Physics.SyncTransforms();
+            yield return new WaitForFixedUpdate();
+            plate.RefreshFromPhysics();
+
+            Assert.That(plate.IsPressed, Is.True);
+            Assert.That(guide.CurrentGuidance,
+                Is.EqualTo("扉が緑になったら、その場で R / START：ループを終了してエコーを作る"));
+            Assert.That(door.IsOpenRequested, Is.True);
+
+            coordinator.RestartSection();
+            coordinator.SetTransitionDurationsForTests(0f, 0f);
+            MutableJapaneseInputSource input = section.Player.gameObject
+                .AddComponent<MutableJapaneseInputSource>();
+            section.Player.Configure(input, section.Player.Motor, section.Player.Interactor);
+
+            int movementTicks = 0;
+            while (!plate.IsPressed && movementTicks++ < 120)
+            {
+                Vector3 delta = plate.transform.position - section.Player.Motor.Position;
+                input.Move = new Vector2(delta.x, delta.z).normalized;
+                input.Buttons = EchoShift.Replay.InputButtonFlags.None;
+                section.Director.AdvanceOneTickForTests();
+            }
+
+            Assert.That(plate.IsPressed, Is.True,
+                "A normal movement recording must reach the same boundary advertised by the tutorial.");
+            input.Move = Vector2.zero;
+            input.Buttons = EchoShift.Replay.InputButtonFlags.EndLoop;
+            section.Director.AdvanceOneTickForTests();
+            input.Buttons = EchoShift.Replay.InputButtonFlags.None;
+            section.Director.AdvanceOneTickForTests();
+
+            Assert.That(section.Director.EchoCount, Is.EqualTo(1));
+            Assert.That(section.Director.LastCompletedPressurePlateWasPressed, Is.True);
+            Assert.That(guide.CurrentGuidance,
+                Does.Contain("E1・E2").And.Contain("黄色の「自分」")
+                    .And.Contain("緑の扉"));
+            int replayTicks = section.Director.LastCompletedRecording.Count + 2;
+            for (int i = 0; i < replayTicks; i++)
+                section.Director.AdvanceOneTickForTests();
+
+            Assert.That(plate.IsPressed, Is.True,
+                "The Echo must retain the accepted recorded endpoint on the Plate.");
+            Assert.That(door.IsOpen, Is.True);
+            Assert.That(section.Director.MaximumReplayDrift,
+                Is.LessThanOrEqualTo(section.Director.DriftTolerance));
         }
 
         [UnityTest]
@@ -529,5 +613,14 @@ namespace EchoShift.Tests
         public EchoShift.Replay.InputCommand Sample(int tick) =>
             new EchoShift.Replay.InputCommand(
                 tick, Vector2.zero, EchoShift.Replay.InputButtonFlags.None);
+    }
+
+    public sealed class MutableJapaneseInputSource : MonoBehaviour, EchoShift.Input.IInputSource
+    {
+        public Vector2 Move { get; set; }
+        public EchoShift.Replay.InputButtonFlags Buttons { get; set; }
+
+        public EchoShift.Replay.InputCommand Sample(int tick) =>
+            new EchoShift.Replay.InputCommand(tick, Move, Buttons);
     }
 }

@@ -120,7 +120,7 @@ namespace EchoShift.Editor
                 TutorialGuide guide = sections[i].gameObject.AddComponent<TutorialGuide>();
                 guide.Configure(sections[i], catalog, hud);
                 guide.SetTrigger(CreateTutorialTrigger(
-                    sections[i].transform, guide, catalog, i, triggerLayer));
+                    sections[i], guide, catalog, i));
             }
 
             StableIdValidationResult validation =
@@ -663,18 +663,15 @@ namespace EchoShift.Editor
         }
 
         private static TutorialTrigger CreateTutorialTrigger(
-            Transform parent, TutorialGuide guide, Phase3TextCatalog catalog,
-            int sectionIndex, int layer)
+            PuzzleSectionController section, TutorialGuide guide,
+            Phase3TextCatalog catalog, int sectionIndex)
         {
             if (sectionIndex != 0) return null;
-            GameObject obj = new GameObject("Tutorial Trigger - Plate");
-            obj.transform.SetParent(parent, false);
-            obj.transform.localPosition = new Vector3(-2f, 1f, -3f);
-            obj.layer = layer;
-            BoxCollider collider = obj.AddComponent<BoxCollider>();
-            collider.isTrigger = true;
-            collider.size = new Vector3(2.8f, 2.5f, 2.8f);
-            TutorialTrigger trigger = obj.AddComponent<TutorialTrigger>();
+            PressurePlate plate = section.GetComponentInChildren<PressurePlate>(true);
+            if (plate == null)
+                throw new InvalidOperationException(
+                    "Section 1 requires a PressurePlate tutorial boundary.");
+            TutorialTrigger trigger = plate.gameObject.AddComponent<TutorialTrigger>();
             trigger.Configure(guide, 1, catalog.GetTutorialText(sectionIndex, 1));
             return trigger;
         }

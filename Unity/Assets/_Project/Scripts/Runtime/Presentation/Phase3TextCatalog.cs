@@ -47,7 +47,7 @@ namespace EchoShift.Presentation
         [SerializeField] private string section1Tutorial1 =
             "黄色の「自分」を青いスイッチまで移動する（WASD / 左スティック）";
         [SerializeField] private string section1Tutorial2 =
-            "スイッチ上で R / START：ループを終了してエコーを作る";
+            "扉が緑になったら、その場で R / START：ループを終了してエコーを作る";
         [SerializeField] private string section1Tutorial3 =
             "E1・E2…のエコーは、それぞれ記録した過去の動きを繰り返す";
         [SerializeField] private string section1Tutorial4 =
@@ -344,7 +344,7 @@ namespace EchoShift.Presentation
             section2Objective = "電池で扉に電力を送る";
             section3Objective = "2体のエコーと協力して出口へ進む";
             section1Tutorial1 = "黄色の「自分」を青いスイッチまで移動する（WASD / 左スティック）";
-            section1Tutorial2 = "スイッチ上で R / START：ループを終了してエコーを作る";
+            section1Tutorial2 = "扉が緑になったら、その場で R / START：ループを終了してエコーを作る";
             section1Tutorial3 = "E1・E2…のエコーは、それぞれ記録した過去の動きを繰り返す";
             section1Tutorial4 = "エコーを青いスイッチに残し、黄色の「自分」で緑の扉へ進む";
             section2Tutorial1 = "オレンジの電池に近づき E / A・× で持つ";
