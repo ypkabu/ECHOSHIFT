@@ -567,6 +567,37 @@ namespace EchoShift.Tests
         }
 
         [UnityTest]
+        public IEnumerator CompletedStateAcceptsPauseResumeAndQuitPath()
+        {
+            SectionTransitionCoordinator coordinator = null;
+            yield return Load(value => coordinator = value);
+            coordinator.SetTransitionDurationsForTests(0f, 0f);
+            for (int section = 0; section < 3; section++) AdvanceSection(coordinator);
+            Assert.That(coordinator.State, Is.EqualTo(GameplayState.Completed));
+
+            Assert.That(coordinator.SetPaused(true), Is.True);
+            Assert.That(coordinator.State, Is.EqualTo(GameplayState.Paused));
+            Assert.That(coordinator.PauseMenu.IsVisible, Is.True);
+            Assert.That(coordinator.PauseMenu.RestartSectionInteractable, Is.False);
+            Assert.That(UnityEngine.Object.FindAnyObjectByType<EventSystem>()
+                .currentSelectedGameObject, Is.Not.Null);
+
+            Assert.That(coordinator.SetPaused(false), Is.True);
+            Assert.That(coordinator.State, Is.EqualTo(GameplayState.Completed));
+            Assert.That(coordinator.ActiveSection.Director.IsSimulationPaused, Is.True);
+            Assert.That(coordinator.Hud.CurrentStateMessage,
+                Does.Contain("すべての実験を完了しました")
+                    .And.Contain("過去の自分たちとの同期に成功"));
+
+            Assert.That(coordinator.SetPaused(true), Is.True);
+            coordinator.PauseMenu.RequestQuitForTests();
+            Assert.That(coordinator.PauseMenu.ConfirmationLabel,
+                Does.Contain("終了しますか？"));
+            coordinator.PauseMenu.RequestQuitForTests();
+            Assert.That(coordinator.QuitRequested, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator DebugOverlayOffLeavesNoEnglishPlaceholderTutorial()
         {
             SectionTransitionCoordinator coordinator = null;

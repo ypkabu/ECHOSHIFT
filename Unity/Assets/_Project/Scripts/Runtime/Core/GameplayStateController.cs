@@ -52,8 +52,9 @@ namespace EchoShift.Core
                 GameplayState.SectionTransition => next == GameplayState.Playing ||
                                                    next == GameplayState.Completed,
                 GameplayState.Paused => next == GameplayState.Playing ||
-                                        next == GameplayState.SectionTransition,
-                GameplayState.Completed => false,
+                                        next == GameplayState.SectionTransition ||
+                                        next == GameplayState.Completed,
+                GameplayState.Completed => next == GameplayState.Paused,
                 _ => throw new ArgumentOutOfRangeException(nameof(current))
             };
         }

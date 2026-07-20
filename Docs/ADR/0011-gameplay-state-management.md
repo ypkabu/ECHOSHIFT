@@ -8,6 +8,8 @@ Accepted for Phase 3 automation; subject to manual acceptance.
 
 Use a plain `GameplayStateController` with explicit `Booting`, `Playing`, `LoopTransition`, `SectionTransition`, `Paused`, and `Completed` states. A closed transition table rejects duplicates and illegal edges. The Scene coordinator applies state changes to Director pause/resume and UI; simulation code does not infer state from panels, time scale, or active GameObjects.
 
+`Completed` remains terminal for simulation and section progression, but it may transition to `Paused` for the player-facing completion menu. The coordinator remembers whether Pause originated from `Playing` or `Completed`; Resume returns to that origin, and returning to `Completed` keeps the final Director shut down. Restart Section is disabled in the completion menu because the final section root has already completed its shutdown lifecycle. Restart From Beginning and Quit remain available.
+
 ## Reasons
 
 An explicit graph makes double transitions, post-completion replay creation, pause timing, and restart behavior directly testable without introducing a framework or global singleton.
@@ -20,7 +22,7 @@ An explicit graph makes double transitions, post-completion replay creation, pau
 
 ## Current constraints
 
-Pause is Scene-local and does not persist. There is no boot/loading screen or save-state restoration.
+Pause is Scene-local and does not persist. The completion menu is not a new frontend state and does not reactivate gameplay. There is no boot/loading screen or save-state restoration.
 
 ## Replacement conditions
 

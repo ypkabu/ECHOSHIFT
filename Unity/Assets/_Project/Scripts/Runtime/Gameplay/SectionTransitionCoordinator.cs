@@ -29,6 +29,7 @@ namespace EchoShift.Gameplay
         private bool _quitRequested;
         private bool _started;
         private bool _awaitingInteractiveStart;
+        private GameplayState _pausedFromState = GameplayState.Playing;
 
         public GameplayState State => _state.State;
         public string LastTransitionReason => _state.LastReason;
@@ -167,31 +168,44 @@ namespace EchoShift.Gameplay
         {
             if (paused)
             {
-                if (State != GameplayState.Playing ||
+                GameplayState origin = State;
+                if ((origin != GameplayState.Playing &&
+                     origin != GameplayState.Completed) ||
                     !_state.TryTransition(GameplayState.Paused, "PauseRequested"))
                 {
                     return false;
                 }
-                ActiveSection.Director.SetSimulationPaused(true);
+                _pausedFromState = origin;
+                ActiveSection?.Director.SetSimulationPaused(true);
+                pauseMenu.SetCompletionMode(origin == GameplayState.Completed);
                 pauseMenu.SetVisible(true);
                 hud.SetStateMessage(hud.TextCatalog.Paused);
                 return true;
             }
 
+            GameplayState resumeState = _pausedFromState == GameplayState.Completed
+                ? GameplayState.Completed
+                : GameplayState.Playing;
             if (State != GameplayState.Paused ||
-                !_state.TryTransition(GameplayState.Playing, "ResumeRequested"))
+                !_state.TryTransition(resumeState, "ResumeRequested"))
             {
                 return false;
             }
-            ActiveSection.Director.SetSimulationPaused(false);
+            ActiveSection?.Director.SetSimulationPaused(
+                resumeState != GameplayState.Playing);
             pauseMenu.SetVisible(false);
-            hud.SetStateMessage(string.Empty);
+            hud.SetStateMessage(resumeState == GameplayState.Completed
+                ? hud.TextCatalog.FormatGameCompleted()
+                : string.Empty);
             return true;
         }
 
         public void RestartSection()
         {
-            if (State == GameplayState.Completed || State == GameplayState.SectionTransition)
+            if (State == GameplayState.Completed ||
+                State == GameplayState.SectionTransition ||
+                (State == GameplayState.Paused &&
+                 _pausedFromState == GameplayState.Completed))
             {
                 return;
             }
@@ -217,6 +231,7 @@ namespace EchoShift.Gameplay
         public void RestartGameInPlaceForTests()
         {
             _awaitingInteractiveStart = false;
+            _pausedFromState = GameplayState.Playing;
             ActiveSection.DeactivateSection();
             _state.Reset();
             _activeSectionIndex = 0;

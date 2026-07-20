@@ -35,6 +35,8 @@ namespace EchoShift.Presentation
         public string QuitLabel => Label(quitButton);
         public string ConfirmationLabel => confirmationText != null
             ? confirmationText.text : string.Empty;
+        public bool RestartSectionInteractable => restartSectionButton != null &&
+                                                  restartSectionButton.interactable;
 
         public void Configure(
             SectionTransitionCoordinator stateCoordinator,
@@ -95,6 +97,14 @@ namespace EchoShift.Presentation
             panel.SetActive(false);
         }
 
+        public void SetCompletionMode(bool completed)
+        {
+            if (restartSectionButton != null)
+            {
+                restartSectionButton.interactable = !completed;
+            }
+        }
+
         public void Resume()
         {
             ClearConfirmation();
@@ -117,6 +127,12 @@ namespace EchoShift.Presentation
         {
             if (!Confirm(PendingAction.Quit, catalog.ConfirmQuit)) return;
             coordinator.RequestQuit();
+        }
+
+        public void RequestQuitForTests()
+        {
+            if (!Confirm(PendingAction.Quit, catalog.ConfirmQuit)) return;
+            coordinator.RequestQuitForTests();
         }
 
         private bool Confirm(PendingAction action, string message)

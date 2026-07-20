@@ -27,6 +27,8 @@ namespace EchoShift.Tests
             Assert.That(state.TryTransition(GameplayState.Paused, "pause"), Is.True);
             Assert.That(state.TryTransition(GameplayState.Playing, "resume"), Is.True);
             Assert.That(state.TryTransition(GameplayState.Completed, "done"), Is.True);
+            Assert.That(state.TryTransition(GameplayState.Paused, "completion menu"), Is.True);
+            Assert.That(state.TryTransition(GameplayState.Completed, "completion resume"), Is.True);
             Assert.That(state.TryTransition(GameplayState.Playing, "invalid"), Is.False);
         }
 
