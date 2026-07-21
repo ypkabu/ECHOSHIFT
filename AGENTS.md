@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-Phase 3 is formally validated. Phase 4 Visual Polish automation now wraps its unchanged P0-P3 mechanics in a modular research-facility presentation with compound actor/device visuals, restrained URP lighting and post-processing, bounded VFX/audio, packaged Japanese fonts, a refined HUD, capture tooling, and a measured performance probe. **Phase 4: Automation Passed; Human Visual Review Pending.** Do not call Phase 4 validated until `Docs/Phase4VisualAcceptance.md` is completed and any Critical/High visual finding is fixed and revalidated.
+Phase 3 is formally validated. After the first Phase 4 primitive-led presentation failed human Visual Review, Phase 4.1 integrated a curated CC0 subset of Quaternius modular sci-fi/robot assets and Kenney audio without changing P0-P3 mechanics, Stable IDs, or colliders. **Phase 4.1: Automation Passed; Human Visual Review Pending.** Do not call Phase 4 validated until `Docs/Phase4VisualAcceptance.md` is completed against the Phase 4.1 Build and any Critical/High visual finding is fixed and revalidated.
 
 ## Required workflow
 
@@ -76,7 +76,7 @@ Tests must not depend on Asset Store content.
 
 Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final character/environment art, production BGM, or advanced animation. The bounded Phase 4 VFX/audio/HUD flow is allowed; do not expand it into a production front end or content pipeline without a later plan.
 
-Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Phase 4 generated primitives and shared materials remain the visual-slice source until a later art milestone explicitly replaces them.
+Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Curated third-party originals stay isolated under `Assets/_Project/ThirdParty`; project-owned wrappers/materials stay under `Assets/_Project/Art`. Gameplay roots, Stable IDs, colliders, and replay behavior must not be delegated to imported assets.
 
 ## Documentation
 

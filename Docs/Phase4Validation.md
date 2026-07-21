@@ -1,6 +1,8 @@
 # Phase 4 Visual Polish Automation Validation
 
-**Status: Phase 4: Automation Passed; Human Visual Review Pending**
+**Status: Historical first-pass automation record — human Visual Review rejected the primitive-led presentation**
+
+This document preserves the `phase4-automation-passed` evidence at `e043b160a945939d5f862a4648d3df728a40a49e`. It is not the current acceptance candidate. Corrective external-asset integration and its 93/93 + 93/93 verification, rebuilt Players, captures, performance, and shutdown matrix are recorded separately in `Phase4ExternalAssetIntegrationValidation.md`. Current status is **Phase 4.1: Automation Passed; Human Visual Review Pending**.
 
 Validation date: 2026-07-21 (Asia/Tokyo)  
 Branch: `feature/phase4-visual-polish`  
@@ -114,6 +116,6 @@ A normal visible automated Player exit returned Windows status `0xC0000005` afte
 - Feedback runtime buffers were not rebuilt after Scene deserialization: `Awake` reconstructs them.
 - HUD formatted unchanged values each frame: values are cached and timer strings precomputed, reducing steady GC from 194 B/frame to 0 B/frame.
 
-## Gate decision
+## Historical gate decision
 
-Automation criteria are green and no Critical/High automation defect remains. The lightweight `phase4-automation-passed` tag may be created at the final automation commit. `phase4-validated` must not be created until `Phase4VisualAcceptance.md` is completed and any Critical/High visual finding is corrected, rebuilt, and fully revalidated.
+The original automation criteria were green, but later human Visual Review found presentation-level High issues. The immutable `phase4-automation-passed` tag remains historical. Phase 4.1 corrected those findings and passed a fresh automation gate; `phase4-validated` still must not be created until `Phase4VisualAcceptance.md` is completed against the new Build and any Critical/High finding is corrected, rebuilt, and fully revalidated.

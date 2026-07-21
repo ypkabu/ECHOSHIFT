@@ -9,13 +9,28 @@ namespace EchoShift.Editor
     public static class Phase4BuildPipeline
     {
         public const string RelativeOutput = "Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe";
+        public const string NonDevelopmentRelativeOutput =
+            "Builds/Phase4_1_NonDevelopment/ECHOSHIFT_Phase4_1_NonDevelopment.exe";
 
         [MenuItem("ECHO SHIFT/Build Phase 4 Windows Development")]
         public static void BuildWindowsDevelopment()
         {
+            BuildWindows(RelativeOutput, BuildOptions.Development, "PHASE4_BUILD_OK");
+        }
+
+        [MenuItem("ECHO SHIFT/Build Phase 4 Windows Non-Development")]
+        public static void BuildWindowsNonDevelopment()
+        {
+            BuildWindows(NonDevelopmentRelativeOutput, BuildOptions.None,
+                "PHASE4_NONDEVELOPMENT_BUILD_OK");
+        }
+
+        private static void BuildWindows(string relativeOutput, BuildOptions buildOptions,
+            string successMarker)
+        {
             P3SceneBuilder.BuildScene();
             string repository = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
-            string output = Path.Combine(repository, RelativeOutput);
+            string output = Path.Combine(repository, relativeOutput);
             Directory.CreateDirectory(Path.GetDirectoryName(output) ?? repository);
             BuildPlayerOptions options = new BuildPlayerOptions
             {
@@ -28,7 +43,7 @@ namespace EchoShift.Editor
                 },
                 locationPathName = output,
                 target = BuildTarget.StandaloneWindows64,
-                options = BuildOptions.Development
+                options = buildOptions
             };
             BuildReport report = BuildPipeline.BuildPlayer(options);
             BuildSummary summary = report.summary;
@@ -39,7 +54,7 @@ namespace EchoShift.Editor
             if (summary.totalWarnings != 0)
                 throw new InvalidOperationException(
                     $"Phase 4 build produced {summary.totalWarnings} BuildReport warnings.");
-            Debug.Log($"PHASE4_BUILD_OK path={output};size={summary.totalSize};" +
+            Debug.Log($"{successMarker} path={output};size={summary.totalSize};" +
                       $"warnings={summary.totalWarnings};errors={summary.totalErrors}");
         }
     }

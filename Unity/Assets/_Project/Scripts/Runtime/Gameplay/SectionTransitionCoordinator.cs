@@ -70,6 +70,10 @@ namespace EchoShift.Gameplay
             {
                 StartCoroutine(AutoQuitProbe());
             }
+            else if (HasCommandLineFlag("-phase4PauseQuitProbe"))
+            {
+                StartCoroutine(PauseQuitProbe());
+            }
         }
 
         private void Update()
@@ -526,6 +530,17 @@ namespace EchoShift.Gameplay
                       $"font={hud.JapaneseFontName};glyphs={hud.IsJapaneseReady};" +
                       $"telemetry={telemetry.SaveDirectory}", this);
             RequestQuit();
+        }
+
+        private IEnumerator PauseQuitProbe()
+        {
+            yield return null;
+            yield return null;
+            bool paused = SetPaused(true);
+            Debug.Log($"PHASE4_PAUSE_QUIT_PROBE menu={pauseMenu.IsVisible};paused={paused}", this);
+            pauseMenu.RequestQuit();
+            yield return null;
+            pauseMenu.RequestQuit();
         }
 
         private static bool HasCommandLineFlag(string flag)

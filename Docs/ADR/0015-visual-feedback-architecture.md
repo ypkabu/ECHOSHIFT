@@ -24,7 +24,7 @@ Use scene-owned presentation adapters and one `Phase4FeedbackDirector`. Adapters
 
 ## Current limitations
 
-Audio is generated tonal feedback, not production sound design. Door observation is a small per-frame fixed-array read. VFX share one generic pulse shape with event-specific color/scale/duration.
+Phase 4.1 replaces six bounded cues with curated Kenney CC0 clips, but this remains prototype sound design rather than a final mix. Door observation is a small per-frame fixed-array read. VFX share one generic pulse shape with event-specific color/scale/duration.
 
 ## Replacement conditions
 

@@ -1,6 +1,6 @@
 # ECHO//SHIFT
 
-ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 4 gives the validated three-section Phase 3 game a coherent near-future research-facility presentation: modular rooms, compound robot/Echo silhouettes, dedicated devices, restrained URP lighting/post-processing, bounded VFX/audio, a packaged Japanese font, and a redesigned HUD. Gameplay, replay, Stable IDs, fixed-tick simulation, section solutions, and P0-P2 scenes remain unchanged. **Phase 4: Automation Passed; Human Visual Review Pending.**
+ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 4.1 replaces the rejected primitive-led visual pass with a curated CC0 Quaternius modular sci-fi/robot presentation and Kenney audio while retaining the validated three-section Phase 3 game. Gameplay, replay, Stable IDs, fixed-tick simulation, colliders, section solutions, and P0-P2 scenes remain unchanged. **Phase 4.1: Automation Passed; Human Visual Review Pending.**
 
 ## Phase 3 game flow
 
@@ -32,8 +32,9 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 
 - `ECHO SHIFT/Build Phase 3 Scene` generates `Assets/_Project/Scenes/P3_PlayableGreybox.unity` and preserves P3/P2/P1/P0 Build Settings order.
 - The Phase 3 Scene Builder automatically invokes the idempotent Phase 4 asset and presentation passes for P3 only.
-- `ECHO SHIFT/Capture Phase 4 Frames` writes the eight 1920x1080 review images to ignored `Captures/Phase4/`.
-- `ECHO SHIFT/Build Phase 4 Windows Development` writes `Builds/Phase4/ECHOSHIFT_Phase4.exe`.
+- `ECHO SHIFT/Capture Phase 4 Frames` writes the eight 1920x1080 Phase 4.1 review images to ignored `Captures/Phase4_1/After/`.
+- `ECHO SHIFT/Build Phase 4 Windows Development` writes `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe`.
+- `EchoShift.Editor.Phase4BuildPipeline.BuildWindowsNonDevelopment` writes `Builds/Phase4_1_NonDevelopment/ECHOSHIFT_Phase4_1_NonDevelopment.exe`.
 - `ECHO SHIFT/Build Phase 2 Scene` regenerates `Assets/_Project/Scenes/P2_CoordinationLab.unity`.
 - `ECHO SHIFT/Build Phase 1 Scene` generates `Assets/_Project/Scenes/P1_InteractionLab.unity`.
 - `ECHO SHIFT/Build Phase 0 Scene` regenerates `Assets/_Project/Scenes/P0_ReplayLab.unity`.
@@ -44,16 +45,18 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 
 ## Automated verification
 
-Batch-mode commands are documented in `Docs/TestPlan.md`. The latest Phase 4 verification with Unity `6000.4.6f1` produced:
+Batch-mode commands are documented in `Docs/TestPlan.md`. The latest Phase 4.1 verification with Unity `6000.4.6f1` produced:
 
 - Scene Builder: exit code `0`; P0-P2 SHA-256 values unchanged; P3/P2/P1/P0 Build Settings order retained.
-- EditMode: `84/84` passed, including `23` Phase 4 cases for shared assets, font/license, PropertyBlocks, safe Volume values, builder uniqueness, and old-Scene hashes.
-- PlayMode: `87/87` passed, including `26` Phase 4 cases plus all P0-P3 real-Scene and automatic-solution regressions.
+- Curated third-party originals: 39 files / 9,984,796 bytes; official CC0 sources, hashes, licenses, unused files, and import settings recorded in `Docs/ThirdPartyAssets.md`.
+- EditMode: `93/93` passed; PlayMode: `93/93` passed. Added coverage includes source/license/hash, imports, materials/textures/shaders, root motion absence, wrapper idempotence, gameplay-root integrity, labels/beams, Pause focus/HUD, and external visuals.
 - P3 automated solution: Replay Drift `0 m`; interactions `4` successful and `0` failed.
-- Windows x86_64 Development Build: BuildReport success, warnings `0`, errors `0`, 291 files / 178,845,266 bytes at `Builds/Phase4`.
+- Windows x86_64 Development Build: BuildReport success, warnings `0`, errors `0`, 291 files / 204,467,042 bytes at `Builds/Phase4_1`.
+- Windows x86_64 Non-Development Build: BuildReport success, warnings `0`, errors `0`, 182 files / 140,785,117 bytes at `Builds/Phase4_1_NonDevelopment`.
 - Standalone batch probe: `ja-JP`, packaged `Noto Sans JP`, required glyphs, HUD, telemetry, real D3D11 GPU, and natural exit code `0`.
-- Maximum-Echo performance probe: 1920x1080, 600 frames at a 120fps cap, average `8.339 ms`, p95 `8.359 ms`, Main Thread average `8.335 ms`, steady GC `0 B/frame`, transition maximum `14.093 ms`, and maximum used memory `105,811,560 B`.
-- Eight ignored 1920x1080 captures were generated with Debug Overlay off.
+- Maximum-Echo performance probe: 1920x1080, 600 frames at a 120fps cap, average `8.338 ms`, p95 `8.337 ms`, Main Thread average `8.330 ms`, steady GC `0 B/frame`, transition maximum `15.721 ms`, and maximum used memory `168,041,477 B`.
+- Matching Before/After sets of eight ignored 1920x1080 captures were generated with Debug Overlay off.
+- Development/Non-Development, D3D11/D3D12, audio on/off, auto-quit, Pause-menu Quit, and ordinary visible Window Close probes all exited `0`; the historical `0xC0000005` was not reproduced, but its root cause remains unproven.
 
 Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`. The original failure remains historical evidence in `Docs/Phase3CodexBlackBoxPlaytest.md`; a new source-blind Fresh7 run completed all three sections in 10:53.2 and passed Pause/Quit with no Critical or High issue, as recorded in `Docs/Phase3CodexBlackBoxRetest.md`. This remains a Codex pretest, not a substitute for human acceptance.
 
@@ -61,7 +64,7 @@ Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`.
 
 Human acceptance passed full completion, movement, E/R/Escape, Camera, all three puzzle-comprehension stages, Echo/device/Door readability, HUD routing, Restart, Pause/Resume, Quit, Japanese display, and Interaction failure feedback. Critical and High findings were 0. Unrecorded environment and timing values remain explicitly unrecorded rather than inferred in `Docs/Phase3ManualAcceptance.md`.
 
-Phase 4 automation is not formal acceptance. Complete `Docs/Phase4VisualAcceptance.md` against the current Build and captures before creating `phase4-validated`.
+Phase 4.1 automation is not formal acceptance. Complete `Docs/Phase4VisualAcceptance.md` against `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe` and `Captures/Phase4_1/After/` before creating `phase4-validated`.
 
 ## Project layout
 
@@ -78,8 +81,9 @@ Phase 4 automation is not formal acceptance. Complete `Docs/Phase4VisualAcceptan
 - Battery carry/drop is deterministic and kinematic, without throw, stacking, or free Rigidbody replay.
 - The prototype resets explicitly registered state, not arbitrary physics state.
 - Telemetry is local JSON only and intentionally excludes replay frames and positions.
-- There is no Steam integration, enemy AI, combat, save data, production BGM, final character art, or final environment texture pass.
+- There is no Steam integration, enemy AI, combat, save data, production BGM, or final production art pass.
 - The generated build is a Development validation build, not a signed or installable Steam package.
-- Draw Calls were unavailable from the runtime ProfilerRecorder on this configuration; SetPass was valid but reported `0`. These values are not inferred and require an interactive Frame Debugger/Profiler review.
-- Normal windowed automated shutdown returned `0xC0000005` after clean Unity cleanup on this machine for both Phase 3 and Phase 4 builds; the supported batch probe exited `0`. Human Visual Review must exercise ordinary visible Quit again.
+- Draw Calls were unavailable from the runtime ProfilerRecorder; GPU Frame Time, SetPass, Triangles, and Vertices returned `0` despite availability. These values are not inferred and require an interactive Frame Debugger/Profiler review.
+- Historical Phase 3/Phase 4 shutdown records contain `UnityPlayer.dll` `0xC0000005`. Phase 4.1's required nine-scenario matrix exited `0`, but the historical root cause is not established and visible Quit should still be checked by a human.
+- The Quaternius Robot importer reports one source `Foot.L` self-intersection diagnostic; no visible or Build defect was found automatically, so both feet remain a manual review item.
 - Final visual quality remains gated by `Docs/Phase4VisualAcceptance.md`; advanced art, animation, texture, and BGM work remains in `Docs/Phase4Backlog.md`.

@@ -1,6 +1,6 @@
 # Architecture
 
-**Phase 4: Automation Passed; Human Visual Review Pending**
+**Phase 4.1: Automation Passed; Human Visual Review Pending**
 
 ## Assembly dependency direction
 
@@ -105,8 +105,12 @@ The Japanese path uses project assets only: a static TextMeshPro atlas containin
 
 Rendering uses one soft-shadow Directional Light, at most two unshadowed local lights per active section, ambient/fog separation, and one global URP Volume containing safe ACES Tonemapping, Color Adjustments, mild Bloom, and mild Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent. Capture/build/performance orchestration remains Editor-only except for the opt-in runtime probe component.
 
+Phase 4.1 adds an explicit third-party boundary. Original CC0 files and notices live under `Assets/_Project/ThirdParty` and `ThirdPartyNotices`; `Phase4ExternalAssetCatalog` maps only the curated subset. Import processing fixes Rig None, animation/root motion off, no generated colliders, texture limits, and project-owned URP Material usage. `Phase4ExternalAssetBuilder` creates deterministic wrapper Prefabs under `Assets/_Project/Art` so vendor FBX/material state never becomes authoritative gameplay state. Imported Robot/environment meshes remain collider-free visual children; the existing roots retain all Stable IDs, layers, Motor, trigger, carry, and reset ownership.
+
+The Phase 4.1 scene composition removes camera-crossing overhead beams and persistent identity labels. Generation readability is supplied by compact mesh marks, material channels, visor, and trails. Door/Goal visual adapters use external panels/frames but still read the existing authoritative `DoorController` and `GoalVolume`. Pause presentation remains UI-only and hides the gameplay HUD through its cached `CanvasGroup`; the new probe exercises the real two-step Pause-menu Quit without changing production behavior.
+
 ## Phase 3 validation boundary
 
 The final technical architecture gate is green: Scene generation, 61 EditMode tests, 61 PlayMode tests, P0-P3 real-Scene integration, deterministic P3 completion, and the Windows final-build probe pass with zero BuildReport warning and no matching Missing/Null/unhandled runtime problem. A source-blind graphical run also completed the three-section route and natural Pause/Quit path with no Critical or High issue.
 
-Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4 automation preserves that boundary: 84 EditMode and 87 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, and normal-route interaction failures `0`. The Visual Polish layer and automated captures still require the separate human checklist. **Phase 4: Automation Passed; Human Visual Review Pending.**
+Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4.1 preserves that boundary: 93 EditMode and 93 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, normal-route interaction failures `0`, and external-asset/gameplay-root separation. The external-asset presentation and automated captures still require the separate human checklist. **Phase 4.1: Automation Passed; Human Visual Review Pending.**

@@ -4,6 +4,8 @@
 
 Phase 3 was fast-forwarded into `main` at `86cdf46635b0de8df3c0adf599a670d903941fe8`, matching `phase3-validated`. The first Phase 4 automation pass was preserved at `e043b160a945939d5f862a4648d3df728a40a49e` and tagged `phase4-automation-passed`, but human Visual Review rejected its primitive-led presentation. Corrective work proceeds from that immutable baseline on `feature/phase4-external-asset-integration`. The objective remains presentation quality suitable for a Steam page, internship application, and portfolio footage without changing puzzle rules, replay formats, fixed-tick simulation, Stable IDs, colliders, or section solutions.
 
+Current milestone result: the bounded external-asset integration, corrective visual changes, tests, captures, performance probe, Development/Non-Development Builds, and shutdown matrix are complete. **Phase 4.1: Automation Passed; Human Visual Review Pending.** The plan remains open only at the human visual-acceptance gate; it does not authorize `phase4-validated`.
+
 ## Why the current build looks inexpensive
 
 - Rooms are large unbroken cubes with uniform materials, little scale hierarchy, and no authored facility silhouette.
@@ -34,14 +36,14 @@ Theme: **an austere near-future research facility for temporal duplication exper
 
 1. Split Phase 4 authoring out of the P3 builder into visual-asset, environment/device/actor, lighting-volume, UI, audio, validation, capture, and build helpers. The P3 builder remains the gameplay source and invokes the Phase 4 pass only for P3.
 2. Add shared `Phase4VisualSettings` with required colors, materials, font, VFX, audio cues, HUD icons, capture resolution, and safe post-processing values.
-3. Rebuild visible P3 rooms from modular panel, trim, column, corner, overhead rail, pedestal, machine-bank, section-boundary, and Goal modules while preserving simple gameplay colliders.
+3. Rebuild visible P3 rooms from modular panel, trim, column, corner, pedestal, machine-bank, section-boundary, and Goal modules while preserving simple gameplay colliders. Camera-crossing overhead rails were removed during the Phase 4.1 corrective pass.
 4. Replace visible actor primitives with compound low-poly experiment suits; keep the existing root collider, movement, carry socket, and replay ownership unchanged.
 5. Add device-specific visual adapters driven by existing Plate, Door, Battery, Socket, Goal, Loop, and Interaction state.
 6. Add a small preallocated feedback pool and bounded AudioSources. Use PropertyBlocks and shared materials; do not instantiate runtime materials.
 7. Redesign the legacy Unity UI hierarchy with restrained panels, progress strip, icon marks, safe anchors, and responsive scaling while retaining current Japanese strings and control paths.
 8. Package Noto Sans JP from the official Google Fonts `ofl/notosansjp` source. The official repository places the family under OFL and supplies `OFL.txt`; the license permits bundling with software when the copyright notice and license accompany it. Store the source font and license locally, build a project font asset, and remove the runtime OS-font dependency.
 9. Add bounded URP Volume overrides: ACES tonemapping, mild contrast/saturation, thresholded Bloom, subtle Vignette, and the existing restrained SSAO renderer feature. Do not use Motion Blur, Chromatic Aberration, or gameplay Depth of Field.
-10. Add a reproducible 1920x1080 capture pipeline for eight required gameplay compositions under ignored `Captures/Phase4/`.
+10. Add a reproducible 1920x1080 capture pipeline for eight required gameplay compositions; preserve the original set and write matching Phase 4.1 comparisons under ignored `Captures/Phase4_1/Before` and `Captures/Phase4_1/After`.
 
 ## Existing functions reused
 
@@ -104,7 +106,7 @@ The Editor capture pipeline renders the actual gameplay Camera at 1920x1080 with
 7. Goal arrival/completion presentation;
 8. redesigned gameplay HUD or Pause Menu.
 
-Captures are written to ignored `Captures/Phase4/` and validated for names, count, and 1920x1080 dimensions.
+The current matching captures are written to ignored `Captures/Phase4_1/Before` and `Captures/Phase4_1/After` and validated for names, count, and 1920x1080 dimensions.
 
 ## External-asset corrective pass (Phase 4.1)
 
@@ -127,8 +129,8 @@ Enemy AI, stealth, combat, new puzzle mechanics, story dialogue, voice acting, S
 
 ## Completion gate
 
-Automation may create `phase4-automation-passed` only after every retained and new test, final Build, packaged-font probe, captures, and measured performance report pass with no Critical/High automation defect. Phase 4 is not formally complete and `phase4-validated` must not be created until the separate human Visual Review is recorded and any Critical/High visual issue is corrected and rebuilt.
+Corrective automation may create `phase4-assets-automation-passed` only after every retained and new test, both Builds, packaged-font probe, captures, measured performance report, and shutdown matrix pass with no Critical/High automation defect. Phase 4 is not formally complete and `phase4-validated` must not be created until the separate human Visual Review is recorded and any Critical/High visual issue is corrected and rebuilt.
 
 ## Execution status
 
-The primitive-led automation pass was implemented and automatically validated on 2026-07-21, but human Visual Review found four High presentation defects: excessive darkness, camera-crossing black beams, persistent world labels, and insufficient Pause hierarchy. Phase 4 therefore remains unvalidated. The Phase 4.1 external-asset corrective pass above is in progress; its evidence must be recorded independently without rewriting the original `phase4-automation-passed` baseline.
+The primitive-led automation pass was implemented and automatically validated on 2026-07-21, but human Visual Review found four High presentation defects: excessive darkness, camera-crossing black beams, persistent world labels, and insufficient Pause hierarchy. Phase 4.1 completed the external-asset corrective pass with 93/93 EditMode, 93/93 PlayMode, matching captures, measured performance, two Windows Builds, and a nine-scenario clean shutdown matrix. Its evidence is recorded independently without rewriting the original `phase4-automation-passed` baseline. Human Visual Review remains pending.

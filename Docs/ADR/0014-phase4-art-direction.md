@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for Phase 4 automation; human visual acceptance pending.
+Superseded for the acceptance candidate by ADR 0018 after the primitive-led presentation failed human Visual Review. Retained as the `phase4-automation-passed` historical decision.
 
 ## Decision
 

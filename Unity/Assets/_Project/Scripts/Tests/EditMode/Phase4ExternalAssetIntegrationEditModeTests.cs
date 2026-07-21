@@ -169,7 +169,7 @@ namespace EchoShift.Tests.EditMode
         {
             EditorSceneManager.OpenScene(P3SceneBuilder.ScenePath, OpenSceneMode.Single);
             StableId[] ids = UnityEngine.Object.FindObjectsByType<StableId>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             string[] values = new string[ids.Length];
             for (int i = 0; i < ids.Length; i++) values[i] = ids[i].Value;
             Array.Sort(values, StringComparer.Ordinal);
@@ -182,7 +182,7 @@ namespace EchoShift.Tests.EditMode
             }));
 
             Phase4ActorVisual[] actors = UnityEngine.Object.FindObjectsByType<Phase4ActorVisual>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             Assert.That(actors.Length, Is.GreaterThanOrEqualTo(3));
             for (int i = 0; i < actors.Length; i++)
             {
@@ -198,7 +198,7 @@ namespace EchoShift.Tests.EditMode
         {
             EditorSceneManager.OpenScene(P3SceneBuilder.ScenePath, OpenSceneMode.Single);
             WorldBillboardLabel[] labels = UnityEngine.Object.FindObjectsByType<WorldBillboardLabel>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             Assert.That(labels, Is.Not.Empty);
             for (int i = 0; i < labels.Length; i++)
             {
@@ -209,7 +209,7 @@ namespace EchoShift.Tests.EditMode
             }
 
             Transform[] transforms = UnityEngine.Object.FindObjectsByType<Transform>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+                FindObjectsInactive.Include);
             for (int i = 0; i < transforms.Length; i++)
             {
                 string lower = transforms[i].name.ToLowerInvariant();

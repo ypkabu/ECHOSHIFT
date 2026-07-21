@@ -17,10 +17,14 @@ namespace EchoShift.Presentation
         [SerializeField] private SectionTransitionCoordinator coordinator;
         private readonly float[] _frameMilliseconds = new float[SampleFrames];
         private ProfilerRecorder _mainThread;
+        private ProfilerRecorder _gpuFrameTime;
         private ProfilerRecorder _gcAllocated;
         private ProfilerRecorder _drawCalls;
         private ProfilerRecorder _setPassCalls;
+        private ProfilerRecorder _triangles;
+        private ProfilerRecorder _vertices;
         private ProfilerRecorder _usedMemory;
+        private ProfilerRecorder _textureMemory;
         private bool _recording;
         private float _transitionMaximumFrameMs;
         private float _transitionMaximumMainThreadMs;
@@ -38,6 +42,8 @@ namespace EchoShift.Presentation
             public float maximumFrameMs;
             public float averageMainThreadMs;
             public float maximumMainThreadMs;
+            public float averageGpuFrameMs;
+            public float maximumGpuFrameMs;
             public float transitionMaximumFrameMs;
             public float transitionMaximumMainThreadMs;
             public long maximumGcBytesPerFrame;
@@ -45,16 +51,23 @@ namespace EchoShift.Presentation
             public int nonZeroGcFrames;
             public long maximumDrawCalls;
             public long maximumSetPassCalls;
+            public long maximumTriangles;
+            public long maximumVertices;
             public long maximumUsedMemoryBytes;
+            public long maximumTextureMemoryBytes;
             public int finalEchoCount;
             public int requiredEchoCount;
             public bool maximumEchoConditionReached;
             public bool steadyStateGcIsZero;
             public bool mainThreadAvailable;
+            public bool gpuFrameTimeAvailable;
             public bool gcAvailable;
             public bool drawCallsAvailable;
             public bool setPassAvailable;
+            public bool trianglesAvailable;
+            public bool verticesAvailable;
             public bool memoryAvailable;
+            public bool textureMemoryAvailable;
             public bool graphicalDevice;
         }
 
@@ -77,10 +90,14 @@ namespace EchoShift.Presentation
             QualitySettings.vSyncCount = 0;
             Screen.SetResolution(1920, 1080, false);
             _mainThread = ProfilerRecorder.StartNew(ProfilerCategory.Internal, "Main Thread", 1);
+            _gpuFrameTime = ProfilerRecorder.StartNew(ProfilerCategory.Render, "GPU Frame Time", 1);
             _gcAllocated = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame", 1);
             _drawCalls = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Draw Calls Count", 1);
             _setPassCalls = ProfilerRecorder.StartNew(ProfilerCategory.Render, "SetPass Calls Count", 1);
+            _triangles = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Triangles Count", 1);
+            _vertices = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Vertices Count", 1);
             _usedMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Total Used Memory", 1);
+            _textureMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Texture Memory", 1);
             _recording = true;
             for (int i = 0; i < RecorderWarmupFrames; i++) yield return null;
             yield return PrepareMaximumEchoes();
@@ -88,14 +105,19 @@ namespace EchoShift.Presentation
 
             float total = 0f;
             float totalMain = 0f;
+            float totalGpu = 0f;
             float maximum = 0f;
             float maximumMain = 0f;
+            float maximumGpu = 0f;
             long maximumGc = 0;
             long totalGc = 0;
             int nonZeroGcFrames = 0;
             long maximumDraw = 0;
             long maximumSetPass = 0;
+            long maximumTriangles = 0;
+            long maximumVertices = 0;
             long maximumMemory = 0;
+            long maximumTextureMemory = 0;
             for (int frame = 0; frame < SampleFrames; frame++)
             {
                 yield return null;
@@ -109,6 +131,12 @@ namespace EchoShift.Presentation
                     totalMain += mainMs;
                     maximumMain = Mathf.Max(maximumMain, mainMs);
                 }
+                if (_gpuFrameTime.Valid)
+                {
+                    float gpuMs = _gpuFrameTime.LastValue / 1000000f;
+                    totalGpu += gpuMs;
+                    maximumGpu = Mathf.Max(maximumGpu, gpuMs);
+                }
                 if (_gcAllocated.Valid)
                 {
                     long gcBytes = _gcAllocated.LastValue;
@@ -118,7 +146,11 @@ namespace EchoShift.Presentation
                 }
                 if (_drawCalls.Valid) maximumDraw = Math.Max(maximumDraw, _drawCalls.LastValue);
                 if (_setPassCalls.Valid) maximumSetPass = Math.Max(maximumSetPass, _setPassCalls.LastValue);
+                if (_triangles.Valid) maximumTriangles = Math.Max(maximumTriangles, _triangles.LastValue);
+                if (_vertices.Valid) maximumVertices = Math.Max(maximumVertices, _vertices.LastValue);
                 if (_usedMemory.Valid) maximumMemory = Math.Max(maximumMemory, _usedMemory.LastValue);
+                if (_textureMemory.Valid)
+                    maximumTextureMemory = Math.Max(maximumTextureMemory, _textureMemory.LastValue);
             }
 
             Array.Sort(_frameMilliseconds);
@@ -140,6 +172,8 @@ namespace EchoShift.Presentation
                 maximumFrameMs = maximum,
                 averageMainThreadMs = _mainThread.Valid ? totalMain / SampleFrames : 0f,
                 maximumMainThreadMs = maximumMain,
+                averageGpuFrameMs = _gpuFrameTime.Valid ? totalGpu / SampleFrames : 0f,
+                maximumGpuFrameMs = maximumGpu,
                 transitionMaximumFrameMs = _transitionMaximumFrameMs,
                 transitionMaximumMainThreadMs = _transitionMaximumMainThreadMs,
                 maximumGcBytesPerFrame = maximumGc,
@@ -147,16 +181,23 @@ namespace EchoShift.Presentation
                 nonZeroGcFrames = nonZeroGcFrames,
                 maximumDrawCalls = maximumDraw,
                 maximumSetPassCalls = maximumSetPass,
+                maximumTriangles = maximumTriangles,
+                maximumVertices = maximumVertices,
                 maximumUsedMemoryBytes = maximumMemory,
+                maximumTextureMemoryBytes = maximumTextureMemory,
                 finalEchoCount = finalEchoCount,
                 requiredEchoCount = requiredEchoCount,
                 maximumEchoConditionReached = finalEchoCount == requiredEchoCount,
                 steadyStateGcIsZero = _gcAllocated.Valid && nonZeroGcFrames == 0,
                 mainThreadAvailable = _mainThread.Valid,
+                gpuFrameTimeAvailable = _gpuFrameTime.Valid,
                 gcAvailable = _gcAllocated.Valid,
                 drawCallsAvailable = _drawCalls.Valid,
                 setPassAvailable = _setPassCalls.Valid,
+                trianglesAvailable = _triangles.Valid,
+                verticesAvailable = _vertices.Valid,
                 memoryAvailable = _usedMemory.Valid,
+                textureMemoryAvailable = _textureMemory.Valid,
                 graphicalDevice = SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null
             };
             string directory = Path.Combine(Application.persistentDataPath, "Phase4Performance");
@@ -167,12 +208,15 @@ namespace EchoShift.Presentation
                       $"p95Ms={result.p95FrameMs:F3};maxMs={result.maximumFrameMs:F3};" +
                       $"mainAvgMs={result.averageMainThreadMs:F3};" +
                       $"mainMaxMs={result.maximumMainThreadMs:F3};" +
+                      $"gpuAvgMs={result.averageGpuFrameMs:F3};gpuMaxMs={result.maximumGpuFrameMs:F3};" +
                       $"transitionFrameMaxMs={result.transitionMaximumFrameMs:F3};" +
                       $"transitionMainMaxMs={result.transitionMaximumMainThreadMs:F3};" +
                       $"gcMax={result.maximumGcBytesPerFrame};" +
                       $"gcTotal={result.totalGcBytes};gcFrames={result.nonZeroGcFrames};" +
                       $"drawMax={result.maximumDrawCalls};setPassMax={result.maximumSetPassCalls};" +
-                      $"memoryMax={result.maximumUsedMemoryBytes};echoes={result.finalEchoCount};" +
+                      $"trianglesMax={result.maximumTriangles};verticesMax={result.maximumVertices};" +
+                      $"memoryMax={result.maximumUsedMemoryBytes};textureMemoryMax={result.maximumTextureMemoryBytes};" +
+                      $"echoes={result.finalEchoCount};" +
                       $"gpu={result.device};graphical={result.graphicalDevice}", this);
             DisposeRecorders();
             coordinator?.RequestQuit();
@@ -232,8 +276,9 @@ namespace EchoShift.Presentation
         private void DisposeRecorders()
         {
             if (!_recording) return;
-            _mainThread.Dispose(); _gcAllocated.Dispose(); _drawCalls.Dispose();
-            _setPassCalls.Dispose(); _usedMemory.Dispose();
+            _mainThread.Dispose(); _gpuFrameTime.Dispose(); _gcAllocated.Dispose();
+            _drawCalls.Dispose(); _setPassCalls.Dispose(); _triangles.Dispose();
+            _vertices.Dispose(); _usedMemory.Dispose(); _textureMemory.Dispose();
             _recording = false;
         }
 

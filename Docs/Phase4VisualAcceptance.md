@@ -1,8 +1,8 @@
 # Phase 4 Human Visual Acceptance
 
-**Status: Not executed — Phase 4: Automation Passed; Human Visual Review Pending**
+**Status: First review failed; Phase 4.1 corrective automation passed; new human review pending**
 
-Do not infer Pass from automated tests or captures. A human reviewer must play the current `Builds/Phase4/ECHOSHIFT_Phase4.exe`, inspect the eight `Captures/Phase4/` images, and record only observed results. Any Critical/High finding blocks `phase4-validated` and requires correction, full automation, a rebuilt Player, and a new human review.
+The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.1 uses curated external assets and addresses the recorded High issues, but automation does not prove visual acceptance. A human reviewer must play `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe`, inspect `Captures/Phase4_1/Before/` and `Captures/Phase4_1/After/`, and record only observed results. Any Critical/High finding blocks `phase4-validated` and requires correction, full automation, rebuilt Players, and another human review.
 
 ## Test record
 
@@ -10,8 +10,8 @@ Do not infer Pass from automated tests or captures. A human reviewer must play t
 |---|---|
 | Date/time | Not recorded |
 | Reviewer | Not recorded |
-| Commit/tag | `phase4-automation-passed` after creation |
-| Build | `Builds/Phase4/ECHOSHIFT_Phase4.exe` |
+| Commit/tag | `phase4-assets-automation-passed` after creation |
+| Build | `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe` |
 | Device / OS / GPU | Not recorded |
 | Resolution / display mode | Not recorded |
 | Input device | Not recorded |
@@ -56,21 +56,25 @@ Use `Pass`, `Fail`, or `Not checked`. Severity is `Critical`, `High`, `Medium`, 
 | `03_battery_carry.png` | Visible carry state | Not checked |  |
 | `04_socket_door_open.png` | Battery insertion, Socket, Door open | Not checked |  |
 | `05_echo1_echo2_roles.png` | Two-Echo cooperation/readability | Not checked |  |
-| `06_section3_facility.png` | Section 3 framing and path language | Not checked |  |
-| `07_goal_arrival.png` | Goal recognition/completion framing | Not checked |  |
-| `08_hud_pause.png` | Japanese HUD and Pause hierarchy | Not checked |  |
+| `06_goal_arrival.png` | Goal recognition/completion framing | Not checked |  |
+| `07_gameplay_hud.png` | Japanese gameplay HUD and route visibility | Not checked |  |
+| `08_pause_menu.png` | Pause hierarchy, dimmer, focus, and Quit separator | Not checked |  |
 
 ## Findings
 
 | ID | Observation | Severity | Reproduction | Proposed correction | Status |
 |---|---|---|---|---|---|
-| — | No human findings recorded yet | N/A |  |  | Pending review |
+| P4-H01 | Initial pass crushed dark values and hid readable form | High | First human Visual Review | Rebalanced lighting/exposure/materials; compare Before/After in motion | Corrected by automation; human recheck pending |
+| P4-H02 | Black overhead beams read as obstruction/artifact | High | First human Visual Review | Removed camera-crossing overhead rails/beams | Corrected by automation; human recheck pending |
+| P4-H03 | Persistent world labels made the scene look provisional | High | First human Visual Review | Removed persistent object labels; retain contextual Japanese UI only | Corrected by automation; human recheck pending |
+| P4-H04 | Pause Menu hierarchy/focus was not release-readable | High | First human Visual Review | Full-screen dimmer, centered card, focus arrow, separated Quit, hidden gameplay HUD | Corrected by automation; human recheck pending |
+| P4-M01 | Door and Goal needed stronger authored form | Medium | First human Visual Review | External frames/panels, circuit badges, portal/glow/`出口ゲート` | Corrected by automation; human recheck pending |
 
 ## Decision
 
-- Critical: Not assessed
-- High: Not assessed
+- Critical: New review not assessed
+- High: Four prior findings corrected by automation; acceptance not yet confirmed
 - Medium: Not assessed
 - Low: Not assessed
-- Final human decision: Pending
+- Final human decision: Pending Phase 4.1 review
 - `phase4-validated` authorization: No

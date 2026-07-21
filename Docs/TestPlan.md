@@ -1,6 +1,6 @@
 # Test Plan
 
-**Phase 4: Automation Passed; Human Visual Review Pending**
+**Phase 4.1: Automation Passed; Human Visual Review Pending**
 
 ## EditMode
 
@@ -51,7 +51,7 @@ The 61-case suite retains all P0-P3 coverage and adds Japanese/localization and 
 - recursive Missing Component traversal of the generated P3 Scene;
 - Japanese objectives for all three sections, Japanese loop transition/completion/failure/Pause text, and no English placeholder tutorial with Debug Overlay OFF;
 - staged Section 1/2 Japanese guidance, Restart guidance reset, Battery/Socket/Drop-specific prompts, live no-target interaction failure routing, and no Pickup/Drop false-positive completion hint;
-- fixed Camera rotation during Player follow, low visible foreground wall plus full collision boundary, Player/device world labels, and Echo generation identity labels/rings;
+- fixed Camera rotation during Player follow, low visible foreground wall plus full collision boundary, and serialized Player/device/Echo identity feedback; Phase 4.1 separately verifies that persistent world-label renderers stay hidden;
 - generated P3 starting with Debug Overlay OFF, device-appropriate movement prompt before an interaction target, and EventSystem pointer/keyboard submit paths for Pause actions.
 - the exact Section 1 Plate/tutorial boundary and Echo replay from the accepted endpoint;
 - post-completion Escape/Select Pause, Resume back to Completed, disabled completed-section restart, and the non-quitting two-step Quit test seam.
@@ -115,7 +115,7 @@ $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
 
 `Phase4CapturePipeline` exits the Editor itself after all eight files pass existence/size validation. The Standalone flags are opt-in probes and do not affect ordinary play. The performance run must use a non-Null graphics device; unsupported counters are reported as unavailable, not estimated.
 
-## Latest Phase 4 automated results
+## Historical first-pass Phase 4 automated results
 
 Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-21 after the final code change:
 
@@ -128,4 +128,38 @@ Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-21 after the final co
 - Performance: maximum three Echoes, 1920x1080, 600 frames at a 120fps cap; average `8.339 ms`, p95 `8.359 ms`, maximum `8.581 ms`; Main Thread average `8.335 ms`, maximum `8.596 ms`; Loop Transition maximum frame `14.093 ms`, Main Thread `14.074 ms`; steady GC `0 B/frame`; maximum used memory `105,811,560 B`.
 - Runtime Draw Calls counter was unavailable. SetPass counter was valid but returned `0`; neither value is inferred. Interactive Frame Debugger confirmation remains manual.
 - Eight captures passed automated count/dimension/size validation at 1920x1080 and remain ignored.
-- A normal visible automated Player exit returned `0xC0000005` after clean Unity cleanup on this machine; the unchanged Phase 3 control Build reproduces it. The documented batch probe exits `0`; ordinary visible Quit is a required Phase 4 human Visual Review item.
+- A normal visible automated Player exit returned `0xC0000005` after clean Unity cleanup on this machine; the unchanged Phase 3 control Build reproduced it. This remains historical evidence from `phase4-automation-passed`; current Phase 4.1 results follow.
+
+## Phase 4.1 external-asset additions
+
+The full retained suites remain enabled and unrelaxed. Phase 4.1 adds nine EditMode and six PlayMode cases for official asset/license/hash records, curated-file count, importer settings, 2K texture limits, supported URP shaders, non-missing materials/textures, no imported collider/Animator/root motion, deterministic wrapper generation, preserved Stable IDs/colliders, external actor/environment/device visuals, no persistent world labels or camera-crossing overhead beams, Pause focus/HUD hiding, and Robot child-transform isolation.
+
+### Phase 4.1 batch commands
+
+```powershell
+$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\Phase4_1_SceneBuilder.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4_1_EditMode_Final.xml" -logFile "$PWD\Logs\Phase4_1_EditMode_Final.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4_1_PlayMode_Final.xml" -logFile "$PWD\Logs\Phase4_1_PlayMode_Final.log"
+& $unity -batchmode -force-d3d11 -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4_1_Captures.log"
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\Phase4_1_Build_Development_Final.log"
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsNonDevelopment -logFile "$PWD\Logs\Phase4_1_Build_NonDevelopment_Final.log"
+& "$PWD\Builds\Phase4_1\ECHOSHIFT_Phase4_1.exe" -batchmode -force-d3d11 -phase3AutoQuit -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_1_Startup.log"
+& "$PWD\Builds\Phase4_1\ECHOSHIFT_Phase4_1.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_1_Performance.log"
+```
+
+### Latest Phase 4.1 results
+
+Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-22 after the last code change:
+
+- Scene Builder: repeatable; external wrapper hash stable; P0-P2 hashes unchanged; no duplicate Stable ID or serialized Missing Script/Reference.
+- EditMode: `93/93` passed in `28.2191387 s`; PlayMode: `93/93` passed in `24.4194633 s`.
+- P0-P3 maximum Drift: `0 m`; P1/P2/P3 interaction success/failure `2/0`, `2/0`, `4/0`; all P3 sections completed.
+- Development Build: Success, warning `0`, error `0`, 291 files / 204,467,042 B at `Builds/Phase4_1`.
+- Non-Development Build: Success, warning `0`, error `0`, 182 files / 140,785,117 B at `Builds/Phase4_1_NonDevelopment`.
+- Startup: P3 Playing, `ja-JP`, packaged Noto/glyphs/HUD true, telemetry JSON saved, natural exit `0`, Missing/Null/unhandled matches `0`.
+- Performance: 1920x1080, D3D11, maximum 3 Echoes, 600 frames; average `8.337547 ms`, p95 `8.336699 ms`, main average `8.329742 ms`, transition max `15.721394 ms`, steady GC `0 B/frame`, max used memory `168,041,477 B`, texture memory `40,882,741 B`.
+- Draw Calls was unavailable; GPU Frame Time, SetPass, Triangles, and Vertices returned non-authoritative `0` values. They require interactive Profiler/Frame Debugger confirmation.
+- Matching Before/After capture sets each contain eight 1920x1080 PNGs with Debug Overlay off.
+- Nine Development/Non-Development D3D11/D3D12/audio/Quit/visible-window-close scenarios exited `0`; no new Application Error event was recorded. The historical `UnityPlayer.dll` `0xC0000005` root cause remains unproven.
+- Raw logs, XML, captures, Builds, Library, and downloads remain ignored; reproducible summary evidence is committed in `Phase4ExternalAssetIntegrationValidation.md`.
