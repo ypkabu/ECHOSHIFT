@@ -2,7 +2,7 @@
 
 ## Baseline and objective
 
-Phase 3 was fast-forwarded into `main` at `86cdf46635b0de8df3c0adf599a670d903941fe8`, matching `phase3-validated`. Phase 4 work proceeds on `feature/phase4-visual-polish`. The objective is presentation quality suitable for a Steam page, internship application, and portfolio footage without changing puzzle rules, replay formats, fixed-tick simulation, Stable IDs, or section solutions.
+Phase 3 was fast-forwarded into `main` at `86cdf46635b0de8df3c0adf599a670d903941fe8`, matching `phase3-validated`. The first Phase 4 automation pass was preserved at `e043b160a945939d5f862a4648d3df728a40a49e` and tagged `phase4-automation-passed`, but human Visual Review rejected its primitive-led presentation. Corrective work proceeds from that immutable baseline on `feature/phase4-external-asset-integration`. The objective remains presentation quality suitable for a Steam page, internship application, and portfolio footage without changing puzzle rules, replay formats, fixed-tick simulation, Stable IDs, colliders, or section solutions.
 
 ## Why the current build looks inexpensive
 
@@ -16,7 +16,7 @@ Phase 3 was fast-forwarded into `main` at `86cdf46635b0de8df3c0adf599a670d903941
 
 ## Art direction
 
-Theme: **an austere near-future research facility for temporal duplication experiments**. The facility is clean and controlled, with a slightly unsettling dark void beyond white structural panels. The camera reads broad floor shapes first, glowing circuit routes second, and actors/devices third. Modular primitives and generated assets are deliberately composed rather than presented as an Asset Store kit.
+Theme: **an austere near-future research facility for temporal duplication experiments**. The facility is clean and controlled, with a slightly unsettling dark void beyond readable structural panels. The camera reads traversable floor shapes first, doors and puzzle routes second, and actors/devices third. The free CC0 Standard edition of Quaternius Modular Sci-Fi MegaKit is the primary shape library; imported originals remain isolated from project-authored materials and prefabs. Kenney and Poly Haven are used only when the primary library has a documented gap, so one section never becomes a mixture of competing kit styles.
 
 ## Visual language
 
@@ -53,6 +53,10 @@ Theme: **an austere near-future research facility for temporal duplication exper
 ## Planned new assets
 
 - `Phase4VisualSettings.asset` and generated shared material set.
+- A curated subset of the Quaternius Modular Sci-Fi MegaKit Standard FBX library under `Assets/_Project/ThirdParty/Quaternius/`; project-authored prefabs/materials remain under `Assets/_Project/Art/`.
+- A candidate Quaternius Animated Robot visual imported separately and accepted only if 1920x1080 gameplay-camera comparison confirms suitable scale, silhouette, carry pose, and Echo readability without root motion.
+- A curated subset of Kenney Sci-Fi Sounds under `Assets/_Project/ThirdParty/Kenney/`, copied into project-authored AudioClips only where it improves an existing bounded cue.
+- `Docs/ThirdPartyAssets.md`, per-package license/source snapshots in `ThirdPartyNotices/`, archive SHA-256 values, imported-file manifests, and import-setting evidence.
 - `NotoSansJP[wght].ttf`, project font asset, and `ThirdPartyNotices/NotoSansJP-OFL.txt`.
 - Shared actor/device/environment visual prefabs or builder-authored module roots.
 - Bounded VFX prefabs for spawn/despawn, loop, interaction, Battery, Door, Section, and completion feedback.
@@ -102,6 +106,21 @@ The Editor capture pipeline renders the actual gameplay Camera at 1920x1080 with
 
 Captures are written to ignored `Captures/Phase4/` and validated for names, count, and 1920x1080 dimensions.
 
+## External-asset corrective pass (Phase 4.1)
+
+1. Preserve the rejected automation build and its eight captures as the `Before` baseline; regenerate only if an exact named state is missing. Produce matching `After` captures under `Captures/Phase4_1/` at 1920x1080 with cursor and Debug Overlay hidden.
+2. Download only official, login-free archives into ignored `ExternalDownloads/`. Record original SHA-256 before extraction and never commit an archive.
+3. Import only the FBX, texture, and audio files selected by a machine-readable manifest. Keep vendor originals under `ThirdParty`, with no gameplay colliders and no vendor material used directly by a Scene.
+4. Build project-owned URP materials and modular prefabs around the selected meshes. Floors become brighter than walls, door silhouettes stay readable, ambient fill prevents black crush, and AO/Vignette are reduced.
+5. Remove camera-crossing opaque beams and permanent world labels. Replace identity text with silhouette, floor ring, compact non-text generation marks, device geometry, emission, and one restrained EXIT sign.
+6. Rebuild Door and Goal presentation with frame/moving-panel separation, distinct plate/socket circuit marks, a recognizable portal volume, rear glow, vertical particles, and floor guidance while retaining the gameplay roots and colliders byte-for-byte in authored data.
+7. Rebuild Pause presentation so gameplay HUD/world tutorial presentation is hidden or strongly dimmed, focus state has background/border/arrow, destructive Quit is separated, and all supported resolutions stay inside safe bounds.
+8. Add licensing, import-health, no-world-label, no-occluding-beam, root-motion, animation-transform, Stable-ID/collider, responsive-HUD, and visual-material validation. Retain every P0-P3 and existing Phase 4 test.
+9. Re-run Scene generation, all EditMode/PlayMode tests, P3 automated completion, performance probes, comparison captures, and Windows builds. Record unsupported GPU/draw/texture-memory counters as unavailable rather than inferred.
+10. Isolate ordinary-window `0xC0000005` by Development/non-Development, D3D11/D3D12, audio enabled/disabled, Pause-Quit/Window-Close, and Windows Event Viewer fault-module evidence. Do not conflate clean batch auto-quit with ordinary-window behavior.
+
+Commit boundaries are: licensed vendor import, environment/presentation rebuild, readability fixes and tests, then the final automation evidence update. `phase4-assets-automation-passed` may be created only after every gate passes; `phase4-validated` remains prohibited until a new human Visual Review accepts the corrected build.
+
 ## Out of Phase 4
 
 Enemy AI, stealth, combat, new puzzle mechanics, story dialogue, voice acting, Steamworks, achievements, save slots, production settings/rebinding UI, final character models, high-quality humanoid animation/IK, large Asset Store packages, procedural generation, level editor, replay redesign, online features, production BGM, and final content-scale art production remain excluded.
@@ -112,4 +131,4 @@ Automation may create `phase4-automation-passed` only after every retained and n
 
 ## Execution status
 
-Implemented and automatically validated on 2026-07-21. Final evidence is recorded in `Phase4Validation.md`: Scene generation and capture exit `0`, EditMode `84/84`, PlayMode `87/87`, P3 Drift `0 m`, normal-route interaction failure `0`, BuildReport warnings/errors `0`, Standalone batch exit `0`, eight 1920x1080 captures, maximum three-Echo performance with Main Thread average `8.335 ms`, and steady GC `0 B/frame`. Human Visual Review remains pending.
+The primitive-led automation pass was implemented and automatically validated on 2026-07-21, but human Visual Review found four High presentation defects: excessive darkness, camera-crossing black beams, persistent world labels, and insufficient Pause hierarchy. Phase 4 therefore remains unvalidated. The Phase 4.1 external-asset corrective pass above is in progress; its evidence must be recorded independently without rewriting the original `phase4-automation-passed` baseline.
