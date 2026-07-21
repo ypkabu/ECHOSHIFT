@@ -6,9 +6,6 @@ namespace EchoShift.Editor
     public sealed class Phase4ThirdPartyImportProcessor : AssetPostprocessor
     {
         private const string ThirdPartyRoot = "Assets/_Project/ThirdParty/";
-        private const string RobotPath =
-            "Assets/_Project/ThirdParty/Quaternius/AnimatedRobot/Robot.fbx";
-
         private void OnPreprocessModel()
         {
             if (!assetPath.StartsWith(ThirdPartyRoot, System.StringComparison.Ordinal)) return;
@@ -25,16 +22,10 @@ namespace EchoShift.Editor
             importer.importNormals = ModelImporterNormals.Import;
             importer.importTangents = ModelImporterTangents.CalculateMikk;
 
-            bool robot = assetPath == RobotPath;
-            importer.importAnimation = robot;
-            importer.animationType = robot
-                ? ModelImporterAnimationType.Generic
-                : ModelImporterAnimationType.None;
-            if (robot)
-            {
-                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
-                importer.optimizeGameObjects = false;
-            }
+            // Phase 4.1 adopts the robot as a static presentation mesh. Importing its
+            // clips would add an unused Animator and make the wrapper hierarchy unstable.
+            importer.importAnimation = false;
+            importer.animationType = ModelImporterAnimationType.None;
         }
 
         private void OnPreprocessTexture()

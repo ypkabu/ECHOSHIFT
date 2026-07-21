@@ -129,6 +129,9 @@ namespace EchoShift.Editor
         private static GameObject BuildWrapper(string sourcePath, string prefabPath,
             Vector3 targetSize, Material material, bool preserveAspect)
         {
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (existing != null) return existing;
+
             GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
             if (source == null) throw new InvalidOperationException(
                 $"Third-party model did not import: {sourcePath}");

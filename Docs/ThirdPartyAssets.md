@@ -56,8 +56,8 @@
 - Preview SHA-256: `C4B2FA71F64FF5E57C98E9AE6695BA51744DD225FAA46E22ED3E1DCAD5C3E558`
 - License原文: `ThirdPartyNotices/Quaternius-AnimatedRobot-CC0.txt`
 - Imported Fileの場所: `Unity/Assets/_Project/ThirdParty/Quaternius/AnimatedRobot/Robot.fbx`
-- Unity側変更: Generic Rig、Mesh Compression Medium、Read/Write OFF、material import OFF。Gameplay Collider/Motorとは分離したVisual child wrapperでのみ評価し、Animator root motionは常にOFFとする。
-- 採用条件: 1920x1080 gameplay-camera captureで比率、Battery carry、Player/Echo silhouette、generation markが読め、animationがActor rootを移動しないこと。満たさない場合はSceneから除外し、既存compound actorを改修する。
+- Unity側変更: Phase 4.1ではstatic visual meshとして採用し、Rig None、animation import OFF、Mesh Compression Medium、Read/Write OFF、material import OFF。Gameplay Collider/Motorとは分離したVisual child wrapperのみで使用し、Animator/root motionをBuildへ含めない。
+- 採用条件: 1920x1080 gameplay-camera captureで比率、Battery carry、Player/Echo silhouette、generation markが読め、Visual child transformがActor rootを移動しないこと。満たさない場合はSceneから除外し、既存compound actorを改修する。
 - 使用していないファイル: Blend folder、OBJ folder、Preview.gifはUnityへImportしない。
 
 ## Kenney — Sci-Fi Sounds 1.0
