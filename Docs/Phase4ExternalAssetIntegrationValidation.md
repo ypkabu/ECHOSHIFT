@@ -94,3 +94,7 @@ GPU Frame Time、SetPass、Triangles、VerticesのRecorderはavailableを返し�
 Asset、license、Import、Scene、回帰、capture、performance、Development/Non-Development Build、startup、Quit matrixの自動ゲートは通過した。`phase4-assets-automation-passed`はこの結果を示す軽量タグであり、`phase4-validated`ではない。外部Assetを用いた見た目、動作中の識別、音量、Robot足、GPU/Draw metrics、非16:9レイアウトは人間が確認する必要がある。
 
 **Final state: Phase 4.1 Automation Passed; Human Visual Review Pending.**
+
+## Post-tag perimeter visual correction
+
+The `phase4-assets-automation-passed` capture was subsequently found to contain floating cyan/orange wall lamps, partial wall rails, and diagonal supports. The tag remains unchanged as evidence of that baseline. The Builder-source correction, exact generated-object inventory, new 94th EditMode test, refreshed same-camera comparison, and 94/94 EditMode + 93/93 PlayMode regression are recorded in `Phase4FloatingVisualAudit.md`. This correction remains subject to human visual recheck and does not create or authorize `phase4-validated`.

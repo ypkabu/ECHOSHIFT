@@ -49,7 +49,7 @@ Batch-mode commands are documented in `Docs/TestPlan.md`. The latest Phase 4.1 v
 
 - Scene Builder: exit code `0`; P0-P2 SHA-256 values unchanged; P3/P2/P1/P0 Build Settings order retained.
 - Curated third-party originals: 39 files / 9,984,796 bytes; official CC0 sources, hashes, licenses, unused files, and import settings recorded in `Docs/ThirdPartyAssets.md`.
-- EditMode: `93/93` passed; PlayMode: `93/93` passed. Added coverage includes source/license/hash, imports, materials/textures/shaders, root motion absence, wrapper idempotence, gameplay-root integrity, labels/beams, Pause focus/HUD, and external visuals.
+- EditMode: `94/94` passed; PlayMode: `93/93` passed. Added coverage includes source/license/hash, imports, materials/textures/shaders, root motion absence, wrapper idempotence, gameplay-root integrity, labels/beams, floating-perimeter regeneration, Pause focus/HUD, and external visuals.
 - P3 automated solution: Replay Drift `0 m`; interactions `4` successful and `0` failed.
 - Windows x86_64 Development Build: BuildReport success, warnings `0`, errors `0`, 291 files / 204,467,042 bytes at `Builds/Phase4_1`.
 - Windows x86_64 Non-Development Build: BuildReport success, warnings `0`, errors `0`, 182 files / 140,785,117 bytes at `Builds/Phase4_1_NonDevelopment`.

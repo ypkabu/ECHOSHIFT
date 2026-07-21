@@ -217,5 +217,71 @@ namespace EchoShift.Tests.EditMode
                 Assert.That(lower, Does.Not.Contain("cross beam"), transforms[i].name);
             }
         }
+
+        [Test]
+        public void BuilderRegenerationDoesNotRestoreFloatingPerimeterDecorations()
+        {
+            P3SceneBuilder.BuildScene();
+            EditorSceneManager.OpenScene(P3SceneBuilder.ScenePath, OpenSceneMode.Single);
+            Transform[] transforms = UnityEngine.Object.FindObjectsByType<Transform>(
+                FindObjectsInactive.Include);
+            int wallCount = 0;
+            int columnCount = 0;
+            int westBackingCount = 0;
+            int eastBackingCount = 0;
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                string name = transforms[i].name;
+                if (name == "West Perimeter Wall Backing") westBackingCount++;
+                if (name == "East Perimeter Wall Backing") eastBackingCount++;
+                Assert.That(name, Does.Not.StartWith("West Wall Lamp"), name);
+                Assert.That(name, Does.Not.StartWith("East Wall Lamp"), name);
+                if (name.StartsWith("External Wall", StringComparison.Ordinal))
+                {
+                    wallCount++;
+                    string path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(
+                        transforms[i].gameObject);
+                    Assert.That(path, Does.Match(@"P4X_Wall_0[12]\.prefab$"),
+                        $"{name} uses disconnected perimeter geometry: {path}");
+                    Renderer[] renderers = transforms[i].GetComponentsInChildren<Renderer>(true);
+                    Bounds bounds = CombinedBounds(renderers);
+                    Vector3 localCenter = transforms[i].parent.InverseTransformPoint(bounds.center);
+                    float innerEdge = Mathf.Abs(localCenter.x) - bounds.extents.x;
+                    Assert.That(innerEdge, Is.LessThanOrEqualTo(6.72f),
+                        $"{name} does not overlap the authored floor perimeter: {bounds}");
+                    Assert.That(localCenter.y - bounds.extents.y, Is.LessThanOrEqualTo(0.2f),
+                        $"{name} does not reach its structural backing: {bounds}");
+                }
+                else if (name.StartsWith("External Column", StringComparison.Ordinal))
+                {
+                    columnCount++;
+                    string path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(
+                        transforms[i].gameObject);
+                    Assert.That(path, Does.Match(@"P4X_Column_0[12]\.prefab$"),
+                        $"{name} uses an unanchored diagonal support: {path}");
+                    Renderer[] renderers = transforms[i].GetComponentsInChildren<Renderer>(true);
+                    Bounds bounds = CombinedBounds(renderers);
+                    Vector3 localCenter = transforms[i].parent.InverseTransformPoint(bounds.center);
+                    float innerEdge = Mathf.Abs(localCenter.x) - bounds.extents.x;
+                    Assert.That(innerEdge, Is.LessThanOrEqualTo(6.72f),
+                        $"{name} does not overlap the authored floor perimeter: {bounds}");
+                    Assert.That(localCenter.y - bounds.extents.y, Is.LessThanOrEqualTo(0.2f),
+                        $"{name} does not reach the floor: {bounds}");
+                }
+            }
+
+            Assert.That(wallCount, Is.EqualTo(34));
+            Assert.That(columnCount, Is.EqualTo(20));
+            Assert.That(westBackingCount, Is.EqualTo(3));
+            Assert.That(eastBackingCount, Is.EqualTo(3));
+        }
+
+        private static Bounds CombinedBounds(Renderer[] renderers)
+        {
+            Assert.That(renderers, Is.Not.Empty);
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            return bounds;
+        }
     }
 }

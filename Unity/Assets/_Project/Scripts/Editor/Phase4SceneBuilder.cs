@@ -16,6 +16,12 @@ namespace EchoShift.Editor
 {
     public static class Phase4SceneBuilder
     {
+        private const int ConnectedPerimeterWallVariantCount = 2;
+        private const int SolidPerimeterColumnVariantCount = 2;
+        private const float PerimeterWallX = 6.42f;
+        private const float PerimeterWallBackingX = 6.58f;
+        private const float PerimeterColumnX = 6.24f;
+
         public static void PolishEchoPrefab(string prefabPath, Phase4VisualSettings settings)
         {
             Phase4ExternalAssetCatalog catalog = LoadExternalCatalog();
@@ -119,35 +125,41 @@ namespace EchoShift.Editor
 
             int wallRows = Mathf.CeilToInt(length / 3.8f);
             float wallDepth = length / wallRows;
+            // A continuous project-owned backing makes every external panel/trim a wall
+            // cladding piece instead of a standalone mesh against the black clear color.
+            Visual("West Perimeter Wall Backing", PrimitiveType.Cube, root,
+                new Vector3(-PerimeterWallBackingX, 1.5f, 0f),
+                new Vector3(0.38f, 3f, length), settings.FacilityDarkMaterial);
+            Visual("East Perimeter Wall Backing", PrimitiveType.Cube, root,
+                new Vector3(PerimeterWallBackingX, 1.5f, 0f),
+                new Vector3(0.38f, 3f, length), settings.FacilityDarkMaterial);
             for (int side = -1; side <= 1; side += 2)
             for (int z = 0; z < wallRows; z++)
             {
                 float localZ = -length * 0.5f + wallDepth * (z + 0.5f);
+                // Only the first two wrappers are full-height wall panels. The remaining
+                // variants are trims or partial rails and read as floating geometry when
+                // repeated along the open perimeter.
                 GameObject wallModule = catalog.WallModules[(z + (side > 0 ? 1 : 0)) %
-                    catalog.WallModules.Length];
+                    ConnectedPerimeterWallVariantCount];
                 PrefabVisual($"External Wall {side}-{z}", wallModule, root,
-                    new Vector3(side * 7.08f, 1.5f, localZ), Quaternion.Euler(0f, 90f, 0f),
+                    new Vector3(side * PerimeterWallX, 1.5f, localZ),
+                    Quaternion.Euler(0f, 90f, 0f),
                     new Vector3(Mathf.Max(0.6f, wallDepth / 4f), 1f, 1f));
                 if ((z & 1) == 0)
                 {
-                    GameObject column = catalog.ColumnModules[(z / 2) % catalog.ColumnModules.Length];
+                    // Column 03 is a diagonal metal support intended to lean against a
+                    // larger structure. It has no valid anchor in this top-down room shell.
+                    GameObject column = catalog.ColumnModules[(z / 2) %
+                        SolidPerimeterColumnVariantCount];
                     PrefabVisual($"External Column {side}-{z}", column, root,
-                        new Vector3(side * 6.72f, 1.5f, localZ - wallDepth * 0.42f),
+                        new Vector3(side * PerimeterColumnX, 1.5f,
+                            localZ - wallDepth * 0.42f),
                         Quaternion.Euler(0f, side > 0 ? -90f : 90f, 0f), Vector3.one);
                 }
                 if ((z & 1) == 0)
                     BuildMachineBank(root, side * 6.15f, localZ, side, settings, catalog,
                         (z + number) % catalog.PropModules.Length);
-            }
-
-            for (float z = -length * 0.5f + 1.1f; z < length * 0.5f; z += 4.2f)
-            {
-                Visual($"West Wall Lamp {z:0.0}", PrimitiveType.Cube, root,
-                    new Vector3(-6.75f, 2.48f, z), new Vector3(0.12f, 0.22f, 1.2f),
-                    settings.PlateMaterial);
-                Visual($"East Wall Lamp {z:0.0}", PrimitiveType.Cube, root,
-                    new Vector3(6.75f, 2.48f, z), new Vector3(0.12f, 0.22f, 1.2f),
-                    settings.PlayerMaterial);
             }
 
             BuildBulkhead(root, -length * 0.5f, settings, catalog);

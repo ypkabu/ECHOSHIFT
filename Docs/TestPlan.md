@@ -163,3 +163,15 @@ Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-22 after the last cod
 - Matching Before/After capture sets each contain eight 1920x1080 PNGs with Debug Overlay off.
 - Nine Development/Non-Development D3D11/D3D12/audio/Quit/visible-window-close scenarios exited `0`; no new Application Error event was recorded. The historical `UnityPlayer.dll` `0xC0000005` root cause remains unproven.
 - Raw logs, XML, captures, Builds, Library, and downloads remain ignored; reproducible summary evidence is committed in `Phase4ExternalAssetIntegrationValidation.md`.
+
+## Phase 4.1 floating-perimeter regression
+
+After the `phase4-assets-automation-passed` capture review, EditMode adds `BuilderRegenerationDoesNotRestoreFloatingPerimeterDecorations`. It rebuilds P3 and rejects the removed wall-lamp names, partial wall wrappers `03`-`06`, diagonal column wrapper `03`, missing continuous backings, wrong perimeter instance counts, and retained wall/column bounds that do not reach the floor envelope.
+
+Latest post-correction results on 2026-07-22:
+
+- Targeted Builder regeneration: `1/1` passed.
+- EditMode: `94/94` passed in `27.4009265 s`; PlayMode: `93/93` passed in `21.5473395 s`.
+- P0/P1/P2/P3 maximum Drift: `0 m`; P3 success/failure `4/0`; all three sections completed in 1,091 advances.
+- Stable-ID preservation, actor collision, no presentation collider, Missing Component, and P0-P2 hash gates remain passed.
+- Matching defect Before/fixed After sets: 8 PNG each, 1920x1080, under ignored `Captures/Phase4_1/FloatingVisualFix`.

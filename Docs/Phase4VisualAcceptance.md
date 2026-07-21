@@ -69,11 +69,12 @@ Use `Pass`, `Fail`, or `Not checked`. Severity is `Critical`, `High`, `Medium`, 
 | P4-H03 | Persistent world labels made the scene look provisional | High | First human Visual Review | Removed persistent object labels; retain contextual Japanese UI only | Corrected by automation; human recheck pending |
 | P4-H04 | Pause Menu hierarchy/focus was not release-readable | High | First human Visual Review | Full-screen dimmer, centered card, focus arrow, separated Quit, hidden gameplay HUD | Corrected by automation; human recheck pending |
 | P4-M01 | Door and Goal needed stronger authored form | Medium | First human Visual Review | External frames/panels, circuit badges, portal/glow/`出口ゲート` | Corrected by automation; human recheck pending |
+| P4.1-H01 | Cyan/orange lamps, partial rails, and diagonal supports floated outside the facility | High | Phase 4.1 After capture review | Remove independent lamps and anchor full wall cladding to continuous floor-connected backing | Corrected by Builder and automation; human recheck pending |
 
 ## Decision
 
 - Critical: New review not assessed
-- High: Four prior findings corrected by automation; acceptance not yet confirmed
+- High: Four prior findings plus one Phase 4.1 perimeter finding corrected by automation; acceptance not yet confirmed
 - Medium: Not assessed
 - Low: Not assessed
 - Final human decision: Pending Phase 4.1 review
