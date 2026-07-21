@@ -1,6 +1,6 @@
 # Test Plan
 
-**Phase 3: Validated**
+**Phase 4: Automation Passed; Human Visual Review Pending**
 
 ## EditMode
 
@@ -93,3 +93,39 @@ Executed with Unity `6000.4.6f1` on 2026-07-21 after the last code change:
 - Source-blind Fresh7 graphical retest: `PRETEST PASS`; 10:53.2 total, sections 2:08 / 3:33 / 4:24, loops 2 / 3 / 3, restarts 0, post-completion Pause and visible two-step Quit successful, Critical/High 0.
 - Human acceptance: full completion and every recorded gameplay/control/comprehension/visibility/Japanese/Restart/Pause/Quit check passed; Critical 0, High 0, Medium 1, Low 0. Unrecorded environment and timing metrics remain unrecorded. The Medium visual-simplicity observation is deferred to `Phase4Backlog.md`.
 - Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.
+
+## Phase 4 additions
+
+The retained suites are not removed, disabled, or relaxed. Phase 4 adds 23 EditMode cases covering visual settings/material references, distinct and cycling Echo slots, safe Volume values, pooled feedback, complete Audio cues, packaged legacy/TMP font coverage, no runtime OS-font construction, license presence, shared-material/PropertyBlock discipline, unique builder outputs, capture resolution, and immutable SHA-256 values for P0-P2 Scenes.
+
+The 26 Phase 4 PlayMode cases load the real generated P3 Scene and cover its three sections, modular facility roots, compound Player/Echo visuals, device/door adapters, bounded feedback/audio pools, packaged Japanese font resolution, three HUD reference resolutions, Pause layout, HDR/post-processing, local-light limits, no presentation colliders, Plate/Door/Battery/Socket state propagation, maximum three-Echo identity cycling and eviction feedback, Goal feedback de-duplication, short-loop Drift, and unexpected-log absence. Existing tests continue to cover P0-P3 real-Scene load, P3 automatic completion, normal-route interaction failure `0`, Drift tolerance, Missing components/references, and lifecycle behavior.
+
+## Phase 4 batch commands
+
+```powershell
+$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\Phase4-SceneBuilder.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4-Automation-EditMode.xml" -logFile "$PWD\Logs\Phase4-Automation-EditMode.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4-Automation-PlayMode.xml" -logFile "$PWD\Logs\Phase4-Automation-PlayMode.log"
+& $unity -batchmode -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4-Captures.log"
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\Phase4-Build.log"
+& "$PWD\Builds\Phase4\ECHOSHIFT_Phase4.exe" -batchmode -force-d3d11 -phase3AutoQuit -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4-Startup.log"
+& "$PWD\Builds\Phase4\ECHOSHIFT_Phase4.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4-Performance.log"
+```
+
+`Phase4CapturePipeline` exits the Editor itself after all eight files pass existence/size validation. The Standalone flags are opt-in probes and do not affect ordinary play. The performance run must use a non-Null graphics device; unsupported counters are reported as unavailable, not estimated.
+
+## Latest Phase 4 automated results
+
+Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-21 after the final code change:
+
+- Scene Builder: process exit `0`; P0 `1411EB0E...24C5`, P1 `4AADD3D3...EBB`, and P2 `73EC41AA...22C` SHA-256 values unchanged.
+- EditMode: `84` passed, `0` failed, `0` skipped; duration `8.059572 s`; Phase 4 cases `23`.
+- PlayMode: `87` passed, `0` failed, `0` skipped; duration `19.2221506 s`; Phase 4 cases `26`.
+- P0/P1/P2/P3 integration maximum Drift: `0 m`; P3 interaction success `4`, failure `0`; all P3 sections completed.
+- Build: process exit `0`; BuildReport Success; warnings `0`; errors `0`; reported size `178,650,134 B`; output `291` files / `178,845,266 B`.
+- Standalone batch startup: D3D11 on NVIDIA GeForce RTX 5070 Laptop GPU; `ja-JP`; packaged Noto Sans JP; glyph validation true; telemetry JSON saved; normal quit requested; process exit `0`; matched Missing/Null/unhandled messages `0`.
+- Performance: maximum three Echoes, 1920x1080, 600 frames at a 120fps cap; average `8.339 ms`, p95 `8.359 ms`, maximum `8.581 ms`; Main Thread average `8.335 ms`, maximum `8.596 ms`; Loop Transition maximum frame `14.093 ms`, Main Thread `14.074 ms`; steady GC `0 B/frame`; maximum used memory `105,811,560 B`.
+- Runtime Draw Calls counter was unavailable. SetPass counter was valid but returned `0`; neither value is inferred. Interactive Frame Debugger confirmation remains manual.
+- Eight captures passed automated count/dimension/size validation at 1920x1080 and remain ignored.
+- A normal visible automated Player exit returned `0xC0000005` after clean Unity cleanup on this machine; the unchanged Phase 3 control Build reproduces it. The documented batch probe exits `0`; ordinary visible Quit is a required Phase 4 human Visual Review item.

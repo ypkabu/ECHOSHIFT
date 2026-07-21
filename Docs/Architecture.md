@@ -1,6 +1,6 @@
 # Architecture
 
-**Phase 3: Validated**
+**Phase 4: Automation Passed; Human Visual Review Pending**
 
 ## Assembly dependency direction
 
@@ -91,8 +91,22 @@ Plain classes hold clock, immutable command, recorder, candidate comparison, and
 
 `PlaytestTelemetry` records value-only session aggregates: build/Unity version, section duration and loops, manual/timer loop endings, restarts, interaction result counts, maximum drift, final section, and outcome. It emits schema-versioned JSON under `Application.persistentDataPath/EchoShiftPlaytests`. It intentionally stores no `ReplayRecording`, per-tick command, position, stable object reference, or cross-session mutable singleton.
 
+## Phase 4 presentation boundary
+
+Phase 4 remains a child visual layer over authoritative gameplay roots. `Phase4VisualSettings` owns the shared palette, SRP-Batcher-compatible materials, packaged fonts, Volume profile, VFX prefab, Audio cue set, HUD icons, capture resolution, and bounded resource limits. `Phase4SceneBuilder` composes modular facility, actor, device, lighting, HUD, and feedback children after P3 gameplay authoring; it never runs for P0-P2.
+
+Device adapters read `PressurePlate`, `DoorController`, `CarryableBattery`, `PowerSocket`, and `GoalVolume` state and modify only presentation children through transforms and `MaterialPropertyBlock`. `LoopDirector.EchoRemoved` is a presentation notification; it does not alter Replay data, ordering, eviction, or reset. `Phase4FeedbackDirector` owns scene-level event subscriptions, per-section completion de-duplication, Door state observation, and calls into a fixed ParticleSystem pool and eight reusable AudioSources. Runtime material creation, unbounded particles, and per-frame hierarchy search remain prohibited.
+
+The Player and Echo roots retain the same collider, kinematic body, layers, movement, Carry Socket, and Stable-ID behavior. Their old primitive renderers are disabled, while collider-free compound visual children supply head/body/limbs, visor, forward/back silhouette, carry pose, trails, and generation marks. Visual generations cycle across three distinct slots after replay eviction so the three currently active Echoes remain distinguishable.
+
+`GameplayHud` caches unchanged section/loop/Echo values and precomputes timer strings before measurement. This preserves the existing UI contract while eliminating steady-state per-frame string allocation. The runtime performance probe preallocates its sample array, prepares the maximum three-Echo condition, measures transition spikes separately, and writes value-only JSON outside the project.
+
+The Japanese path uses project assets only: a static TextMeshPro atlas containing the catalog glyph set plus a packaged legacy `Font` for the retained Unity UI/TextMesh boundary. Runtime OS font discovery was removed. Noto Sans JP source and its OFL notice are stored in the project/`ThirdPartyNotices`; TMP Essential Resources provide the explicit fallback/material infrastructure.
+
+Rendering uses one soft-shadow Directional Light, at most two unshadowed local lights per active section, ambient/fog separation, and one global URP Volume containing safe ACES Tonemapping, Color Adjustments, mild Bloom, and mild Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent. Capture/build/performance orchestration remains Editor-only except for the opt-in runtime probe component.
+
 ## Phase 3 validation boundary
 
 The final technical architecture gate is green: Scene generation, 61 EditMode tests, 61 PlayMode tests, P0-P3 real-Scene integration, deterministic P3 completion, and the Windows final-build probe pass with zero BuildReport warning and no matching Missing/Null/unhandled runtime problem. A source-blind graphical run also completed the three-section route and natural Pause/Quit path with no Critical or High issue.
 
-Human acceptance confirms the completed architecture is usable end to end, with Critical 0 and High 0. The single human Medium concerns visual simplicity and does not change the gameplay architecture; it is isolated in `Phase4Backlog.md` with the source-blind presentation candidates. **Phase 3: Validated.** Any Phase 4 visual replacement must preserve the fixed-tick, replay, interaction, reset, and presentation-ownership boundaries described above.
+Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4 automation preserves that boundary: 84 EditMode and 87 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, and normal-route interaction failures `0`. The Visual Polish layer and automated captures still require the separate human checklist. **Phase 4: Automation Passed; Human Visual Review Pending.**
