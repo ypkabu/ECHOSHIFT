@@ -27,7 +27,7 @@ namespace EchoShift.Presentation
 
         public bool HasRequiredReferences =>
             settings != null && actor != null && modelRoot != null && rightArm != null &&
-            bodyRenderers != null && bodyRenderers.Length >= 5 &&
+            bodyRenderers != null && bodyRenderers.Length >= 1 &&
             accentRenderers != null && accentRenderers.Length >= 2 &&
             generationMarks != null && generationMarks.Length == 3;
         public int VisibleGenerationMarkCount { get; private set; }

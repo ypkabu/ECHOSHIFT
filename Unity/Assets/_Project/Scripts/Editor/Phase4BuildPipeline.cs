@@ -8,7 +8,7 @@ namespace EchoShift.Editor
 {
     public static class Phase4BuildPipeline
     {
-        public const string RelativeOutput = "Builds/Phase4/ECHOSHIFT_Phase4.exe";
+        public const string RelativeOutput = "Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe";
 
         [MenuItem("ECHO SHIFT/Build Phase 4 Windows Development")]
         public static void BuildWindowsDevelopment()

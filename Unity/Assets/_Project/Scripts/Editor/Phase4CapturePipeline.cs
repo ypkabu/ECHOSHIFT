@@ -9,6 +9,7 @@ using EchoShift.Replay;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -24,9 +25,9 @@ namespace EchoShift.Editor
             "03_battery_carry.png",
             "04_socket_door_open.png",
             "05_echo1_echo2_roles.png",
-            "06_section3_facility.png",
-            "07_goal_arrival.png",
-            "08_hud_pause.png"
+            "06_goal_arrival.png",
+            "07_gameplay_hud.png",
+            "08_pause_menu.png"
         };
 
         public static void CaptureAllFromCommandLine()
@@ -91,19 +92,22 @@ namespace EchoShift.Editor
             Render(camera, Path.Combine(directory, FileNames[4]), settings);
             Object.DestroyImmediate(role1); Object.DestroyImmediate(role2);
 
-            sections[2].Player.transform.localPosition = new Vector3(0f, 1f, -8f);
-            PositionCamera(camera, sections[2], cameraSettings, 2f);
-            Render(camera, Path.Combine(directory, FileNames[5]), settings);
-
             sections[2].Player.transform.localPosition = new Vector3(0f, 1f, 9f);
             PositionCamera(camera, sections[2], cameraSettings, 6f);
-            Render(camera, Path.Combine(directory, FileNames[6]), settings);
+            Render(camera, Path.Combine(directory, FileNames[5]), settings);
 
             PopulateHudText();
             gameplayCanvas.enabled = true;
-            pauseCanvas.enabled = true;
             GameObject pausePanel = FindByName(scene, "Pause Panel");
+            pauseCanvas.enabled = false;
+            if (pausePanel != null) pausePanel.SetActive(false);
+            Render(camera, Path.Combine(directory, FileNames[6]), settings);
+
+            gameplayCanvas.enabled = false;
+            pauseCanvas.enabled = true;
             if (pausePanel != null) pausePanel.SetActive(true);
+            Phase4PauseButtonVisual selectedButton = pauseCanvas.GetComponentInChildren<Phase4PauseButtonVisual>(true);
+            if (selectedButton != null) selectedButton.OnSelect(new BaseEventData(EventSystem.current));
             Render(camera, Path.Combine(directory, FileNames[7]), settings);
 
             for (int i = 0; i < FileNames.Length; i++)
@@ -138,8 +142,6 @@ namespace EchoShift.Editor
             LoopActor actor = instance.GetComponent<LoopActor>(); actor.Configure(LoopActorKind.Echo, generation);
             Phase4ActorVisual visual = instance.GetComponent<Phase4ActorVisual>();
             visual.RefreshNowForTests();
-            Transform label = instance.transform.Find("Echo Identity Label");
-            if (label != null) label.GetComponent<TextMesh>().text = $"E{generation}";
             return instance;
         }
 

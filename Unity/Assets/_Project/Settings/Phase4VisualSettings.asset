@@ -48,12 +48,12 @@ MonoBehaviour:
   - {fileID: 1435398714264490210, guid: faa450dfbf5e63e44a78c26dfdeca480, type: 2}
   - {fileID: 7450121638352885414, guid: 576840bc619c040408c15ceb159f2352, type: 2}
   volumeProfile: {fileID: 11400000, guid: 423914c740bc5f94fbf42c8bc9291b4e, type: 2}
-  bloomIntensity: 0.42
-  vignetteIntensity: 0.16
-  colorContrast: 8
-  colorSaturation: -4
+  bloomIntensity: 0.3
+  vignetteIntensity: 0.07
+  colorContrast: 2
+  colorSaturation: -2
   maximumRealtimeLightsPerSection: 2
   feedbackPoolSize: 12
   captureWidth: 1920
   captureHeight: 1080
-  captureDirectory: Captures/Phase4
+  captureDirectory: Captures/Phase4_1/After

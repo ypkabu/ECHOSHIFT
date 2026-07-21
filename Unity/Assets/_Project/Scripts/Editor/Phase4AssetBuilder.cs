@@ -34,6 +34,7 @@ namespace EchoShift.Editor
         {
             EnsureFolders();
             EnsureTmpSettings();
+            Phase4ExternalAssetBuilder.Build();
             Font font = AssetDatabase.LoadAssetAtPath<Font>(FontPath);
             if (font == null) throw new InvalidOperationException(
                 $"Packaged Noto Sans JP font is missing at {FontPath}.");
@@ -209,6 +210,14 @@ namespace EchoShift.Editor
             AudioClip[] clips = new AudioClip[(int)Phase4AudioCue.Count];
             for (int i = 0; i < clips.Length; i++)
             {
+                string externalPath = ExternalAudioPath((Phase4AudioCue)i);
+                if (!string.IsNullOrEmpty(externalPath))
+                {
+                    clips[i] = AssetDatabase.LoadAssetAtPath<AudioClip>(externalPath);
+                    if (clips[i] == null)
+                        throw new InvalidOperationException($"External audio import failed: {externalPath}");
+                    continue;
+                }
                 string wavPath = $"{AudioRoot}/{(Phase4AudioCue)i}.wav";
                 string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", wavPath));
                 if (!File.Exists(absolute))
@@ -221,6 +230,21 @@ namespace EchoShift.Editor
             set.Configure(clips);
             EditorUtility.SetDirty(set);
             return set;
+        }
+
+        private static string ExternalAudioPath(Phase4AudioCue cue)
+        {
+            const string root = "Assets/_Project/ThirdParty/Kenney/SciFiSounds/Audio/";
+            switch (cue)
+            {
+                case Phase4AudioCue.InteractionSuccess: return root + "laserSmall_000.ogg";
+                case Phase4AudioCue.InteractionFailure: return root + "lowFrequency_explosion_001.ogg";
+                case Phase4AudioCue.BatteryPickup: return root + "impactMetal_001.ogg";
+                case Phase4AudioCue.Door: return root + "doorOpen_001.ogg";
+                case Phase4AudioCue.EchoSpawn: return root + "forceField_000.ogg";
+                case Phase4AudioCue.GameComplete: return root + "forceField_004.ogg";
+                default: return string.Empty;
+            }
         }
 
         private static byte[] GenerateWav(float seconds, float frequency, bool descending)
@@ -282,11 +306,11 @@ namespace EchoShift.Editor
             Tonemapping tone = AddVolumeComponent<Tonemapping>(profile);
             tone.mode.Override(TonemappingMode.ACES);
             Bloom bloom = AddVolumeComponent<Bloom>(profile);
-            bloom.intensity.Override(0.42f); bloom.threshold.Override(1.1f); bloom.scatter.Override(0.55f);
+            bloom.intensity.Override(0.3f); bloom.threshold.Override(1.2f); bloom.scatter.Override(0.48f);
             ColorAdjustments color = AddVolumeComponent<ColorAdjustments>(profile);
-            color.contrast.Override(8f); color.saturation.Override(-4f);
+            color.postExposure.Override(0.35f); color.contrast.Override(2f); color.saturation.Override(-2f);
             Vignette vignette = AddVolumeComponent<Vignette>(profile);
-            vignette.intensity.Override(0.16f); vignette.smoothness.Override(0.35f);
+            vignette.intensity.Override(0.07f); vignette.smoothness.Override(0.28f);
             EditorUtility.SetDirty(profile);
             return profile;
         }

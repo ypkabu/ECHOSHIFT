@@ -49,17 +49,17 @@ namespace EchoShift.Presentation
         [SerializeField] private VolumeProfile volumeProfile;
 
         [Header("Safe presentation limits")]
-        [SerializeField, Range(0f, 1.5f)] private float bloomIntensity = 0.42f;
-        [SerializeField, Range(0f, 0.4f)] private float vignetteIntensity = 0.16f;
-        [SerializeField, Range(-25f, 25f)] private float colorContrast = 8f;
-        [SerializeField, Range(-25f, 25f)] private float colorSaturation = -4f;
+        [SerializeField, Range(0f, 1.5f)] private float bloomIntensity = 0.3f;
+        [SerializeField, Range(0f, 0.4f)] private float vignetteIntensity = 0.07f;
+        [SerializeField, Range(-25f, 25f)] private float colorContrast = 2f;
+        [SerializeField, Range(-25f, 25f)] private float colorSaturation = -2f;
         [SerializeField, Range(1, 8)] private int maximumRealtimeLightsPerSection = 2;
         [SerializeField, Min(4)] private int feedbackPoolSize = 12;
 
         [Header("Capture")]
         [SerializeField] private int captureWidth = 1920;
         [SerializeField] private int captureHeight = 1080;
-        [SerializeField] private string captureDirectory = "Captures/Phase4";
+        [SerializeField] private string captureDirectory = "Captures/Phase4_1/After";
 
         public Color EnvironmentLight => environmentLight;
         public Color EnvironmentDark => environmentDark;
@@ -171,6 +171,11 @@ namespace EchoShift.Presentation
             audioCues = cues;
             hudIcons = icons ?? Array.Empty<Sprite>();
             volumeProfile = profile;
+            bloomIntensity = 0.3f;
+            vignetteIntensity = 0.07f;
+            colorContrast = 2f;
+            colorSaturation = -2f;
+            captureDirectory = "Captures/Phase4_1/After";
         }
     }
 }
