@@ -134,7 +134,9 @@ namespace EchoShift.Gameplay
             _started = true;
             Debug.Log("PHASE3_STATE Playing reason=BootComplete section=1", this);
             if (waitForInteractiveStart && !Application.isBatchMode &&
-                !HasCommandLineFlag("-phase3AutoQuit"))
+                !HasCommandLineFlag("-phase3AutoQuit") &&
+                !HasCommandLineFlag("-phase4PerfProbe") &&
+                !HasCommandLineFlag("-phase4Capture"))
             {
                 ArmInteractiveStartForTests();
             }

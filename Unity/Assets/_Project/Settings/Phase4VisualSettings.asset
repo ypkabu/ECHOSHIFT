@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1dcc3fb6cfb004398c7122c2e40574, type: 3}
+  m_Name: Phase4VisualSettings
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4VisualSettings
+  environmentLight: {r: 0.82, g: 0.86, b: 0.9, a: 1}
+  environmentDark: {r: 0.035, g: 0.05, b: 0.075, a: 1}
+  playerColor: {r: 1, g: 0.68, b: 0.12, a: 1}
+  plateColor: {r: 0.05, g: 0.82, b: 1, a: 1}
+  batteryColor: {r: 1, g: 0.36, b: 0.055, a: 1}
+  goalColor: {r: 0.72, g: 1, b: 0.82, a: 1}
+  dangerColor: {r: 1, g: 0.12, b: 0.16, a: 1}
+  echoColors:
+  - {r: 0.06, g: 0.78, b: 1, a: 1}
+  - {r: 0.66, g: 0.32, b: 1, a: 1}
+  - {r: 0.16, g: 1, b: 0.68, a: 1}
+  facilityPanelMaterial: {fileID: 2100000, guid: c7a77b87c093cdb4bb1692242efca435, type: 2}
+  facilityDarkMaterial: {fileID: 2100000, guid: 5fecde87b137e194191e032dae239662, type: 2}
+  facilityTrimMaterial: {fileID: 2100000, guid: 3d572219c2bc2e54bb39bf801c68f2f0, type: 2}
+  playerMaterial: {fileID: 2100000, guid: 9851e0371f01c5446bbdd421d68e4092, type: 2}
+  plateMaterial: {fileID: 2100000, guid: 0d19a5dcb0da72e4f972a9fe14d1ddfc, type: 2}
+  batteryMaterial: {fileID: 2100000, guid: 81f39e55b6cfd4141884c26411e0bc61, type: 2}
+  goalMaterial: {fileID: 2100000, guid: bd05bddce74ed66469fff5121607ccda, type: 2}
+  dangerMaterial: {fileID: 2100000, guid: e387681ec20dc1945bc53e74e868d850, type: 2}
+  glassMaterial: {fileID: 2100000, guid: 7463a4e7e9cffbe4c9c98c17e611c867, type: 2}
+  echoMaterials:
+  - {fileID: 2100000, guid: 1f22af32b7370f84595a972c76c3ddad, type: 2}
+  - {fileID: 2100000, guid: 922b837b59d8ac446bcb55e4dcf1999e, type: 2}
+  - {fileID: 2100000, guid: 0639e0aa523fab84aa028677978cfdd6, type: 2}
+  packagedJapaneseFont: {fileID: 12800000, guid: 795f79d456c2168489209b7fa20eba0a, type: 3}
+  packagedJapaneseTmpFont: {fileID: 11400000, guid: 3d51e297456863648bb068d652407e5c, type: 2}
+  pulseVfxPrefab: {fileID: 3748279326946941473, guid: 5104f73b4e655c143b20f4d96b1ba03d, type: 3}
+  audioCues: {fileID: 11400000, guid: 4dc81a97be0413440954b0d38c84e0b6, type: 2}
+  hudIcons:
+  - {fileID: 616506205494408100, guid: 47fb639af3b06394b8ffc2fc1acc9271, type: 2}
+  - {fileID: -1903749415114699922, guid: a851292c083ff314f853891c868a6c5b, type: 2}
+  - {fileID: -6129675751794090127, guid: 4d317b4bc5504ac45857925a3fb6057f, type: 2}
+  - {fileID: 2459277075378541788, guid: 81bb1ca23f313e741859c3820308a664, type: 2}
+  - {fileID: 1435398714264490210, guid: faa450dfbf5e63e44a78c26dfdeca480, type: 2}
+  - {fileID: 7450121638352885414, guid: 576840bc619c040408c15ceb159f2352, type: 2}
+  volumeProfile: {fileID: 11400000, guid: 423914c740bc5f94fbf42c8bc9291b4e, type: 2}
+  bloomIntensity: 0.42
+  vignetteIntensity: 0.16
+  colorContrast: 8
+  colorSaturation: -4
+  maximumRealtimeLightsPerSection: 2
+  feedbackPoolSize: 12
+  captureWidth: 1920
+  captureHeight: 1080
+  captureDirectory: Captures/Phase4

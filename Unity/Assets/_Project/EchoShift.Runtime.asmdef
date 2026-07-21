@@ -3,7 +3,12 @@
   "rootNamespace": "EchoShift",
   "references": [
     "Unity.InputSystem",
-    "UnityEngine.UI"
+    "UnityEngine.UI",
+    "Unity.TextMeshPro",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+    ,"UnityEngine.AudioModule"
+    ,"UnityEngine.ParticleSystemModule"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

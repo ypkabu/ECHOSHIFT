@@ -25,6 +25,17 @@ namespace EchoShift.Presentation
 
         private SectionTransitionCoordinator _coordinator;
         private float _failureUntil;
+        private InputSystemInputSource _inputSource;
+        private Interactor _interactor;
+        private InteractionSensor _sensor;
+        private string[] _timeTextCache = System.Array.Empty<string>();
+        private int _lastSectionNumber = -1;
+        private int _lastLoopNumber = -1;
+        private int _lastEchoCount = -1;
+        private int _lastMaximumEchoes = -1;
+        private int _lastRemainingTenths = -1;
+        private int _cachedMaximumTenths = -1;
+        private bool _lastCarrying;
 
         public Phase3TextCatalog TextCatalog => textCatalog;
         public bool IsJapaneseReady => textCatalog != null &&
@@ -67,6 +78,12 @@ namespace EchoShift.Presentation
         public void Bind(SectionTransitionCoordinator coordinator)
         {
             _coordinator = coordinator;
+            _lastSectionNumber = -1;
+            _lastLoopNumber = -1;
+            _lastEchoCount = -1;
+            _lastMaximumEchoes = -1;
+            _lastRemainingTenths = -1;
+            _cachedMaximumTenths = -1;
             RefreshNow();
         }
 
@@ -91,38 +108,88 @@ namespace EchoShift.Presentation
                 !HasValidReferences) return;
             PuzzleSectionController section = _coordinator.ActiveSection;
             Core.LoopDirector director = section.Director;
-            sectionText.text = textCatalog.GetSectionName(_coordinator.ActiveSectionNumber - 1);
-            SetObjective(textCatalog.GetSectionObjective(_coordinator.ActiveSectionNumber - 1));
-            loopText.text = textCatalog.FormatLoop(director.LoopNumber);
-            float remaining = Mathf.Max(0f,
-                (director.MaxTicks - director.CurrentTick) / (float)Mathf.Max(1, director.TickRate));
-            timerText.text = textCatalog.FormatTime(remaining);
-            echoText.text = textCatalog.FormatEchoCount(director.EchoCount, director.MaxEchoes);
-            InputSystemInputSource source = section.Player.GetComponent<InputSystemInputSource>();
-            Interactor interactor = section.Player.Interactor;
-            InteractionSensor sensor = interactor?.Sensor;
-            bool hasCandidate = sensor?.CurrentTarget != null;
-            if (hasCandidate && !sensor.CurrentCanInteract)
+            int sectionNumber = _coordinator.ActiveSectionNumber;
+            if (sectionNumber != _lastSectionNumber)
             {
-                CurrentPrompt = textCatalog.GetFailureText(sensor.CurrentFailureReason);
+                _lastSectionNumber = sectionNumber;
+                sectionText.text = textCatalog.GetSectionName(sectionNumber - 1);
+                SetObjective(textCatalog.GetSectionObjective(sectionNumber - 1));
+                _inputSource = section.Player.GetComponent<InputSystemInputSource>();
+                _interactor = section.Player.Interactor;
+                _sensor = _interactor?.Sensor;
+                _lastLoopNumber = -1;
+                _lastEchoCount = -1;
+                _lastMaximumEchoes = -1;
+                _lastRemainingTenths = -1;
+                endLoopText.text = textCatalog.EndLoop;
+                pausePromptText.text = textCatalog.PausePrompt;
+            }
+
+            if (director.LoopNumber != _lastLoopNumber)
+            {
+                _lastLoopNumber = director.LoopNumber;
+                loopText.text = textCatalog.FormatLoop(_lastLoopNumber);
+            }
+
+            int tickRate = Mathf.Max(1, director.TickRate);
+            int maximumTenths = Mathf.CeilToInt(director.MaxTicks * 10f / tickRate);
+            if (_cachedMaximumTenths != maximumTenths)
+                BuildTimeTextCache(maximumTenths);
+            int remainingTenths = Mathf.Clamp(
+                Mathf.RoundToInt((director.MaxTicks - director.CurrentTick) * 10f / tickRate),
+                0, maximumTenths);
+            if (remainingTenths != _lastRemainingTenths)
+            {
+                _lastRemainingTenths = remainingTenths;
+                timerText.text = _timeTextCache[remainingTenths];
+            }
+
+            if (director.EchoCount != _lastEchoCount || director.MaxEchoes != _lastMaximumEchoes)
+            {
+                _lastEchoCount = director.EchoCount;
+                _lastMaximumEchoes = director.MaxEchoes;
+                echoText.text = textCatalog.FormatEchoCount(_lastEchoCount, _lastMaximumEchoes);
+            }
+
+            bool hasCandidate = _sensor?.CurrentTarget != null;
+            string resolvedPrompt;
+            if (hasCandidate && !_sensor.CurrentCanInteract)
+            {
+                resolvedPrompt = textCatalog.GetFailureText(_sensor.CurrentFailureReason);
             }
             else
             {
                 InteractionKind promptKind = hasCandidate
-                    ? sensor.CurrentKind
-                    : interactor?.CarriedBattery != null
+                    ? _sensor.CurrentKind
+                    : _interactor?.CarriedBattery != null
                         ? InteractionKind.DropBattery
                         : InteractionKind.None;
-                CurrentPrompt = ResolvePrompt(
-                    source != null ? source.LastPromptDevice : InputPromptDevice.Keyboard,
+                resolvedPrompt = ResolvePrompt(
+                    _inputSource != null ? _inputSource.LastPromptDevice : InputPromptDevice.Keyboard,
                     promptKind,
                     promptKind != InteractionKind.None);
             }
-            promptText.text = CurrentPrompt;
-            endLoopText.text = textCatalog.EndLoop;
-            pausePromptText.text = textCatalog.PausePrompt;
-            carryText.text = section.Player.Interactor?.CarriedBattery != null
-                ? textCatalog.BatteryCarried : string.Empty;
+            if (CurrentPrompt != resolvedPrompt)
+            {
+                CurrentPrompt = resolvedPrompt;
+                promptText.text = CurrentPrompt;
+            }
+
+            bool carrying = _interactor?.CarriedBattery != null;
+            if (carrying != _lastCarrying || sectionNumber != _lastSectionNumber)
+            {
+                _lastCarrying = carrying;
+                carryText.text = carrying ? textCatalog.BatteryCarried : string.Empty;
+            }
+        }
+
+        private void BuildTimeTextCache(int maximumTenths)
+        {
+            _cachedMaximumTenths = Mathf.Max(0, maximumTenths);
+            _timeTextCache = new string[_cachedMaximumTenths + 1];
+            for (int i = 0; i < _timeTextCache.Length; i++)
+                _timeTextCache[i] = textCatalog.FormatTime(i * 0.1f);
+            _lastRemainingTenths = -1;
         }
 
         public void SetStateMessage(string message)
