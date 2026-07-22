@@ -142,7 +142,7 @@ namespace EchoShift.Tests
             foreach (Button button in buttons)
             {
                 Assert.That(button.GetComponent<RectTransform>().sizeDelta.x,
-                    Is.GreaterThanOrEqualTo(540f));
+                    Is.EqualTo(500f).Within(0.01f));
                 Text label = button.GetComponentInChildren<Text>(true);
                 Assert.That(label.resizeTextForBestFit, Is.True);
                 Assert.That(label.horizontalOverflow, Is.EqualTo(HorizontalWrapMode.Wrap));
@@ -239,27 +239,36 @@ namespace EchoShift.Tests
 
             GameplayHud hud = UnityEngine.Object.FindObjectsByType<GameplayHud>(
                 FindObjectsInactive.Include).Single();
-            string[] rowNames = { "Tutorial", "Prompt", "EndLoop", "PausePrompt" };
-            RectTransform[] rows = rowNames.Select(name =>
-                hud.transform.Find(name).GetComponent<RectTransform>()).ToArray();
-            foreach (RectTransform row in rows)
-            {
-                Assert.That(row.anchorMin, Is.EqualTo(Vector2.one), row.name);
-                Assert.That(row.anchorMax, Is.EqualTo(Vector2.one), row.name);
-                Assert.That(row.pivot, Is.EqualTo(Vector2.one), row.name);
-            }
-            for (int i = 0; i < rows.Length; i++)
-            for (int j = i + 1; j < rows.Length; j++)
-            {
-                float firstTop = rows[i].anchoredPosition.y;
-                float firstBottom = firstTop - rows[i].sizeDelta.y;
-                float secondTop = rows[j].anchoredPosition.y;
-                float secondBottom = secondTop - rows[j].sizeDelta.y;
-                float overlap = Mathf.Min(firstTop, secondTop) -
-                                Mathf.Max(firstBottom, secondBottom);
-                Assert.That(overlap, Is.LessThanOrEqualTo(0f),
-                    $"HUD safe-area rows overlap: {rows[i].name} / {rows[j].name}");
-            }
+            RectTransform status = hud.transform.Find("P4 Compact Status Panel")
+                .GetComponent<RectTransform>();
+            RectTransform intro = hud.transform.Find("P4 Section Intro Panel")
+                .GetComponent<RectTransform>();
+            RectTransform prompt = hud.transform.Find("P4 Context Prompt Panel")
+                .GetComponent<RectTransform>();
+            RectTransform carry = hud.transform.Find("P4 Battery Carry Chip")
+                .GetComponent<RectTransform>();
+            AssertPanel(status, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(20f, -18f), new Vector2(350f, 132f));
+            AssertPanel(intro, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -18f), new Vector2(680f, 152f));
+            AssertPanel(prompt, Vector2.one, Vector2.one,
+                new Vector2(-20f, -18f), new Vector2(270f, 54f));
+            AssertPanel(carry, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(20f, -164f), new Vector2(310f, 44f));
+            Phase4HudVisual visual = hud.GetComponent<Phase4HudVisual>();
+            Assert.That(visual, Is.Not.Null);
+            Assert.That(visual.SupportsReferenceResolutions, Is.True);
+        }
+
+        private static void AssertPanel(RectTransform panel, Vector2 anchor,
+            Vector2 pivot, Vector2 position, Vector2 size)
+        {
+            Assert.That(panel, Is.Not.Null);
+            Assert.That(panel.anchorMin, Is.EqualTo(anchor), panel.name);
+            Assert.That(panel.anchorMax, Is.EqualTo(anchor), panel.name);
+            Assert.That(panel.pivot, Is.EqualTo(pivot), panel.name);
+            Assert.That(panel.anchoredPosition, Is.EqualTo(position), panel.name);
+            Assert.That(panel.sizeDelta, Is.EqualTo(size), panel.name);
         }
 
         [Test]
