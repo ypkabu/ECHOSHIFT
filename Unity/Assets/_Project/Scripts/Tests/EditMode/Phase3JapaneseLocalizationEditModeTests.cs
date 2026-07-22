@@ -66,14 +66,14 @@ namespace EchoShift.Tests
             Phase3TextCatalog catalog = JapaneseCatalog();
             Assert.That(catalog.MoveKeyboard, Does.StartWith("WASD：").And.Contain("移動"));
             Assert.That(catalog.MoveGamepad, Does.Contain("左スティック").And.Contain("移動"));
-            Assert.That(catalog.InteractKeyboard, Does.StartWith("E：").And.Contain("装置を調べる"));
-            Assert.That(catalog.InteractGamepad, Does.Contain("A / ×").And.Contain("装置を調べる"));
+            Assert.That(catalog.InteractKeyboard, Is.EqualTo("[E] 調べる"));
+            Assert.That(catalog.InteractGamepad, Is.EqualTo("[A / ×] 調べる"));
             Assert.That(catalog.GetInteractionPrompt(InteractionKind.PickupBattery, false),
-                Is.EqualTo("E：オレンジの電池を持つ"));
+                Is.EqualTo("[E] 電池を持つ"));
             Assert.That(catalog.GetInteractionPrompt(InteractionKind.InsertBattery, false),
-                Is.EqualTo("E：紫の電源に電池を入れる"));
+                Is.EqualTo("[E] 電池を入れる"));
             Assert.That(catalog.GetInteractionPrompt(InteractionKind.DropBattery, true),
-                Is.EqualTo("A / ×：電池を置く"));
+                Is.EqualTo("[A / ×] 電池を置く"));
             Assert.That(catalog.EndLoop, Does.Contain("ループを終了"));
             Assert.That(catalog.PausePrompt, Does.Contain("一時停止"));
             Assert.That(catalog.StartPrompt, Does.Contain("開始"));

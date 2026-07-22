@@ -271,7 +271,7 @@ namespace EchoShift.Tests
             section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
             coordinator.Hud.RefreshNow();
             Assert.That(coordinator.Hud.CurrentPrompt,
-                Is.EqualTo("E：オレンジの電池を持つ"));
+                Is.EqualTo("[E] 電池を持つ"));
             section.Director.AdvanceOneTickForTests();
             coordinator.Hud.RefreshNow();
             Assert.That(section.Player.Interactor.CarriedBattery, Is.SameAs(battery));
@@ -279,28 +279,28 @@ namespace EchoShift.Tests
                 Is.EqualTo("電池を持ったまま紫の電源へ運ぶ"));
             Assert.That(coordinator.Hud.TextCatalog.GetInteractionPrompt(
                     InteractionKind.PickupBattery, false),
-                Is.EqualTo("E：オレンジの電池を持つ"));
+                Is.EqualTo("[E] 電池を持つ"));
 
             section.Player.Motor.ResetPose(
                 battery.transform.position + Vector3.back * 5f, Quaternion.identity);
             Physics.SyncTransforms();
             section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
             coordinator.Hud.RefreshNow();
-            Assert.That(coordinator.Hud.CurrentPrompt, Is.EqualTo("E：電池を置く"));
+            Assert.That(coordinator.Hud.CurrentPrompt, Is.EqualTo("[E] 電池を置く"));
 
             section.Player.Motor.ResetPose(socket.transform.position, Quaternion.identity);
             Physics.SyncTransforms();
             section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
             coordinator.Hud.RefreshNow();
             Assert.That(coordinator.Hud.CurrentPrompt,
-                Is.EqualTo("E：紫の電源に電池を入れる"));
+                Is.EqualTo("[E] 電池を入れる"));
             section.Director.AdvanceOneTickForTests();
             Assert.That(socket.IsPowered, Is.True);
             Assert.That(coordinator.Hud.CurrentTutorial,
                 Is.EqualTo("電池を入れたら R / START で操作を記録する"));
             Assert.That(coordinator.Hud.TextCatalog.GetInteractionPrompt(
                     InteractionKind.InsertBattery, false),
-                Is.EqualTo("E：紫の電源に電池を入れる"));
+                Is.EqualTo("[E] 電池を入れる"));
 
             AlwaysEndLoopInputSource end = section.Player.gameObject
                 .AddComponent<AlwaysEndLoopInputSource>();
@@ -394,7 +394,7 @@ namespace EchoShift.Tests
             section.Player.RefreshInteractionCandidate(section.Director.CurrentTick);
             coordinator.Hud.RefreshNow();
             Assert.That(coordinator.Hud.CurrentPrompt,
-                Is.EqualTo("E：紫の電源に電池を入れる"));
+                Is.EqualTo("[E] 電池を入れる"));
             section.Director.AdvanceOneTickForTests();
             Assert.That(socket.IsPowered, Is.True);
             Assert.That(socket.InsertedByReplay, Is.False);

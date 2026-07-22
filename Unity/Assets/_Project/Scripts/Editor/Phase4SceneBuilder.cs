@@ -470,47 +470,59 @@ namespace EchoShift.Editor
             Phase4AudioController audio)
         {
             RectTransform canvas = (RectTransform)hud.transform;
-            RectTransform left = Panel(canvas, "P4 Left Status Panel",
+            RectTransform status = Panel(canvas, "P4 Compact Status Panel",
                 new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -18f),
-                new Vector2(480f, 292f), new Vector2(0f, 1f));
-            RectTransform right = Panel(canvas, "P4 Tutorial Panel",
+                new Vector2(350f, 132f), new Vector2(0f, 1f));
+            RectTransform intro = Panel(canvas, "P4 Section Intro Panel",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -18f),
+                new Vector2(680f, 152f), new Vector2(0.5f, 1f));
+            RectTransform prompt = Panel(canvas, "P4 Context Prompt Panel",
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -18f),
-                new Vector2(760f, 250f), new Vector2(1f, 1f));
-            RectTransform bottom = Panel(canvas, "P4 Prompt Panel",
-                new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f),
-                new Vector2(700f, 88f), new Vector2(0.5f, 0f));
-            left.SetAsFirstSibling(); right.SetSiblingIndex(1); bottom.SetSiblingIndex(2);
+                new Vector2(270f, 54f), new Vector2(1f, 1f));
+            RectTransform carry = Panel(canvas, "P4 Battery Carry Chip",
+                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -164f),
+                new Vector2(310f, 44f), new Vector2(0f, 1f));
+            status.SetAsFirstSibling(); intro.SetSiblingIndex(1);
+            prompt.SetSiblingIndex(2); carry.SetSiblingIndex(3);
 
-            string[] textNames = { "Loop", "Timer", "Echoes", "Carry" };
-            for (int i = 0; i < textNames.Length; i++)
-            {
-                Transform label = canvas.Find(textNames[i]);
-                if (label == null) continue;
-                RectTransform labelRect = (RectTransform)label;
-                labelRect.anchoredPosition += new Vector2(42f, 0f);
-                GameObject iconObject = new GameObject(textNames[i] + " Icon");
-                iconObject.transform.SetParent(canvas, false);
-                RectTransform iconRect = iconObject.AddComponent<RectTransform>();
-                iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, 1f);
-                iconRect.pivot = new Vector2(0f, 1f);
-                iconRect.anchoredPosition = labelRect.anchoredPosition + new Vector2(-40f, -3f);
-                iconRect.sizeDelta = new Vector2(28f, 28f);
-                Image image = iconObject.AddComponent<Image>(); image.sprite = settings.HudIcons[i];
-                image.color = Color.white;
-            }
+            PlaceHudText(canvas, "Loop", status,
+                new Vector2(48f, -12f), new Vector2(120f, 32f), 20, TextAnchor.UpperLeft);
+            PlaceHudText(canvas, "Echoes", status,
+                new Vector2(204f, -12f), new Vector2(126f, 32f), 20, TextAnchor.UpperLeft);
+            PlaceHudText(canvas, "Timer", status,
+                new Vector2(48f, -54f), new Vector2(260f, 32f), 20, TextAnchor.UpperLeft);
+            PlaceHudText(canvas, "Carry", carry,
+                new Vector2(48f, -7f), new Vector2(248f, 30f), 18, TextAnchor.UpperLeft);
+            PlaceHudText(canvas, "Section", intro,
+                new Vector2(18f, -10f), new Vector2(644f, 34f), 24, TextAnchor.UpperCenter);
+            PlaceHudText(canvas, "Objective", intro,
+                new Vector2(18f, -48f), new Vector2(644f, 30f), 19, TextAnchor.UpperCenter);
+            PlaceHudText(canvas, "Tutorial", intro,
+                new Vector2(18f, -84f), new Vector2(644f, 52f), 17, TextAnchor.UpperCenter);
+            PlaceHudText(canvas, "Prompt", prompt,
+                new Vector2(14f, -9f), new Vector2(242f, 34f), 20, TextAnchor.MiddleCenter);
+            canvas.Find("EndLoop").gameObject.SetActive(false);
+            canvas.Find("PausePrompt").gameObject.SetActive(false);
+
+            CreateHudIcon("Loop Icon", status, new Vector2(16f, -14f), settings.HudIcons[0], Color.white);
+            CreateHudIcon("Timer Icon", status, new Vector2(16f, -56f), settings.HudIcons[1], settings.PlateColor);
+            CreateHudIcon("Echo Count Icon", status, new Vector2(172f, -14f), settings.HudIcons[2], settings.PlateColor);
+            CreateHudIcon("Battery Held Icon", carry, new Vector2(14f, -8f), settings.HudIcons[3], settings.BatteryColor);
             GameObject timerObject = new GameObject("Loop Timer Bar");
-            timerObject.transform.SetParent(canvas, false);
+            timerObject.transform.SetParent(status, false);
             RectTransform timerRect = timerObject.AddComponent<RectTransform>();
             timerRect.anchorMin = timerRect.anchorMax = new Vector2(0f, 1f);
-            timerRect.pivot = new Vector2(0f, 1f); timerRect.anchoredPosition = new Vector2(64f, -204f);
-            timerRect.sizeDelta = new Vector2(360f, 8f);
+            timerRect.pivot = new Vector2(0f, 1f); timerRect.anchoredPosition = new Vector2(18f, -106f);
+            timerRect.sizeDelta = new Vector2(314f, 6f);
             Image timerFill = timerObject.AddComponent<Image>();
             timerFill.color = settings.PlateColor; timerFill.type = Image.Type.Filled;
             timerFill.fillMethod = Image.FillMethod.Horizontal;
+            carry.gameObject.SetActive(false);
             CanvasGroup gameplayGroup = hud.GetComponent<CanvasGroup>();
             if (gameplayGroup == null) gameplayGroup = hud.gameObject.AddComponent<CanvasGroup>();
             Phase4HudVisual visual = hud.gameObject.AddComponent<Phase4HudVisual>();
-            visual.Configure(coordinator, timerFill, left, right, bottom, pauseMenu, gameplayGroup);
+            visual.Configure(coordinator, hud, timerFill, status, intro, prompt, carry,
+                pauseMenu, gameplayGroup);
 
             Transform pausePanel = pauseMenu.transform.Find("Pause Panel");
             if (pausePanel == null) throw new InvalidOperationException("Pause Panel is missing.");
@@ -523,7 +535,7 @@ namespace EchoShift.Editor
             cardObject.transform.SetParent(pausePanel, false);
             RectTransform card = cardObject.AddComponent<RectTransform>();
             card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
-            card.sizeDelta = new Vector2(760f, 720f);
+            card.sizeDelta = new Vector2(660f, 610f);
             Image cardImage = cardObject.AddComponent<Image>();
             cardImage.color = new Color(0.035f, 0.065f, 0.105f, 0.985f);
             Outline cardOutline = cardObject.AddComponent<Outline>();
@@ -540,19 +552,20 @@ namespace EchoShift.Editor
 
             Text title = card.GetComponentInChildren<Text>(true);
             if (title != null && title.name == "Title")
-                title.rectTransform.anchoredPosition = new Vector2(0f, 280f);
+                title.rectTransform.anchoredPosition = new Vector2(0f, 235f);
             Button[] buttons = pauseMenu.GetComponentsInChildren<Button>(true);
             for (int i = 0; i < buttons.Length; i++)
             {
                 RectTransform buttonRect = (RectTransform)buttons[i].transform;
-                buttonRect.sizeDelta = new Vector2(560f, 72f);
+                buttonRect.sizeDelta = new Vector2(500f, 64f);
                 buttonRect.anchoredPosition = new Vector2(0f,
-                    i == 0 ? 145f : i == 1 ? 45f : i == 2 ? -55f : -205f);
+                    i == 0 ? 120f : i == 1 ? 40f : i == 2 ? -40f : -160f);
                 ColorBlock colors = buttons[i].colors;
-                colors.normalColor = new Color(0.08f, 0.14f, 0.22f, 1f);
-                colors.highlightedColor = new Color(0.08f, 0.55f, 0.72f, 1f);
-                colors.selectedColor = new Color(0.08f, 0.55f, 0.72f, 1f);
+                colors.normalColor = new Color(0.055f, 0.1f, 0.17f, 1f);
+                colors.highlightedColor = new Color(0.08f, 0.38f, 0.52f, 1f);
+                colors.selectedColor = new Color(0.08f, 0.38f, 0.52f, 1f);
                 colors.pressedColor = new Color(1f, 0.48f, 0.08f, 1f);
+                colors.fadeDuration = 0.06f;
                 buttons[i].colors = colors;
                 buttons[i].gameObject.AddComponent<Phase4UiAudio>().Configure(audio);
                 Outline border = buttons[i].gameObject.AddComponent<Outline>();
@@ -560,6 +573,17 @@ namespace EchoShift.Editor
                     ? new Color(1f, 0.32f, 0.18f, 1f)
                     : new Color(0.1f, 0.86f, 1f, 1f);
                 border.effectDistance = new Vector2(3f, -3f);
+                GameObject fill = new GameObject("Selection Fill");
+                fill.transform.SetParent(buttons[i].transform, false);
+                RectTransform fillRect = fill.AddComponent<RectTransform>();
+                fillRect.anchorMin = Vector2.zero; fillRect.anchorMax = Vector2.one;
+                fillRect.offsetMin = new Vector2(3f, 3f); fillRect.offsetMax = new Vector2(-3f, -3f);
+                Image fillImage = fill.AddComponent<Image>();
+                fillImage.raycastTarget = false;
+                fillImage.color = i == buttons.Length - 1
+                    ? new Color(1f, 0.2f, 0.08f, 0.22f)
+                    : new Color(0.05f, 0.82f, 1f, 0.2f);
+                fill.transform.SetAsFirstSibling();
                 GameObject arrow = new GameObject("Selection Arrow");
                 arrow.transform.SetParent(buttons[i].transform, false);
                 RectTransform arrowRect = arrow.AddComponent<RectTransform>();
@@ -572,14 +596,14 @@ namespace EchoShift.Editor
                 arrowText.fontSize = 28; arrowText.alignment = TextAnchor.MiddleCenter;
                 arrowText.text = "▶"; arrowText.color = border.effectColor;
                 buttons[i].gameObject.AddComponent<Phase4PauseButtonVisual>()
-                    .Configure(border, arrow);
+                    .Configure(border, arrow, fill);
             }
             GameObject separator = new GameObject("Quit Separator");
             separator.transform.SetParent(card, false);
             RectTransform separatorRect = separator.AddComponent<RectTransform>();
             separatorRect.anchorMin = separatorRect.anchorMax = new Vector2(0.5f, 0.5f);
-            separatorRect.anchoredPosition = new Vector2(0f, -130f);
-            separatorRect.sizeDelta = new Vector2(560f, 2f);
+            separatorRect.anchoredPosition = new Vector2(0f, -112f);
+            separatorRect.sizeDelta = new Vector2(500f, 2f);
             Image separatorImage = separator.AddComponent<Image>();
             separatorImage.color = new Color(1f, 0.32f, 0.18f, 0.62f);
         }
@@ -596,6 +620,41 @@ namespace EchoShift.Editor
             image.color = new Color(0.018f, 0.032f, 0.058f, 0.86f);
             image.raycastTarget = false;
             return rect;
+        }
+
+        private static Text PlaceHudText(
+            RectTransform canvas, string name, RectTransform parent,
+            Vector2 position, Vector2 size, int fontSize, TextAnchor alignment)
+        {
+            Transform value = canvas.Find(name);
+            if (value == null) throw new InvalidOperationException($"HUD text is missing: {name}");
+            RectTransform rect = (RectTransform)value;
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            Text text = value.GetComponent<Text>();
+            text.fontSize = fontSize;
+            text.alignment = alignment;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            return text;
+        }
+
+        private static void CreateHudIcon(
+            string name, RectTransform parent, Vector2 position,
+            Sprite sprite, Color color)
+        {
+            GameObject iconObject = new GameObject(name);
+            iconObject.transform.SetParent(parent, false);
+            RectTransform rect = iconObject.AddComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(26f, 26f);
+            Image image = iconObject.AddComponent<Image>();
+            image.sprite = sprite; image.color = color; image.raycastTarget = false;
         }
 
         private static Transform CompensatedRoot(Transform parent, string name)

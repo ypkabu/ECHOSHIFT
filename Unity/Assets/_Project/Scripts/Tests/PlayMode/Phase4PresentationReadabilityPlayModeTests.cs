@@ -6,6 +6,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 namespace EchoShift.Tests.PlayMode
 {
@@ -89,6 +90,74 @@ namespace EchoShift.Tests.PlayMode
             Vector3 localFocus = controller.CurrentFocus - section.transform.position;
             Assert.That(localFocus.x, Is.InRange(bounds.Minimum.x, bounds.Maximum.x));
             Assert.That(localFocus.z, Is.InRange(bounds.Minimum.y, bounds.Maximum.y));
+        }
+
+        [UnityTest]
+        public IEnumerator HudHidesTransientIntroAndEmptyContextAfterRevealDuration()
+        {
+            yield return Load();
+            GameplayHud hud = Find<GameplayHud>();
+            Phase4HudVisual visual = Find<Phase4HudVisual>();
+            Assert.That(hud.IsSectionIntroVisible, Is.True);
+            Assert.That(visual.IsIntroPanelVisible, Is.True);
+
+            hud.ExpireTransientPresentationForTests();
+            hud.RefreshNow();
+            visual.RefreshNowForTests();
+            Assert.That(hud.IsSectionIntroVisible, Is.False);
+            Assert.That(hud.IsTutorialVisible, Is.False);
+            Assert.That(hud.CurrentPrompt, Is.Empty);
+            Assert.That(visual.IsIntroPanelVisible, Is.False);
+            Assert.That(visual.IsPromptPanelVisible, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator HudHasNoBottomBarAndHidesEmptyBatteryChip()
+        {
+            yield return Load();
+            GameplayHud hud = Find<GameplayHud>();
+            Phase4HudVisual visual = Find<Phase4HudVisual>();
+            hud.RefreshNow();
+            visual.RefreshNowForTests();
+            Assert.That(hud.IsCarrying, Is.False);
+            Assert.That(visual.IsCarryPanelVisible, Is.False);
+            Assert.That(hud.transform.Find("P4 Prompt Panel"), Is.Null);
+            Assert.That(hud.transform.Find("P4 Bottom Panel"), Is.Null);
+            Assert.That(hud.transform.Find("P4 Battery Carry Chip"), Is.Not.Null);
+        }
+
+        [UnityTest]
+        public IEnumerator HudSupportsWideAndTallReferenceLayouts()
+        {
+            yield return Load();
+            Phase4HudVisual visual = Find<Phase4HudVisual>();
+            for (int i = 0; i < ReferenceResolutions.Length; i++)
+            {
+                Assert.That(visual.ValidateLayout(
+                    ReferenceResolutions[i].x, ReferenceResolutions[i].y), Is.True,
+                    $"{ReferenceResolutions[i].x}x{ReferenceResolutions[i].y}");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PauseHidesHudAndUsesDistinctSelectionFill()
+        {
+            yield return Load();
+            SectionTransitionCoordinator coordinator = Find<SectionTransitionCoordinator>();
+            Assert.That(coordinator.SetPaused(true), Is.True);
+            yield return null;
+            Phase4HudVisual hud = Find<Phase4HudVisual>();
+            hud.RefreshNowForTests();
+            Assert.That(hud.IsGameplayHudVisible, Is.False);
+            Phase4PauseButtonVisual[] buttons = coordinator.PauseMenu
+                .GetComponentsInChildren<Phase4PauseButtonVisual>(true);
+            Assert.That(buttons.Length, Is.EqualTo(4));
+            Assert.That(buttons[0].IsHighlighted, Is.True);
+            Assert.That(buttons[0].IsSelectionFillVisible, Is.True);
+            for (int i = 1; i < buttons.Length; i++)
+                Assert.That(buttons[i].IsSelectionFillVisible, Is.False);
+            Button quit = buttons[buttons.Length - 1].GetComponent<Button>();
+            Assert.That(quit.colors.pressedColor.r, Is.GreaterThan(quit.colors.pressedColor.g));
         }
 
         private static void AssertActorInsideViewport(

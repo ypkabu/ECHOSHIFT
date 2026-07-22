@@ -22,6 +22,8 @@ namespace EchoShift.Presentation
         [SerializeField] private Text carryText;
         [SerializeField] private Text stateText;
         [SerializeField] private Text failureText;
+        [SerializeField, Min(1f)] private float sectionIntroDuration = 4.5f;
+        [SerializeField, Min(1f)] private float tutorialNoticeDuration = 6f;
 
         private SectionTransitionCoordinator _coordinator;
         private float _failureUntil;
@@ -36,6 +38,8 @@ namespace EchoShift.Presentation
         private int _lastRemainingTenths = -1;
         private int _cachedMaximumTenths = -1;
         private bool _lastCarrying;
+        private float _sectionIntroUntil;
+        private float _tutorialUntil;
 
         public Phase3TextCatalog TextCatalog => textCatalog;
         public bool IsJapaneseReady => textCatalog != null &&
@@ -48,6 +52,10 @@ namespace EchoShift.Presentation
         public string CurrentTutorial { get; private set; } = string.Empty;
         public string CurrentStateMessage { get; private set; } = string.Empty;
         public string LastFailureText { get; private set; } = string.Empty;
+        public float SectionIntroDuration => sectionIntroDuration;
+        public bool IsSectionIntroVisible { get; private set; }
+        public bool IsTutorialVisible { get; private set; }
+        public bool IsCarrying { get; private set; }
         public bool HasValidReferences => textCatalog != null && fontApplier != null && sectionText != null &&
             objectiveText != null && tutorialText != null &&
             loopText != null && timerText != null && echoText != null &&
@@ -95,6 +103,7 @@ namespace EchoShift.Presentation
         private void Update()
         {
             RefreshNow();
+            RefreshTransientPresentation(Time.unscaledTime);
             if (_failureUntil > 0f && Time.unscaledTime >= _failureUntil)
             {
                 failureText.text = string.Empty;
@@ -117,6 +126,8 @@ namespace EchoShift.Presentation
                 _inputSource = section.Player.GetComponent<InputSystemInputSource>();
                 _interactor = section.Player.Interactor;
                 _sensor = _interactor?.Sensor;
+                _sectionIntroUntil = Time.unscaledTime + sectionIntroDuration;
+                _lastCarrying = !(_interactor?.CarriedBattery != null);
                 _lastLoopNumber = -1;
                 _lastEchoCount = -1;
                 _lastMaximumEchoes = -1;
@@ -152,6 +163,7 @@ namespace EchoShift.Presentation
             }
 
             bool hasCandidate = _sensor?.CurrentTarget != null;
+            bool carrying = _interactor?.CarriedBattery != null;
             string resolvedPrompt;
             if (hasCandidate && !_sensor.CurrentCanInteract)
             {
@@ -161,13 +173,19 @@ namespace EchoShift.Presentation
             {
                 InteractionKind promptKind = hasCandidate
                     ? _sensor.CurrentKind
-                    : _interactor?.CarriedBattery != null
+                    : carrying
                         ? InteractionKind.DropBattery
                         : InteractionKind.None;
-                resolvedPrompt = ResolvePrompt(
-                    _inputSource != null ? _inputSource.LastPromptDevice : InputPromptDevice.Keyboard,
-                    promptKind,
-                    promptKind != InteractionKind.None);
+                bool showMovementOnboarding = promptKind == InteractionKind.None &&
+                    Time.unscaledTime < _sectionIntroUntil;
+                resolvedPrompt = promptKind != InteractionKind.None || showMovementOnboarding
+                    ? ResolvePrompt(
+                        _inputSource != null
+                            ? _inputSource.LastPromptDevice
+                            : InputPromptDevice.Keyboard,
+                        promptKind,
+                        promptKind != InteractionKind.None)
+                    : string.Empty;
             }
             if (CurrentPrompt != resolvedPrompt)
             {
@@ -175,8 +193,8 @@ namespace EchoShift.Presentation
                 promptText.text = CurrentPrompt;
             }
 
-            bool carrying = _interactor?.CarriedBattery != null;
-            if (carrying != _lastCarrying || sectionNumber != _lastSectionNumber)
+            IsCarrying = carrying;
+            if (carrying != _lastCarrying)
             {
                 _lastCarrying = carrying;
                 carryText.text = carrying ? textCatalog.BatteryCarried : string.Empty;
@@ -208,6 +226,21 @@ namespace EchoShift.Presentation
         {
             CurrentTutorial = message ?? string.Empty;
             if (tutorialText != null) tutorialText.text = CurrentTutorial;
+            _tutorialUntil = string.IsNullOrEmpty(CurrentTutorial)
+                ? 0f
+                : Time.unscaledTime + tutorialNoticeDuration;
+        }
+
+        public void RefreshTransientPresentationForTests(float unscaledTime)
+        {
+            RefreshTransientPresentation(unscaledTime);
+        }
+
+        public void ExpireTransientPresentationForTests()
+        {
+            _sectionIntroUntil = float.NegativeInfinity;
+            _tutorialUntil = float.NegativeInfinity;
+            RefreshTransientPresentation(Time.unscaledTime);
         }
 
         public void ShowInteractionFailure(InteractionFailureReason reason)
@@ -236,6 +269,19 @@ namespace EchoShift.Presentation
             return hasCandidate
                 ? textCatalog.GetInteractionPrompt(interactionKind, false)
                 : textCatalog.MoveKeyboard;
+        }
+
+        private void RefreshTransientPresentation(float unscaledTime)
+        {
+            IsSectionIntroVisible = unscaledTime < _sectionIntroUntil;
+            IsTutorialVisible = !string.IsNullOrEmpty(CurrentTutorial) &&
+                unscaledTime < _tutorialUntil;
+            if (sectionText != null && sectionText.gameObject.activeSelf != IsSectionIntroVisible)
+                sectionText.gameObject.SetActive(IsSectionIntroVisible);
+            if (objectiveText != null && objectiveText.gameObject.activeSelf != IsSectionIntroVisible)
+                objectiveText.gameObject.SetActive(IsSectionIntroVisible);
+            if (tutorialText != null && tutorialText.gameObject.activeSelf != IsTutorialVisible)
+                tutorialText.gameObject.SetActive(IsTutorialVisible);
         }
     }
 }

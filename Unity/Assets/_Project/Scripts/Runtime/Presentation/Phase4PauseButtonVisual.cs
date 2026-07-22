@@ -9,14 +9,18 @@ namespace EchoShift.Presentation
     {
         [SerializeField] private Outline border;
         [SerializeField] private GameObject arrow;
+        [SerializeField] private GameObject selectionFill;
 
-        public bool HasRequiredReferences => border != null && arrow != null;
+        public bool HasRequiredReferences => border != null && arrow != null && selectionFill != null;
         public bool IsHighlighted => arrow != null && arrow.activeSelf;
+        public bool IsSelectionFillVisible => selectionFill != null && selectionFill.activeSelf;
 
-        public void Configure(Outline selectionBorder, GameObject selectionArrow)
+        public void Configure(
+            Outline selectionBorder, GameObject selectionArrow, GameObject selectedFill)
         {
             border = selectionBorder;
             arrow = selectionArrow;
+            selectionFill = selectedFill;
             SetHighlighted(false);
         }
 
@@ -34,6 +38,7 @@ namespace EchoShift.Presentation
         {
             if (border != null) border.enabled = highlighted;
             if (arrow != null) arrow.SetActive(highlighted);
+            if (selectionFill != null) selectionFill.SetActive(highlighted);
         }
     }
 }

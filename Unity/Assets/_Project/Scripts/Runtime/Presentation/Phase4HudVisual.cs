@@ -7,29 +7,40 @@ namespace EchoShift.Presentation
     public sealed class Phase4HudVisual : MonoBehaviour
     {
         [SerializeField] private SectionTransitionCoordinator coordinator;
+        [SerializeField] private GameplayHud hud;
         [SerializeField] private Image timerFill;
-        [SerializeField] private RectTransform leftPanel;
-        [SerializeField] private RectTransform rightPanel;
-        [SerializeField] private RectTransform bottomPanel;
+        [SerializeField] private RectTransform statusPanel;
+        [SerializeField] private RectTransform introPanel;
+        [SerializeField] private RectTransform promptPanel;
+        [SerializeField] private RectTransform carryPanel;
         [SerializeField] private PauseMenuController pauseMenu;
         [SerializeField] private CanvasGroup gameplayGroup;
 
-        public bool HasRequiredReferences => coordinator != null && timerFill != null &&
-            leftPanel != null && rightPanel != null && bottomPanel != null &&
+        public bool HasRequiredReferences => coordinator != null && hud != null && timerFill != null &&
+            statusPanel != null && introPanel != null && promptPanel != null && carryPanel != null &&
             pauseMenu != null && gameplayGroup != null;
         public float TimerFillAmount => timerFill != null ? timerFill.fillAmount : 0f;
+        public bool IsPromptPanelVisible => promptPanel != null && promptPanel.gameObject.activeSelf;
+        public bool IsCarryPanelVisible => carryPanel != null && carryPanel.gameObject.activeSelf;
+        public bool IsIntroPanelVisible => introPanel != null && introPanel.gameObject.activeSelf;
+        public bool IsGameplayHudVisible => gameplayGroup != null && gameplayGroup.alpha > 0.5f;
         public bool SupportsReferenceResolutions =>
-            ValidateLayout(1280, 720) && ValidateLayout(1920, 1080) && ValidateLayout(2560, 1440);
+            ValidateLayout(1280, 720) && ValidateLayout(1920, 1080) &&
+            ValidateLayout(2560, 1440) && ValidateLayout(1920, 1200) &&
+            ValidateLayout(2560, 1080);
 
         public void Configure(SectionTransitionCoordinator sectionCoordinator,
-            Image loopTimerFill, RectTransform left, RectTransform right, RectTransform bottom,
+            GameplayHud gameplayHud, Image loopTimerFill,
+            RectTransform status, RectTransform intro, RectTransform prompt, RectTransform carry,
             PauseMenuController menu, CanvasGroup group)
         {
             coordinator = sectionCoordinator;
+            hud = gameplayHud;
             timerFill = loopTimerFill;
-            leftPanel = left;
-            rightPanel = right;
-            bottomPanel = bottom;
+            statusPanel = status;
+            introPanel = intro;
+            promptPanel = prompt;
+            carryPanel = carry;
             pauseMenu = menu;
             gameplayGroup = group;
         }
@@ -46,16 +57,31 @@ namespace EchoShift.Presentation
             gameplayGroup.alpha = paused ? 0f : 1f;
             gameplayGroup.interactable = !paused;
             gameplayGroup.blocksRaycasts = !paused;
+            SetActive(promptPanel, !paused && !string.IsNullOrEmpty(hud.CurrentPrompt));
+            SetActive(carryPanel, !paused && hud.IsCarrying);
+            SetActive(introPanel, !paused &&
+                (hud.IsSectionIntroVisible || hud.IsTutorialVisible));
         }
 
         public bool ValidateLayout(int width, int height)
         {
             if (!HasRequiredReferences || width < 960 || height < 540) return false;
             float scale = Mathf.Min(width / 1920f, height / 1080f);
-            float leftWidth = leftPanel.rect.width * scale;
-            float rightWidth = rightPanel.rect.width * scale;
-            float centerGap = width - leftWidth - rightWidth - 96f * scale;
-            return centerGap >= 320f * scale && bottomPanel.rect.height * scale <= height * 0.22f;
+            float horizontalMargin = 20f * scale;
+            float statusWidth = statusPanel.rect.width * scale;
+            float promptWidth = promptPanel.rect.width * scale;
+            float introWidth = introPanel.rect.width * scale;
+            return statusWidth <= width * 0.34f &&
+                promptWidth <= width * 0.28f &&
+                introWidth <= width - horizontalMargin * 2f &&
+                statusPanel.rect.height * scale <= height * 0.22f &&
+                carryPanel.rect.height * scale <= height * 0.09f;
+        }
+
+        private static void SetActive(RectTransform target, bool active)
+        {
+            if (target != null && target.gameObject.activeSelf != active)
+                target.gameObject.SetActive(active);
         }
     }
 }
