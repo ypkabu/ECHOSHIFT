@@ -246,7 +246,7 @@ namespace EchoShift.Gameplay
             sections[0].RestartSection(false);
             sections[0].GetComponent<TutorialGuide>()?.ResetForSection();
             Subscribe(sections[0]);
-            sectionCamera.SetTarget(sections[0].Player.transform, true);
+            sectionCamera.SetSection(sections[0], true);
             telemetry.RecordRestartGame();
             telemetry.SectionStarted(1);
             _state.TryTransition(GameplayState.Playing, "RestartGameTest");
@@ -341,7 +341,7 @@ namespace EchoShift.Gameplay
             PuzzleSectionController section = sections[_activeSectionIndex];
             section.ActivateSection(false);
             Subscribe(section);
-            sectionCamera.SetTarget(section.Player.transform, _activeSectionIndex == 0);
+            sectionCamera.SetSection(section, _activeSectionIndex == 0);
             telemetry.SectionStarted(ActiveSectionNumber);
             hud.Bind(this);
             hud.SetObjective(hud.TextCatalog.GetSectionObjective(_activeSectionIndex));

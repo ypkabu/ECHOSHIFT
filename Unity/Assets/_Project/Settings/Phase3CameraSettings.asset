@@ -14,4 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase3CameraSettings
   offset: {x: 0, y: 15, z: -11}
   lookOffset: {x: 0, y: 0, z: 1.25}
-  smoothTime: 0.18
+  smoothTime: 0.24
+  lookAheadDistance: 2.6
+  echoGroupCenterWeight: 0.2
+  maximumGroupFocusOffset: 1.5
+  zoomSmoothTime: 0.32
+  baseFieldOfView: 48
+  twoEchoFieldOfView: 52
+  maximumFieldOfView: 54
+  sectionBounds:
+  - minimum: {x: -4.6, y: -4.5}
+    maximum: {x: 4.6, y: 4.6}
+  - minimum: {x: -4.6, y: -4.5}
+    maximum: {x: 4.6, y: 4.6}
+  - minimum: {x: -4.6, y: -8.2}
+    maximum: {x: 4.6, y: 9.2}

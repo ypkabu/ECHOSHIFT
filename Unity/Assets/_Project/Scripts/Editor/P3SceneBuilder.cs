@@ -821,8 +821,17 @@ namespace EchoShift.Editor
             SerializedObject serialized = new SerializedObject(asset);
             serialized.FindProperty("offset").vector3Value = new Vector3(0f, 15f, -11f);
             serialized.FindProperty("lookOffset").vector3Value = new Vector3(0f, 0f, 1.25f);
-            serialized.FindProperty("smoothTime").floatValue = 0.18f;
+            serialized.FindProperty("smoothTime").floatValue = 0.24f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            asset.ConfigurePresentation(
+                2.6f, 0.2f, 1.5f,
+                48f, 52f, 54f, 0.32f,
+                new[]
+                {
+                    new SectionCameraBounds(new Vector2(-4.6f, -4.5f), new Vector2(4.6f, 4.6f)),
+                    new SectionCameraBounds(new Vector2(-4.6f, -4.5f), new Vector2(4.6f, 4.6f)),
+                    new SectionCameraBounds(new Vector2(-4.6f, -8.2f), new Vector2(4.6f, 9.2f))
+                });
             EditorUtility.SetDirty(asset);
             return asset;
         }
