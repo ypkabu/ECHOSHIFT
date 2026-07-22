@@ -1,4 +1,5 @@
 using EchoShift.Gameplay;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,9 @@ namespace EchoShift.Presentation
 {
     public sealed class Phase4HudVisual : MonoBehaviour
     {
+        public const string ProfilerMarkerName = "EchoShift.UI.Update";
+        private static readonly ProfilerMarker UiUpdateMarker =
+            new ProfilerMarker(ProfilerMarkerName);
         [SerializeField] private SectionTransitionCoordinator coordinator;
         [SerializeField] private GameplayHud hud;
         [SerializeField] private Image timerFill;
@@ -49,6 +53,7 @@ namespace EchoShift.Presentation
 
         public void RefreshNowForTests()
         {
+            using ProfilerMarker.AutoScope scope = UiUpdateMarker.Auto();
             if (!HasRequiredReferences || coordinator.ActiveSection == null) return;
             Core.LoopDirector director = coordinator.ActiveSection.Director;
             timerFill.fillAmount = 1f - Mathf.Clamp01(

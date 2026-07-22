@@ -1,5 +1,6 @@
 using EchoShift.Core;
 using EchoShift.Gameplay;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace EchoShift.Presentation
@@ -7,6 +8,9 @@ namespace EchoShift.Presentation
     [RequireComponent(typeof(Camera))]
     public sealed class SectionCameraController : MonoBehaviour
     {
+        public const string ProfilerMarkerName = "EchoShift.Camera.Update";
+        private static readonly ProfilerMarker CameraUpdateMarker =
+            new ProfilerMarker(ProfilerMarkerName);
         [SerializeField] private Phase3CameraSettings settings;
         [SerializeField] private Transform target;
         [SerializeField] private PuzzleSectionController activeSection;
@@ -72,6 +76,7 @@ namespace EchoShift.Presentation
 
         private void ApplyFraming(bool snap, float deltaTime)
         {
+            using ProfilerMarker.AutoScope scope = CameraUpdateMarker.Auto();
             _camera ??= GetComponent<Camera>();
             Vector3 desiredFocus = CalculateDesiredFocus(out float desiredFieldOfView);
             if (snap || !_hasFocus)

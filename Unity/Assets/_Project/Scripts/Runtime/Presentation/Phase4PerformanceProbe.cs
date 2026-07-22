@@ -25,6 +25,8 @@ namespace EchoShift.Presentation
         private ProfilerRecorder _vertices;
         private ProfilerRecorder _usedMemory;
         private ProfilerRecorder _textureMemory;
+        private ProfilerRecorder _cameraUpdate;
+        private ProfilerRecorder _uiUpdate;
         private bool _recording;
         private float _transitionMaximumFrameMs;
         private float _transitionMaximumMainThreadMs;
@@ -42,6 +44,10 @@ namespace EchoShift.Presentation
             public float maximumFrameMs;
             public float averageMainThreadMs;
             public float maximumMainThreadMs;
+            public float averageCameraUpdateMs;
+            public float maximumCameraUpdateMs;
+            public float averageUiUpdateMs;
+            public float maximumUiUpdateMs;
             public float averageGpuFrameMs;
             public float maximumGpuFrameMs;
             public float transitionMaximumFrameMs;
@@ -68,6 +74,8 @@ namespace EchoShift.Presentation
             public bool verticesAvailable;
             public bool memoryAvailable;
             public bool textureMemoryAvailable;
+            public bool cameraUpdateAvailable;
+            public bool uiUpdateAvailable;
             public bool graphicalDevice;
         }
 
@@ -98,6 +106,10 @@ namespace EchoShift.Presentation
             _vertices = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Vertices Count", 1);
             _usedMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Total Used Memory", 1);
             _textureMemory = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "Texture Memory", 1);
+            _cameraUpdate = ProfilerRecorder.StartNew(
+                ProfilerCategory.Scripts, SectionCameraController.ProfilerMarkerName, 1);
+            _uiUpdate = ProfilerRecorder.StartNew(
+                ProfilerCategory.Scripts, Phase4HudVisual.ProfilerMarkerName, 1);
             _recording = true;
             for (int i = 0; i < RecorderWarmupFrames; i++) yield return null;
             yield return PrepareMaximumEchoes();
@@ -109,6 +121,10 @@ namespace EchoShift.Presentation
             float maximum = 0f;
             float maximumMain = 0f;
             float maximumGpu = 0f;
+            float totalCameraUpdate = 0f;
+            float maximumCameraUpdate = 0f;
+            float totalUiUpdate = 0f;
+            float maximumUiUpdate = 0f;
             long maximumGc = 0;
             long totalGc = 0;
             int nonZeroGcFrames = 0;
@@ -136,6 +152,18 @@ namespace EchoShift.Presentation
                     float gpuMs = _gpuFrameTime.LastValue / 1000000f;
                     totalGpu += gpuMs;
                     maximumGpu = Mathf.Max(maximumGpu, gpuMs);
+                }
+                if (_cameraUpdate.Valid)
+                {
+                    float cameraMs = _cameraUpdate.LastValue / 1000000f;
+                    totalCameraUpdate += cameraMs;
+                    maximumCameraUpdate = Mathf.Max(maximumCameraUpdate, cameraMs);
+                }
+                if (_uiUpdate.Valid)
+                {
+                    float uiMs = _uiUpdate.LastValue / 1000000f;
+                    totalUiUpdate += uiMs;
+                    maximumUiUpdate = Mathf.Max(maximumUiUpdate, uiMs);
                 }
                 if (_gcAllocated.Valid)
                 {
@@ -172,6 +200,11 @@ namespace EchoShift.Presentation
                 maximumFrameMs = maximum,
                 averageMainThreadMs = _mainThread.Valid ? totalMain / SampleFrames : 0f,
                 maximumMainThreadMs = maximumMain,
+                averageCameraUpdateMs = _cameraUpdate.Valid
+                    ? totalCameraUpdate / SampleFrames : 0f,
+                maximumCameraUpdateMs = maximumCameraUpdate,
+                averageUiUpdateMs = _uiUpdate.Valid ? totalUiUpdate / SampleFrames : 0f,
+                maximumUiUpdateMs = maximumUiUpdate,
                 averageGpuFrameMs = _gpuFrameTime.Valid ? totalGpu / SampleFrames : 0f,
                 maximumGpuFrameMs = maximumGpu,
                 transitionMaximumFrameMs = _transitionMaximumFrameMs,
@@ -198,6 +231,8 @@ namespace EchoShift.Presentation
                 verticesAvailable = _vertices.Valid,
                 memoryAvailable = _usedMemory.Valid,
                 textureMemoryAvailable = _textureMemory.Valid,
+                cameraUpdateAvailable = _cameraUpdate.Valid,
+                uiUpdateAvailable = _uiUpdate.Valid,
                 graphicalDevice = SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null
             };
             string directory = Path.Combine(Application.persistentDataPath, "Phase4Performance");
@@ -208,6 +243,10 @@ namespace EchoShift.Presentation
                       $"p95Ms={result.p95FrameMs:F3};maxMs={result.maximumFrameMs:F3};" +
                       $"mainAvgMs={result.averageMainThreadMs:F3};" +
                       $"mainMaxMs={result.maximumMainThreadMs:F3};" +
+                      $"cameraAvgMs={result.averageCameraUpdateMs:F4};" +
+                      $"cameraMaxMs={result.maximumCameraUpdateMs:F4};" +
+                      $"uiAvgMs={result.averageUiUpdateMs:F4};" +
+                      $"uiMaxMs={result.maximumUiUpdateMs:F4};" +
                       $"gpuAvgMs={result.averageGpuFrameMs:F3};gpuMaxMs={result.maximumGpuFrameMs:F3};" +
                       $"transitionFrameMaxMs={result.transitionMaximumFrameMs:F3};" +
                       $"transitionMainMaxMs={result.transitionMaximumMainThreadMs:F3};" +
@@ -279,6 +318,7 @@ namespace EchoShift.Presentation
             _mainThread.Dispose(); _gpuFrameTime.Dispose(); _gcAllocated.Dispose();
             _drawCalls.Dispose(); _setPassCalls.Dispose(); _triangles.Dispose();
             _vertices.Dispose(); _usedMemory.Dispose(); _textureMemory.Dispose();
+            _cameraUpdate.Dispose(); _uiUpdate.Dispose();
             _recording = false;
         }
 
