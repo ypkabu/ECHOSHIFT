@@ -1,6 +1,27 @@
 # Phase 4 Visual Review and Later Backlog
 
-The first primitive-led Phase 4 pass failed Visual Review. Phase 4.1 integrated a curated CC0 external-asset subset and passed full automation; this file now contains human-judgment items and later production work. **Phase 4.1: Automation Passed; Human Visual Review Pending.**
+The first primitive-led Phase 4 pass failed Visual Review. Phase 4.1 integrated a curated CC0 external-asset subset, then received a Human Visual Review Conditional Fail with two High and five Medium findings. Phase 4.2 corrects the bounded camera, HUD, Actor-identity, Pause-focus, and capture findings and passes automation. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.**
+
+## Deferred from the Phase 4.1 Human Visual Review
+
+These Medium items are intentionally outside the bounded Phase 4.2 pass:
+
+- add low-contrast foundation, machinery, pipes, silhouettes, and environment
+  light outside the playable floor so the facility reads less like a platform
+  floating in a black void;
+- reduce main-route floor texture density, reserve busy panels for room edges,
+  tune metallic/smoothness, and author device-zone panels and subtle guidance;
+- enrich Door presentation with split leaves, a lit center seam, staged retreat
+  and slide motion, internal frame light, short mechanical audio, and restrained
+  VFX without changing its authoritative open/collision state;
+- conduct the broader Visual Polish / Art Direction pass requested for
+  Environment form/materials, Player/Echo production models and silhouettes,
+  device models, Lighting, VFX, HUD design, transitions, color, material, and
+  whole-screen cohesion.
+
+Phase 4.2 improved Pause selection and Player/Echo identity, but the repeat
+human review must determine whether those Medium observations are resolved in
+motion. They are not automatically marked accepted here.
 
 ## Visual Polish / Art Direction
 

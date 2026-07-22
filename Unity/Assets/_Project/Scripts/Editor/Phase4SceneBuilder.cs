@@ -536,6 +536,9 @@ namespace EchoShift.Editor
             director.Configure(sections, coordinator, settings, pool, audio);
             Phase4PerformanceProbe probe = root.AddComponent<Phase4PerformanceProbe>();
             probe.Configure(coordinator);
+            Phase4StandaloneCompletionProbe completionProbe =
+                root.AddComponent<Phase4StandaloneCompletionProbe>();
+            completionProbe.Configure(coordinator);
         }
 
         private static void BuildHud(GameplayHud hud, PauseMenuController pauseMenu,

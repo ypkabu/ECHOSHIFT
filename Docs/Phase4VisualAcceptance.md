@@ -1,8 +1,8 @@
 # Phase 4 Human Visual Acceptance
 
-**Status: First review failed; Phase 4.1 corrective automation passed; new human review pending**
+**Status: Phase 4.1 Human Visual Review Conditional Fail; Phase 4.2 automation passed; repeat review pending**
 
-The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.1 uses curated external assets and addresses the recorded High issues, but automation does not prove visual acceptance. A human reviewer must play `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe`, inspect `Captures/Phase4_1/Before/` and `Captures/Phase4_1/After/`, and record only observed results. Any Critical/High finding blocks `phase4-validated` and requires correction, full automation, rebuilt Players, and another human review.
+The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.1 successfully integrated curated external assets, but its Human Visual Review was **Conditional Fail** because camera composition and persistent HUD quality remained High issues. Phase 4.2 applies the bounded readability corrections and passed automation. A human reviewer must now play `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe` and inspect `Captures/Phase4_2/`. Automation does not prove visual acceptance; any remaining Critical/High finding still blocks `phase4-validated`.
 
 ## Test record
 
@@ -10,8 +10,8 @@ The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.
 |---|---|
 | Date/time | Not recorded |
 | Reviewer | Not recorded |
-| Commit/tag | `phase4-assets-automation-passed` after creation |
-| Build | `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe` |
+| Commit/tag | Phase 4.2 automation candidate / `phase4-presentation-automation-passed` after creation |
+| Build | `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe` |
 | Device / OS / GPU | Not recorded |
 | Resolution / display mode | Not recorded |
 | Input device | Not recorded |
@@ -71,11 +71,35 @@ Use `Pass`, `Fail`, or `Not checked`. Severity is `Critical`, `High`, `Medium`, 
 | P4-M01 | Door and Goal needed stronger authored form | Medium | First human Visual Review | External frames/panels, circuit badges, portal/glow/`出口ゲート` | Corrected by automation; human recheck pending |
 | P4.1-H01 | Cyan/orange lamps, partial rails, and diagonal supports floated outside the facility | High | Phase 4.1 After capture review | Remove independent lamps and anchor full wall cladding to continuous floor-connected backing | Corrected by Builder and automation; human recheck pending |
 
+## Phase 4.1 Human Visual Review result
+
+The recorded Human Visual Review result was **Conditional Fail**: Critical `0`,
+High `2`, Medium `5`, and multiple Low observations. External asset integration,
+dark-value recovery, floating-artifact removal, Door/Goal readability, and kit
+cohesion passed. ES technical-portfolio quality was rated `7/10`; representative
+screenshot and Steam-store quality were rated `5/10` and `4/10`.
+
+| Finding | Severity | Phase 4.2 disposition |
+|---|---|---|
+| Player/Echo clipped or weakly placed by gameplay/capture camera | High | Section bounds, look-ahead, two-Echo zoom, smoothing, projection tests, and new presets implemented; repeat human review pending |
+| Persistent HUD looked provisional and occupied too much screen space | High | Compact status card, transient objective, context-only prompt, carry-only chip, removed lower bar, and Pause HUD hiding implemented; repeat human review pending |
+| Player/Echo too small and insufficiently distinct by silhouette | Medium | Visual-child scale, emission, marker geometry, generation fins, and replay/stopped marks implemented; repeat human review pending |
+| Facility can read as floating in a black void | Medium | Deferred to later visual backlog; Phase 4.2 only reduced excess black in capture framing |
+| Floor texture density competes with gameplay | Medium | Deferred to later visual backlog |
+| Door motion may look too simple | Medium | Deferred to later visual backlog |
+| Pause focus/spacing almost complete | Medium | Strong selected fill/cyan outline and reduced spacing implemented; repeat human review pending |
+
+Phase 4.2 regenerated these review images at 1920x1080: Section 1 overview,
+Player/Echo 1 identity, Plate cooperation, Battery held close-up, recorded Socket
+insertion/Door opening, two-Echo roles, Goal arrival, and compact gameplay HUD.
+Their automated framing passed, but their visual score is not updated until the
+repeat human review.
+
 ## Decision
 
-- Critical: New review not assessed
-- High: Four prior findings plus one Phase 4.1 perimeter finding corrected by automation; acceptance not yet confirmed
-- Medium: Not assessed
-- Low: Not assessed
-- Final human decision: Pending Phase 4.1 review
+- Critical: `0` in the completed Phase 4.1 review
+- High: `2` in the completed Phase 4.1 review; corrected by Phase 4.2 automation, human confirmation pending
+- Medium: `5` in the completed Phase 4.1 review; three remain later backlog work
+- Low: Multiple, not individually enumerated by the reviewer
+- Final human decision: Phase 4.1 Conditional Fail; Phase 4.2 repeat review pending
 - `phase4-validated` authorization: No

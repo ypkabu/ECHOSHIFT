@@ -4,7 +4,7 @@
 
 Phase 3 was fast-forwarded into `main` at `86cdf46635b0de8df3c0adf599a670d903941fe8`, matching `phase3-validated`. The first Phase 4 automation pass was preserved at `e043b160a945939d5f862a4648d3df728a40a49e` and tagged `phase4-automation-passed`, but human Visual Review rejected its primitive-led presentation. Corrective work proceeds from that immutable baseline on `feature/phase4-external-asset-integration`. The objective remains presentation quality suitable for a Steam page, internship application, and portfolio footage without changing puzzle rules, replay formats, fixed-tick simulation, Stable IDs, colliders, or section solutions.
 
-Current milestone result: the bounded external-asset integration, corrective visual changes, tests, captures, performance probe, Development/Non-Development Builds, and shutdown matrix are complete. **Phase 4.1: Automation Passed; Human Visual Review Pending.** The plan remains open only at the human visual-acceptance gate; it does not authorize `phase4-validated`.
+Current milestone result: the bounded external-asset integration passed automation, then received a Human Visual Review Conditional Fail. The follow-up camera/HUD/Actor/capture work is tracked in `ImplementationPlan_P4_2.md` and passes automation. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.** Neither plan authorizes `phase4-validated`.
 
 ## Why the current build looks inexpensive
 

@@ -140,6 +140,7 @@ namespace EchoShift.Gameplay
             if (waitForInteractiveStart && !Application.isBatchMode &&
                 !HasCommandLineFlag("-phase3AutoQuit") &&
                 !HasCommandLineFlag("-phase4PerfProbe") &&
+                !HasCommandLineFlag("-phase4AutoCompleteProbe") &&
                 !HasCommandLineFlag("-phase4Capture"))
             {
                 ArmInteractiveStartForTests();

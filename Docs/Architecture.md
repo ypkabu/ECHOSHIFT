@@ -1,6 +1,6 @@
 # Architecture
 
-**Phase 4.1: Automation Passed; Human Visual Review Pending**
+**Phase 4.2: Automation Passed; repeat Human Visual Review pending**
 
 ## Assembly dependency direction
 
@@ -85,7 +85,7 @@ Plain classes hold clock, immutable command, recorder, candidate comparison, and
 
 ## Presentation and input prompts
 
-`SectionCameraController` provides a configurable damped top-down follow camera without adding Cinemachine. `GameplayHud`, `PauseMenuController`, and `TutorialGuide` consume centralized `Phase3TextCatalog` strings. `InputSystemInputSource` records the most recently used keyboard/mouse or gamepad class so prompts can switch without affecting deterministic commands. MaterialPropertyBlocks, line renderers, and Echo trails communicate target focus, wiring, Door state, replay generation, and stopped playback without instantiating materials per frame.
+`SectionCameraController` provides a configurable damped top-down follow camera without adding Cinemachine. Phase 4.2 adds section-local focus bounds, forward look-ahead, and limited group zoom by reading Player/Echo transforms only; it never writes gameplay coordinates. `GameplayHud`, `PauseMenuController`, and `TutorialGuide` consume centralized `Phase3TextCatalog` strings. `Phase4HudVisual` maps that state to compact cached panels and hides them during Pause. `InputSystemInputSource` records the most recently used keyboard/mouse or gamepad class so prompts can switch without affecting deterministic commands. MaterialPropertyBlocks, line renderers, and Echo trails communicate target focus, wiring, Door state, replay generation, and stopped playback without instantiating materials per frame.
 
 ## Local telemetry boundary
 
@@ -103,14 +103,14 @@ The Player and Echo roots retain the same collider, kinematic body, layers, move
 
 The Japanese path uses project assets only: a static TextMeshPro atlas containing the catalog glyph set plus a packaged legacy `Font` for the retained Unity UI/TextMesh boundary. Runtime OS font discovery was removed. Noto Sans JP source and its OFL notice are stored in the project/`ThirdPartyNotices`; TMP Essential Resources provide the explicit fallback/material infrastructure.
 
-Rendering uses one soft-shadow Directional Light, at most two unshadowed local lights per active section, ambient/fog separation, and one global URP Volume containing safe ACES Tonemapping, Color Adjustments, mild Bloom, and mild Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent. Capture/build/performance orchestration remains Editor-only except for the opt-in runtime probe component.
+Rendering uses one soft-shadow Directional Light, at most two unshadowed local lights per active section, ambient/fog separation, and one global URP Volume containing safe ACES Tonemapping, Color Adjustments, mild Bloom, and mild Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent. Capture and build orchestration remains Editor-only. Runtime performance and Standalone-completion probes are scene-owned, command-line opt-in validation components that disable themselves during ordinary play. The completion probe is present only to verify a Development Player and uses the same fixed-tick route, Replay, interaction, telemetry, and quit paths as the retained P3 integration test.
 
 Phase 4.1 adds an explicit third-party boundary. Original CC0 files and notices live under `Assets/_Project/ThirdParty` and `ThirdPartyNotices`; `Phase4ExternalAssetCatalog` maps only the curated subset. Import processing fixes Rig None, animation/root motion off, no generated colliders, texture limits, and project-owned URP Material usage. `Phase4ExternalAssetBuilder` creates deterministic wrapper Prefabs under `Assets/_Project/Art` so vendor FBX/material state never becomes authoritative gameplay state. Imported Robot/environment meshes remain collider-free visual children; the existing roots retain all Stable IDs, layers, Motor, trigger, carry, and reset ownership.
 
-The Phase 4.1 scene composition removes camera-crossing overhead beams and persistent identity labels. Generation readability is supplied by compact mesh marks, material channels, visor, and trails. Door/Goal visual adapters use external panels/frames but still read the existing authoritative `DoorController` and `GoalVolume`. Pause presentation remains UI-only and hides the gameplay HUD through its cached `CanvasGroup`; the new probe exercises the real two-step Pause-menu Quit without changing production behavior.
+The Phase 4.1 scene composition removes camera-crossing overhead beams and persistent identity labels. Phase 4.2 strengthens identity through visual-child-only scale, warm/cold emission, circular/segmented floor markers, generation fin count, and playing/stopped marks. `Phase4CapturePreset` stores eight non-gameplay camera compositions; its Editor pipeline reaches them through deterministic recorded routes and validates projected Actor bounds. Door/Goal visual adapters use external panels/frames but still read the existing authoritative `DoorController` and `GoalVolume`. Pause presentation remains UI-only and hides the gameplay HUD through its cached `CanvasGroup`; the probe exercises the real two-step Pause-menu Quit without changing production behavior.
 
 ## Phase 3 validation boundary
 
 The final technical architecture gate is green: Scene generation, 61 EditMode tests, 61 PlayMode tests, P0-P3 real-Scene integration, deterministic P3 completion, and the Windows final-build probe pass with zero BuildReport warning and no matching Missing/Null/unhandled runtime problem. A source-blind graphical run also completed the three-section route and natural Pause/Quit path with no Critical or High issue.
 
-Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4.1 preserves that boundary: 93 EditMode and 93 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, normal-route interaction failures `0`, and external-asset/gameplay-root separation. The external-asset presentation and automated captures still require the separate human checklist. **Phase 4.1: Automation Passed; Human Visual Review Pending.**
+Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4.2 preserves that boundary: 99 EditMode and 105 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, normal-route interaction failures `0`, presentation bounds, HUD states, and external-asset/gameplay-root separation. The Phase 4.1 Human Visual Review was Conditional Fail; the corrected Build and captures still require a repeat human checklist. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.**

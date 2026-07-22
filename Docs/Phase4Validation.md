@@ -2,7 +2,7 @@
 
 **Status: Historical first-pass automation record — human Visual Review rejected the primitive-led presentation**
 
-This document preserves the `phase4-automation-passed` evidence at `e043b160a945939d5f862a4648d3df728a40a49e`. It is not the current acceptance candidate. Corrective external-asset integration and its 93/93 + 93/93 verification, rebuilt Players, captures, performance, and shutdown matrix are recorded separately in `Phase4ExternalAssetIntegrationValidation.md`. Current status is **Phase 4.1: Automation Passed; Human Visual Review Pending**.
+This document preserves the `phase4-automation-passed` evidence at `e043b160a945939d5f862a4648d3df728a40a49e`. It is not the current acceptance candidate. Phase 4.1 external-asset evidence remains in `Phase4ExternalAssetIntegrationValidation.md`; its Human Visual Review was Conditional Fail. The bounded camera/HUD/Actor/capture correction and its 99/99 + 105/105 verification are recorded in `Phase4PresentationReadabilityValidation.md`. Current status is **Phase 4.2: Automation Passed; repeat Human Visual Review pending**.
 
 Validation date: 2026-07-21 (Asia/Tokyo)  
 Branch: `feature/phase4-visual-polish`  

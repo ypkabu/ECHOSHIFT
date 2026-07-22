@@ -1,6 +1,6 @@
 # ECHO//SHIFT
 
-ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 4.1 replaces the rejected primitive-led visual pass with a curated CC0 Quaternius modular sci-fi/robot presentation and Kenney audio while retaining the validated three-section Phase 3 game. Gameplay, replay, Stable IDs, fixed-tick simulation, colliders, section solutions, and P0-P2 scenes remain unchanged. **Phase 4.1: Automation Passed; Human Visual Review Pending.**
+ECHO//SHIFT is a top-down 3D time-loop puzzle prototype made with Unity 6 and URP. Phase 4.1 replaced the rejected primitive-led visual pass with a curated CC0 Quaternius modular sci-fi/robot presentation and Kenney audio. Phase 4.2 improves camera composition, HUD hierarchy, Player/Echo identity, Pause focus, and capture framing while retaining the validated three-section Phase 3 game. Gameplay, replay, Stable IDs, fixed-tick simulation, colliders, section solutions, and P0-P2 scenes remain unchanged. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.**
 
 ## Phase 3 game flow
 
@@ -32,7 +32,8 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 
 - `ECHO SHIFT/Build Phase 3 Scene` generates `Assets/_Project/Scenes/P3_PlayableGreybox.unity` and preserves P3/P2/P1/P0 Build Settings order.
 - The Phase 3 Scene Builder automatically invokes the idempotent Phase 4 asset and presentation passes for P3 only.
-- `ECHO SHIFT/Capture Phase 4 Frames` writes the eight 1920x1080 Phase 4.1 review images to ignored `Captures/Phase4_1/After/`.
+- `ECHO SHIFT/Capture Phase 4.2 Presentation Frames` writes eight purpose-built 1920x1080 review images to ignored `Captures/Phase4_2/`.
+- `ECHO SHIFT/Build Phase 4.2 Windows Development` writes `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe`.
 - `ECHO SHIFT/Build Phase 4 Windows Development` writes `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe`.
 - `EchoShift.Editor.Phase4BuildPipeline.BuildWindowsNonDevelopment` writes `Builds/Phase4_1_NonDevelopment/ECHOSHIFT_Phase4_1_NonDevelopment.exe`.
 - `ECHO SHIFT/Build Phase 2 Scene` regenerates `Assets/_Project/Scenes/P2_CoordinationLab.unity`.
@@ -45,18 +46,17 @@ Open the `Unity/` folder from Unity Hub or launch the installed Editor with `-pr
 
 ## Automated verification
 
-Batch-mode commands are documented in `Docs/TestPlan.md`. The latest Phase 4.1 verification with Unity `6000.4.6f1` produced:
+Batch-mode commands are documented in `Docs/TestPlan.md`. The latest Phase 4.2 verification with Unity `6000.4.6f1` produced:
 
 - Scene Builder: exit code `0`; P0-P2 SHA-256 values unchanged; P3/P2/P1/P0 Build Settings order retained.
 - Curated third-party originals: 39 files / 9,984,796 bytes; official CC0 sources, hashes, licenses, unused files, and import settings recorded in `Docs/ThirdPartyAssets.md`.
-- EditMode: `94/94` passed; PlayMode: `93/93` passed. Added coverage includes source/license/hash, imports, materials/textures/shaders, root motion absence, wrapper idempotence, gameplay-root integrity, labels/beams, floating-perimeter regeneration, Pause focus/HUD, and external visuals.
+- EditMode: `99/99` passed; PlayMode: `105/105` passed. Added coverage includes camera framing at five aspect/resolution targets, compact/transient HUD states, Pause selection, Actor silhouette/marker identity, generated Capsule Goal refresh, capture presets, real route capture framing, and all retained external-asset/gameplay-root gates.
 - P3 automated solution: Replay Drift `0 m`; interactions `4` successful and `0` failed.
-- Windows x86_64 Development Build: BuildReport success, warnings `0`, errors `0`, 291 files / 204,467,042 bytes at `Builds/Phase4_1`.
-- Windows x86_64 Non-Development Build: BuildReport success, warnings `0`, errors `0`, 182 files / 140,785,117 bytes at `Builds/Phase4_1_NonDevelopment`.
+- Windows x86_64 Development Build: BuildReport success, warnings `0`, errors `0`, 291 files / 204,479,394 bytes at `Builds/Phase4_2`.
 - Standalone batch probe: `ja-JP`, packaged `Noto Sans JP`, required glyphs, HUD, telemetry, real D3D11 GPU, and natural exit code `0`.
-- Maximum-Echo performance probe: 1920x1080, 600 frames at a 120fps cap, average `8.338 ms`, p95 `8.337 ms`, Main Thread average `8.330 ms`, steady GC `0 B/frame`, transition maximum `15.721 ms`, and maximum used memory `168,041,477 B`.
-- Matching Before/After sets of eight ignored 1920x1080 captures were generated with Debug Overlay off.
-- Development/Non-Development, D3D11/D3D12, audio on/off, auto-quit, Pause-menu Quit, and ordinary visible Window Close probes all exited `0`; the historical `0xC0000005` was not reproduced, but its root cause remains unproven.
+- Maximum-Echo performance probe: 1920x1080, 600 frames at a 120fps cap, average `8.341 ms`, p95 `8.370 ms`, Main Thread average `8.337 ms`, Camera average `0.0077 ms`, UI average `0.0036 ms`, and steady GC `0 B/frame`.
+- Eight distinct ignored 1920x1080 captures were generated from recorded routes with Debug Overlay/cursor off and required Actor bounds inside the frame.
+- Development Player P3 completion, startup auto-Quit, and Pause-menu Quit exited `0`; Telemetry JSON, packaged Japanese glyphs, and Missing/Null/unhandled gates passed.
 
 Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`. The original failure remains historical evidence in `Docs/Phase3CodexBlackBoxPlaytest.md`; a new source-blind Fresh7 run completed all three sections in 10:53.2 and passed Pause/Quit with no Critical or High issue, as recorded in `Docs/Phase3CodexBlackBoxRetest.md`. This remains a Codex pretest, not a substitute for human acceptance.
 
@@ -64,7 +64,7 @@ Detailed Japanese evidence is in `Docs/Phase3JapaneseLocalizationValidation.md`.
 
 Human acceptance passed full completion, movement, E/R/Escape, Camera, all three puzzle-comprehension stages, Echo/device/Door readability, HUD routing, Restart, Pause/Resume, Quit, Japanese display, and Interaction failure feedback. Critical and High findings were 0. Unrecorded environment and timing values remain explicitly unrecorded rather than inferred in `Docs/Phase3ManualAcceptance.md`.
 
-Phase 4.1 automation is not formal acceptance. Complete `Docs/Phase4VisualAcceptance.md` against `Builds/Phase4_1/ECHOSHIFT_Phase4_1.exe` and `Captures/Phase4_1/After/` before creating `phase4-validated`.
+Phase 4.1 Human Visual Review was Conditional Fail with two High presentation findings. Phase 4.2 automation corrects those findings but is not formal acceptance. Repeat `Docs/Phase4VisualAcceptance.md` against `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe` and `Captures/Phase4_2/` before creating `phase4-validated`.
 
 ## Project layout
 

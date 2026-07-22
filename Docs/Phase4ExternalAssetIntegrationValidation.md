@@ -1,6 +1,9 @@
 # Phase 4.1 External Asset Integration Validation
 
-**Status: Phase 4.1 Automation Passed; Human Visual Review Pending**
+**Status: Historical Phase 4.1 automation record; Human Visual Review was Conditional Fail; see Phase 4.2 validation**
+
+Phase 4.2 camera/HUD/Actor/capture corrections and the current automation evidence
+are recorded in `Phase4PresentationReadabilityValidation.md`.
 
 検証日: 2026-07-21～2026-07-22 (Asia/Tokyo)
 Branch: `feature/phase4-external-asset-integration`
@@ -93,7 +96,7 @@ GPU Frame Time、SetPass、Triangles、VerticesのRecorderはavailableを返し�
 
 Asset、license、Import、Scene、回帰、capture、performance、Development/Non-Development Build、startup、Quit matrixの自動ゲートは通過した。`phase4-assets-automation-passed`はこの結果を示す軽量タグであり、`phase4-validated`ではない。外部Assetを用いた見た目、動作中の識別、音量、Robot足、GPU/Draw metrics、非16:9レイアウトは人間が確認する必要がある。
 
-**Final state: Phase 4.1 Automation Passed; Human Visual Review Pending.**
+**Historical final automation state: Phase 4.1 Automation Passed. The later Human Visual Review was Conditional Fail.**
 
 ## Post-tag perimeter visual correction
 

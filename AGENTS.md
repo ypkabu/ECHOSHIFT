@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-Phase 3 is formally validated. After the first Phase 4 primitive-led presentation failed human Visual Review, Phase 4.1 integrated a curated CC0 subset of Quaternius modular sci-fi/robot assets and Kenney audio without changing P0-P3 mechanics, Stable IDs, or colliders. **Phase 4.1: Automation Passed; Human Visual Review Pending.** Do not call Phase 4 validated until `Docs/Phase4VisualAcceptance.md` is completed against the Phase 4.1 Build and any Critical/High visual finding is fixed and revalidated.
+Phase 3 is formally validated. After the first Phase 4 primitive-led presentation failed human Visual Review, Phase 4.1 integrated a curated CC0 subset of Quaternius modular sci-fi/robot assets and Kenney audio without changing P0-P3 mechanics, Stable IDs, or colliders. Its Human Visual Review was Conditional Fail with two High presentation findings. Phase 4.2 corrects camera composition, persistent HUD, Actor identity, Pause focus, and capture framing and passes automation. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.** Do not call Phase 4 validated until `Docs/Phase4VisualAcceptance.md` is completed against the Phase 4.2 Build and any remaining Critical/High finding is fixed and revalidated.
 
 ## Required workflow
 

@@ -1,6 +1,6 @@
 # Test Plan
 
-**Phase 4.1: Automation Passed; Human Visual Review Pending**
+**Phase 4.2: Automation Passed; repeat Human Visual Review pending**
 
 ## EditMode
 
@@ -175,3 +175,36 @@ Latest post-correction results on 2026-07-22:
 - P0/P1/P2/P3 maximum Drift: `0 m`; P3 success/failure `4/0`; all three sections completed in 1,091 advances.
 - Stable-ID preservation, actor collision, no presentation collider, Missing Component, and P0-P2 hash gates remain passed.
 - Matching defect Before/fixed After sets: 8 PNG each, 1920x1080, under ignored `Captures/Phase4_1/FloatingVisualFix`.
+
+## Phase 4.2 presentation-readability gate
+
+```powershell
+$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
+& $unity -batchmode -force-d3d11 -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4_2_CaptureFull.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4_2_EditMode_Final.xml" -logFile "$PWD\Logs\Phase4_2_EditMode_Final.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4_2_PlayMode_Final.xml" -logFile "$PWD\Logs\Phase4_2_PlayMode_Final.log"
+& $unity -batchmode -force-d3d11 -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildPhase4TwoWindowsDevelopment -logFile "$PWD\Logs\Phase4_2_Build_Final.log"
+& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -batchmode -force-d3d11 -phase4AutoCompleteProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_2_StandaloneCompletion.log"
+& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_2_Performance_Final.log"
+& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -force-d3d11 -phase3AutoQuit -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -logFile "$PWD\Logs\Phase4_2_NormalWindowStartup.log"
+& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -force-d3d11 -phase4PauseQuitProbe -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -logFile "$PWD\Logs\Phase4_2_NormalWindowPauseQuit.log"
+```
+
+Latest results on 2026-07-22:
+
+- Full Scene Builder/capture gate: exit `0`; eight 1920x1080 images; Debug
+  Overlay/cursor off; required Actor bounds inside the frame.
+- EditMode `99/99` in `25.5873039 s`; PlayMode `105/105` in
+  `23.096738 s`; warning/error `0/0`.
+- P3 integration and Development Player both completed all three sections;
+  Drift `0 m`, interaction `4/0`, Telemetry JSON present.
+- BuildReport Success, warning/error `0/0`; 291 files / 204,479,394 B at
+  `Builds/Phase4_2`.
+- 600-frame maximum-three-Echo probe: frame average/p95/max
+  `8.341/8.370/8.821 ms`, Main Thread average/max `8.337/8.832 ms`,
+  Camera average/max `0.0077/0.0629 ms`, UI average/max
+  `0.0036/0.0532 ms`, steady GC `0 B/frame`.
+- Packaged Japanese font/glyph marker true; normal-window startup/auto-Quit and
+  Pause-menu Quit exited `0`; Missing/Null/unhandled matches `0`.
+- Raw XML, logs, captures, Builds, and Library remain ignored. Human visual
+  judgment is still required before `phase4-validated`.
