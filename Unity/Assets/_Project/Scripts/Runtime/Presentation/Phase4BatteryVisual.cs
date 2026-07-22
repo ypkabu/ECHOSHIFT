@@ -39,6 +39,11 @@ namespace EchoShift.Presentation
         public void RefreshNowForTests()
         {
             if (!HasRequiredReferences) return;
+            if (_properties == null)
+            {
+                _properties = new MaterialPropertyBlock();
+                _baseScale = visualRoot.localScale;
+            }
             _lastHeld = battery.IsHeld;
             _lastInserted = battery.IsInserted;
             float pulse = _lastInserted ? 1f : 0.5f + Mathf.PingPong(Time.unscaledTime * 0.4f, 0.5f);

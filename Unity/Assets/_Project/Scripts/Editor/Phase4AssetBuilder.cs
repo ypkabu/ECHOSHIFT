@@ -14,6 +14,7 @@ namespace EchoShift.Editor
     public static class Phase4AssetBuilder
     {
         public const string SettingsPath = "Assets/_Project/Settings/Phase4VisualSettings.asset";
+        public const string CapturePresetPath = "Assets/_Project/Settings/Phase4CapturePreset.asset";
         public const string FontPath = "Assets/_Project/Fonts/ThirdParty/NotoSansJP/NotoSansJP-Regular.ttf";
         public const string TmpFontPath = "Assets/_Project/Fonts/NotoSansJP_Phase4.asset";
         private const string ArtRoot = "Assets/_Project/Art/Phase4";
@@ -67,9 +68,49 @@ namespace EchoShift.Editor
             }
             settings.Configure(panels, dark, trim, player, plate, battery, goal, danger,
                 glass, echoes, font, tmpFont, vfx, cues, icons, volume);
+            BuildCapturePreset();
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
             return settings;
+        }
+
+        private static void BuildCapturePreset()
+        {
+            Phase4CapturePreset preset =
+                AssetDatabase.LoadAssetAtPath<Phase4CapturePreset>(CapturePresetPath);
+            if (preset == null)
+            {
+                preset = ScriptableObject.CreateInstance<Phase4CapturePreset>();
+                AssetDatabase.CreateAsset(preset, CapturePresetPath);
+            }
+            preset.Configure(new[]
+            {
+                new Phase4CaptureShotPreset("01_section1_plate_door_overview.png",
+                    Phase4CaptureMoment.Section1Overview, 1,
+                    new Vector3(0f, 0f, -0.6f), new Vector3(0f, 16.5f, -12.5f), 52f, false),
+                new Phase4CaptureShotPreset("02_player_echo1_identity.png",
+                    Phase4CaptureMoment.PlayerAndEchoOne, 1,
+                    new Vector3(-0.4f, 0f, -5.2f), new Vector3(-2.4f, 10.5f, -7.2f), 43f, false),
+                new Phase4CaptureShotPreset("03_echo_plate_player_door.png",
+                    Phase4CaptureMoment.EchoOnPlatePlayerAtDoor, 1,
+                    new Vector3(-0.4f, 0f, -1.5f), new Vector3(2.2f, 12.5f, -8.8f), 46f, false),
+                new Phase4CaptureShotPreset("04_battery_held_close.png",
+                    Phase4CaptureMoment.BatteryHeldClose, 2,
+                    new Vector3(0.6f, 0.4f, -2.5f), new Vector3(-3.2f, 8.5f, -5.8f), 40f, false),
+                new Phase4CaptureShotPreset("05_recorded_insert_door_open.png",
+                    Phase4CaptureMoment.RecordedInsertionDoorOpen, 2,
+                    new Vector3(0.4f, 0f, 0.2f), new Vector3(2.8f, 11.5f, -7.5f), 44f, false),
+                new Phase4CaptureShotPreset("06_echo1_echo2_roles.png",
+                    Phase4CaptureMoment.TwoEchoRoles, 3,
+                    new Vector3(-0.3f, 0f, -2f), new Vector3(-1f, 14.5f, -10.5f), 49f, false),
+                new Phase4CaptureShotPreset("07_player_goal_arrival.png",
+                    Phase4CaptureMoment.GoalArrival, 3,
+                    new Vector3(0f, 0.5f, 9.2f), new Vector3(2.4f, 9.2f, -6.2f), 42f, false),
+                new Phase4CaptureShotPreset("08_compact_gameplay_hud.png",
+                    Phase4CaptureMoment.GameplayHud, 3,
+                    new Vector3(0f, 0f, -0.5f), new Vector3(0f, 15.2f, -11.2f), 50f, true)
+            });
+            EditorUtility.SetDirty(preset);
         }
 
         private static TMP_FontAsset BuildTmpFont(Font source, Phase3TextCatalog catalog)
@@ -134,13 +175,17 @@ namespace EchoShift.Editor
             material.SetFloat("_Smoothness", smoothness);
             if (emission > 0f)
             {
-                material.EnableKeyword("_EMISSION");
                 material.SetColor("_EmissionColor", color * emission);
+                material.EnableKeyword("_EMISSION");
+                material.globalIlluminationFlags =
+                    MaterialGlobalIlluminationFlags.RealtimeEmissive;
             }
             else
             {
-                material.DisableKeyword("_EMISSION");
                 material.SetColor("_EmissionColor", Color.black);
+                material.DisableKeyword("_EMISSION");
+                material.globalIlluminationFlags =
+                    MaterialGlobalIlluminationFlags.EmissiveIsBlack;
             }
             EditorUtility.SetDirty(material);
             return material;

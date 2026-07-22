@@ -1,6 +1,7 @@
 using System.Collections;
 using EchoShift.Core;
 using EchoShift.Gameplay;
+using EchoShift.Interaction;
 using EchoShift.Presentation;
 using NUnit.Framework;
 using UnityEngine;
@@ -249,6 +250,21 @@ namespace EchoShift.Tests.PlayMode
                 .ActiveSection.Player.GetComponent<Phase4ActorVisual>();
             Assert.That(player.transform.Find("P4 Robot Visual")
                 .GetComponentsInChildren<TextMesh>(true), Is.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator GoalPhysicsRefreshSupportsGeneratedCapsuleTrigger()
+        {
+            yield return Load();
+            SectionTransitionCoordinator coordinator = Find<SectionTransitionCoordinator>();
+            PuzzleSectionController section = coordinator.ActiveSection;
+            GoalVolume goal = section.Goal;
+            Assert.That(goal.GetComponent<Collider>(), Is.TypeOf<CapsuleCollider>());
+            goal.RestoreInitialState();
+            section.Player.transform.position = goal.GetComponent<Collider>().bounds.center;
+            Physics.SyncTransforms();
+            goal.RefreshFromPhysics();
+            Assert.That(goal.IsReached, Is.True);
         }
 
         private static void AssertActorInsideViewport(

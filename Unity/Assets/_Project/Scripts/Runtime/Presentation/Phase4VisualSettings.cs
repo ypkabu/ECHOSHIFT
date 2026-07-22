@@ -59,7 +59,7 @@ namespace EchoShift.Presentation
         [Header("Capture")]
         [SerializeField] private int captureWidth = 1920;
         [SerializeField] private int captureHeight = 1080;
-        [SerializeField] private string captureDirectory = "Captures/Phase4_1/After";
+        [SerializeField] private string captureDirectory = "Captures/Phase4_2";
 
         public Color EnvironmentLight => environmentLight;
         public Color EnvironmentDark => environmentDark;
@@ -175,7 +175,7 @@ namespace EchoShift.Presentation
             vignetteIntensity = 0.07f;
             colorContrast = 2f;
             colorSaturation = -2f;
-            captureDirectory = "Captures/Phase4_1/After";
+            captureDirectory = "Captures/Phase4_2";
         }
     }
 }

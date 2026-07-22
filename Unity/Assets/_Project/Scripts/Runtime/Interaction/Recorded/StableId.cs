@@ -39,7 +39,15 @@ namespace EchoShift.Interaction.Recorded
 
         private void Awake()
         {
+            EnsureResolved();
+        }
+
+        public bool EnsureResolved()
+        {
             ResolveTarget();
+            if (isActiveAndEnabled && gameObject.activeInHierarchy)
+                RegisterIfPossible(true);
+            return HasValidConfiguration;
         }
 
         private void OnEnable()

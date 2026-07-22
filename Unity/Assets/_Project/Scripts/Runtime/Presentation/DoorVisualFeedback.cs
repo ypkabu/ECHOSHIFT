@@ -41,6 +41,7 @@ namespace EchoShift.Presentation
 
         public void RefreshNowForTests()
         {
+            _properties ??= new MaterialPropertyBlock();
             bool open = door != null && door.IsOpen;
             if (open == _lastOpen && Time.frameCount > 1) return;
             _lastOpen = open;

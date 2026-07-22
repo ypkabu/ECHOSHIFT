@@ -53,12 +53,17 @@ namespace EchoShift.Interaction
 
         private void Awake()
         {
-            BuildSourceCache();
-            if (!_hasValidSources)
+            if (!EnsureSourceCache())
             {
                 Debug.LogError("DoorController requires at least one valid IDoorOpenSource.", this);
                 enabled = false;
             }
+        }
+
+        public bool EnsureSourceCache()
+        {
+            BuildSourceCache();
+            return _hasValidSources;
         }
 
         private void Update()

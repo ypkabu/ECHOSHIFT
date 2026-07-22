@@ -56,4 +56,4 @@ MonoBehaviour:
   feedbackPoolSize: 12
   captureWidth: 1920
   captureHeight: 1080
-  captureDirectory: Captures/Phase4_1/After
+  captureDirectory: Captures/Phase4_2
