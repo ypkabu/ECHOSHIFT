@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EchoShift.Gameplay;
 using EchoShift.Interaction;
 using EchoShift.Interaction.Recorded;
@@ -370,6 +371,8 @@ namespace EchoShift.Editor
             if (old != null) Object.DestroyImmediate(old.gameObject);
             Transform model = new GameObject("P4 Robot Visual").transform;
             model.SetParent(root.transform, false);
+            float visualScale = player ? 1.12f : 1.08f;
+            model.localScale = Vector3.one * visualScale;
             Material accent = player ? settings.PlayerMaterial : settings.GetEchoMaterial(1);
             GameObject robot = PrefabVisual("Quaternius Robot Model", catalog.RobotVisual,
                 model, Vector3.zero, Quaternion.Euler(0f, 180f, 0f), Vector3.one);
@@ -377,17 +380,28 @@ namespace EchoShift.Editor
             Transform rightArm = new GameObject("Carry Pose Reference").transform;
             rightArm.SetParent(model, false);
             rightArm.localPosition = new Vector3(0.48f, 0.12f, 0.05f);
-            Renderer[] accents = new Renderer[3];
-            accents[0] = Visual("Compact Visor", PrimitiveType.Cube, model,
+            List<Renderer> accents = new List<Renderer>(16);
+            accents.Add(Visual("Compact Visor", PrimitiveType.Cube, model,
                 new Vector3(0f, 0.55f, 0.57f), new Vector3(0.42f, 0.09f, 0.055f),
-                accent).GetComponent<Renderer>();
-            accents[1] = Visual("Chest Time Core", PrimitiveType.Cylinder, model,
+                accent).GetComponent<Renderer>());
+            Renderer chest = Visual("Chest Time Core", PrimitiveType.Cylinder, model,
                 new Vector3(0f, 0.08f, 0.48f), new Vector3(0.17f, 0.035f, 0.17f),
                 accent).GetComponent<Renderer>();
-            accents[1].transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            accents[2] = Visual("Shoulder Time Band", PrimitiveType.Cube, model,
+            chest.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            accents.Add(chest);
+            accents.Add(Visual(player ? "Player Shoulder Crest" : "Echo Outline Band",
+                PrimitiveType.Cube, model,
                 new Vector3(0f, 0.22f, -0.36f), new Vector3(0.58f, 0.1f, 0.08f),
-                accent).GetComponent<Renderer>();
+                accent).GetComponent<Renderer>());
+            if (!player)
+            {
+                accents.Add(Visual("Echo Outline Left", PrimitiveType.Cube, model,
+                    new Vector3(-0.5f, 0.2f, 0f), new Vector3(0.055f, 0.7f, 0.055f),
+                    accent).GetComponent<Renderer>());
+                accents.Add(Visual("Echo Outline Right", PrimitiveType.Cube, model,
+                    new Vector3(0.5f, 0.2f, 0f), new Vector3(0.055f, 0.7f, 0.055f),
+                    accent).GetComponent<Renderer>());
+            }
             GameObject[] marks = new GameObject[3];
             for (int i = 0; i < marks.Length; i++)
             {
@@ -395,12 +409,71 @@ namespace EchoShift.Editor
                     new Vector3((i - 1) * 0.18f, 0.97f, -0.05f),
                     new Vector3(0.08f, 0.2f + i * 0.045f, 0.1f), accent);
                 marks[i].transform.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * 13f);
+                accents.Add(marks[i].GetComponent<Renderer>());
             }
-            Visual(player ? "Player Floor Ring" : "Echo Floor Ring", PrimitiveType.Cylinder,
-                model, new Vector3(0f, -0.94f, 0f), new Vector3(0.72f, 0.02f, 0.72f), accent);
+            if (player)
+            {
+                accents.Add(Visual("Player Circular Floor Marker", PrimitiveType.Cylinder,
+                    model, new Vector3(0f, -0.94f, 0f),
+                    new Vector3(0.54f, 0.018f, 0.54f), accent).GetComponent<Renderer>());
+            }
+            else
+            {
+                Transform hex = new GameObject("Echo Segmented Hex Marker").transform;
+                hex.SetParent(model, false);
+                hex.localPosition = new Vector3(0f, -0.94f, 0f);
+                for (int side = 0; side < 6; side++)
+                {
+                    float angle = side * 60f;
+                    float radians = angle * Mathf.Deg2Rad;
+                    GameObject segment = Visual($"Hex Segment {side + 1}", PrimitiveType.Cube,
+                        hex, new Vector3(Mathf.Cos(radians) * 0.58f, 0f,
+                            Mathf.Sin(radians) * 0.58f),
+                        new Vector3(0.52f, 0.018f, 0.08f), accent);
+                    segment.transform.localRotation = Quaternion.Euler(0f, -angle - 90f, 0f);
+                    accents.Add(segment.GetComponent<Renderer>());
+                }
+            }
+
+            GameObject playingMark = new GameObject("Echo Replaying Mark");
+            playingMark.transform.SetParent(model, false);
+            playingMark.transform.localPosition = new Vector3(0f, 0.58f, -0.5f);
+            GameObject playLeft = Visual("Replay Chevron Left", PrimitiveType.Cube,
+                playingMark.transform, new Vector3(-0.1f, 0f, 0f),
+                new Vector3(0.06f, 0.24f, 0.05f), accent);
+            playLeft.transform.localRotation = Quaternion.Euler(0f, 0f, -28f);
+            GameObject playRight = Visual("Replay Chevron Right", PrimitiveType.Cube,
+                playingMark.transform, new Vector3(0.1f, 0f, 0f),
+                new Vector3(0.06f, 0.24f, 0.05f), accent);
+            playRight.transform.localRotation = Quaternion.Euler(0f, 0f, 28f);
+            accents.Add(playLeft.GetComponent<Renderer>());
+            accents.Add(playRight.GetComponent<Renderer>());
+
+            GameObject stoppedMark = new GameObject("Echo Stopped Mark");
+            stoppedMark.transform.SetParent(model, false);
+            stoppedMark.transform.localPosition = new Vector3(0f, 0.58f, -0.5f);
+            GameObject stopTop = Visual("Stop Bar Top", PrimitiveType.Cube,
+                stoppedMark.transform, new Vector3(0f, 0.09f, 0f),
+                new Vector3(0.3f, 0.055f, 0.05f), accent);
+            GameObject stopBottom = Visual("Stop Bar Bottom", PrimitiveType.Cube,
+                stoppedMark.transform, new Vector3(0f, -0.09f, 0f),
+                new Vector3(0.3f, 0.055f, 0.05f), accent);
+            accents.Add(stopTop.GetComponent<Renderer>());
+            accents.Add(stopBottom.GetComponent<Renderer>());
+            if (player)
+            {
+                playingMark.SetActive(false);
+                stoppedMark.SetActive(false);
+            }
+            else
+            {
+                playingMark.SetActive(true);
+                stoppedMark.SetActive(false);
+            }
             Phase4ActorVisual visual = root.GetComponent<Phase4ActorVisual>();
             if (visual == null) visual = root.AddComponent<Phase4ActorVisual>();
-            visual.Configure(settings, actor, playback, model, rightArm, bodies, accents, marks);
+            visual.Configure(settings, actor, playback, model, rightArm, bodies,
+                accents.ToArray(), marks, playingMark, stoppedMark, !player, visualScale);
         }
 
         private static void BuildLighting(PuzzleSectionController[] sections,
@@ -677,6 +750,8 @@ namespace EchoShift.Editor
             for (int i = 0; i < renderers.Length; i++)
             {
                 if (renderers[i].name.EndsWith(" Marker", StringComparison.Ordinal))
+                    renderers[i].enabled = false;
+                if (renderers[i].name == "Echo Identity Ring")
                     renderers[i].enabled = false;
             }
         }

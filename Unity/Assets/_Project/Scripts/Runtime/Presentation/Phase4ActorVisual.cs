@@ -14,6 +14,10 @@ namespace EchoShift.Presentation
         [SerializeField] private Renderer[] bodyRenderers = System.Array.Empty<Renderer>();
         [SerializeField] private Renderer[] accentRenderers = System.Array.Empty<Renderer>();
         [SerializeField] private GameObject[] generationMarks = System.Array.Empty<GameObject>();
+        [SerializeField] private GameObject playingMark;
+        [SerializeField] private GameObject stoppedMark;
+        [SerializeField] private bool usesNonCircularFloorMarker;
+        [SerializeField] private float visualScaleMultiplier = 1f;
 
         private MaterialPropertyBlock _properties;
         private Vector3 _baseScale;
@@ -29,10 +33,18 @@ namespace EchoShift.Presentation
             settings != null && actor != null && modelRoot != null && rightArm != null &&
             bodyRenderers != null && bodyRenderers.Length >= 1 &&
             accentRenderers != null && accentRenderers.Length >= 2 &&
-            generationMarks != null && generationMarks.Length == 3;
+            generationMarks != null && generationMarks.Length == 3 &&
+            playingMark != null && stoppedMark != null;
         public int VisibleGenerationMarkCount { get; private set; }
         public bool IsStoppedVisual { get; private set; }
         public bool UsesPropertyBlocks => true;
+        public bool UsesNonCircularFloorMarker => usesNonCircularFloorMarker;
+        public float VisualScaleMultiplier => visualScaleMultiplier;
+        public int SilhouetteVariant => actor != null && actor.Kind == LoopActorKind.Echo
+            ? ((Mathf.Max(1, actor.ReplayGeneration) - 1) % 3) + 1
+            : 0;
+        public bool IsPlayingMarkVisible => playingMark != null && playingMark.activeSelf;
+        public bool IsStoppedMarkVisible => stoppedMark != null && stoppedMark.activeSelf;
 
         public void Configure(
             Phase4VisualSettings visualSettings,
@@ -42,7 +54,11 @@ namespace EchoShift.Presentation
             Transform carryArm,
             Renderer[] bodies,
             Renderer[] accents,
-            GameObject[] marks)
+            GameObject[] marks,
+            GameObject replayingIndicator,
+            GameObject stoppedIndicator,
+            bool nonCircularFloorMarker,
+            float scaleMultiplier)
         {
             settings = visualSettings;
             actor = loopActor;
@@ -52,6 +68,10 @@ namespace EchoShift.Presentation
             bodyRenderers = bodies ?? System.Array.Empty<Renderer>();
             accentRenderers = accents ?? System.Array.Empty<Renderer>();
             generationMarks = marks ?? System.Array.Empty<GameObject>();
+            playingMark = replayingIndicator;
+            stoppedMark = stoppedIndicator;
+            usesNonCircularFloorMarker = nonCircularFloorMarker;
+            visualScaleMultiplier = scaleMultiplier;
         }
 
         private void Awake()
@@ -68,6 +88,8 @@ namespace EchoShift.Presentation
             _spawnProgress = 0f;
             _appliedGeneration = -1;
             ApplyIdentity();
+            _lastStopped = playback != null && playback.PlaybackTick >= playback.RecordingLength;
+            ApplyState(_lastStopped);
         }
 
         private void LateUpdate()
@@ -136,13 +158,13 @@ namespace EchoShift.Presentation
             int generation = actor.Kind == LoopActorKind.Player ? 0 : actor.ReplayGeneration;
             _appliedGeneration = generation;
             Color bodyColor = actor.Kind == LoopActorKind.Player
-                ? new Color(0.86f, 0.89f, 0.93f, 1f)
-                : new Color(0.42f, 0.48f, 0.56f, 1f);
+                ? new Color(0.94f, 0.95f, 0.97f, 1f)
+                : new Color(0.38f, 0.46f, 0.56f, 1f);
             Color accent = actor.Kind == LoopActorKind.Player
                 ? settings.PlayerColor
                 : settings.GetEchoColor(generation);
-            ApplyRenderers(bodyRenderers, bodyColor, actor.Kind == LoopActorKind.Player ? 0.08f : 0.03f);
-            ApplyRenderers(accentRenderers, accent, actor.Kind == LoopActorKind.Player ? 1.8f : 1.45f);
+            ApplyRenderers(bodyRenderers, bodyColor, actor.Kind == LoopActorKind.Player ? 0.24f : 0.08f);
+            ApplyRenderers(accentRenderers, accent, actor.Kind == LoopActorKind.Player ? 2.5f : 2f);
 
             VisibleGenerationMarkCount = 0;
             int visualGeneration = generation > 0
@@ -163,7 +185,11 @@ namespace EchoShift.Presentation
             Color accent = actor.Kind == LoopActorKind.Player
                 ? settings.PlayerColor
                 : settings.GetEchoColor(Mathf.Max(1, actor.ReplayGeneration));
-            ApplyRenderers(accentRenderers, accent, stopped ? 0.35f : 1.45f);
+            bool echo = actor.Kind == LoopActorKind.Echo;
+            if (playingMark != null) playingMark.SetActive(echo && !stopped);
+            if (stoppedMark != null) stoppedMark.SetActive(echo && stopped);
+            ApplyRenderers(accentRenderers, accent,
+                actor.Kind == LoopActorKind.Player ? 2.5f : stopped ? 0.55f : 2f);
         }
 
         private void ApplyRenderers(Renderer[] renderers, Color color, float emission)

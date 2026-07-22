@@ -160,6 +160,97 @@ namespace EchoShift.Tests.PlayMode
             Assert.That(quit.colors.pressedColor.r, Is.GreaterThan(quit.colors.pressedColor.g));
         }
 
+        [UnityTest]
+        public IEnumerator PlayerAndEchoUseDifferentScaleAndFloorMarkerLanguage()
+        {
+            yield return Load();
+            SectionTransitionCoordinator coordinator = Find<SectionTransitionCoordinator>();
+            Phase4ActorVisual player = coordinator.ActiveSection.Player
+                .GetComponent<Phase4ActorVisual>();
+            Assert.That(player.VisualScaleMultiplier, Is.EqualTo(1.12f).Within(0.001f));
+            Assert.That(player.UsesNonCircularFloorMarker, Is.False);
+            Assert.That(player.transform.localScale, Is.EqualTo(Vector3.one));
+
+            coordinator.ActiveSection.Director.RequestLoopEnd();
+            for (int frame = 0; frame < 30 &&
+                 coordinator.ActiveSection.Director.EchoCount == 0; frame++) yield return null;
+            Phase4ActorVisual echo = coordinator.ActiveSection.Director
+                .GetEchoPlayback(0).GetComponent<Phase4ActorVisual>();
+            echo.RefreshNowForTests();
+            Assert.That(echo.VisualScaleMultiplier, Is.EqualTo(1.08f).Within(0.001f));
+            Assert.That(echo.UsesNonCircularFloorMarker, Is.True);
+            Assert.That(echo.transform.localScale, Is.EqualTo(Vector3.one));
+            Assert.That(echo.VisualScaleMultiplier, Is.Not.EqualTo(player.VisualScaleMultiplier));
+        }
+
+        [UnityTest]
+        public IEnumerator EchoGenerationsHaveThreeNonColorSilhouetteVariants()
+        {
+            yield return Load();
+            SectionTransitionCoordinator coordinator = Find<SectionTransitionCoordinator>();
+            coordinator.SetTransitionDurationsForTests(0f, 0f);
+            LoopDirector director = coordinator.ActiveSection.Director;
+            for (int generation = 1; generation <= 3; generation++)
+            {
+                director.RequestLoopEnd();
+                for (int frame = 0; frame < 30 && director.EchoCount < generation; frame++)
+                    yield return null;
+                Phase4ActorVisual visual = director.GetEchoPlayback(generation - 1)
+                    .GetComponent<Phase4ActorVisual>();
+                visual.RefreshNowForTests();
+                Assert.That(visual.SilhouetteVariant, Is.EqualTo(generation));
+                Assert.That(visual.VisibleGenerationMarkCount, Is.EqualTo(generation));
+                Assert.That(visual.UsesNonCircularFloorMarker, Is.True);
+                Assert.That(visual.transform.Find(
+                    "P4 Robot Visual/Echo Segmented Hex Marker"), Is.Not.Null);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator EchoReplayAndStoppedMarksAreMutuallyExclusive()
+        {
+            yield return Load();
+            SectionTransitionCoordinator coordinator = Find<SectionTransitionCoordinator>();
+            coordinator.SetTransitionDurationsForTests(0f, 0f);
+            LoopDirector director = coordinator.ActiveSection.Director;
+            for (int tick = 0; tick < 8; tick++) director.AdvanceOneTickForTests();
+            director.RequestLoopEnd();
+            director.AdvanceOneTickForTests();
+            Phase4ActorVisual visual = director.GetEchoPlayback(0)
+                .GetComponent<Phase4ActorVisual>();
+            visual.RefreshNowForTests();
+            Assert.That(visual.IsPlayingMarkVisible, Is.True);
+            Assert.That(visual.IsStoppedMarkVisible, Is.False);
+            EchoShift.Replay.EchoPlayback playback = director.GetEchoPlayback(0);
+            for (int tick = 0; tick < 120 &&
+                 playback.PlaybackTick < playback.RecordingLength; tick++)
+                director.AdvanceOneTickForTests();
+            Assert.That(playback.PlaybackTick, Is.EqualTo(playback.RecordingLength));
+            visual.RefreshNowForTests();
+            Assert.That(visual.IsPlayingMarkVisible, Is.False);
+            Assert.That(visual.IsStoppedMarkVisible, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator ActorIdentityDoesNotGenerateLargeWorldSpaceGenerationText()
+        {
+            yield return Load();
+            TextMesh[] labels = Object.FindObjectsByType<TextMesh>(FindObjectsInactive.Include);
+            for (int i = 0; i < labels.Length; i++)
+            {
+                bool actorGenerationText = labels[i].name.Contains("Identity Label") ||
+                    labels[i].transform.IsChildOf(Find<SectionTransitionCoordinator>()
+                        .ActiveSection.Player.transform);
+                if (!actorGenerationText) continue;
+                Renderer renderer = labels[i].GetComponent<Renderer>();
+                Assert.That(renderer == null || !renderer.enabled, Is.True, labels[i].name);
+            }
+            Phase4ActorVisual player = Find<SectionTransitionCoordinator>()
+                .ActiveSection.Player.GetComponent<Phase4ActorVisual>();
+            Assert.That(player.transform.Find("P4 Robot Visual")
+                .GetComponentsInChildren<TextMesh>(true), Is.Empty);
+        }
+
         private static void AssertActorInsideViewport(
             Camera camera, Transform actor, float margin)
         {
