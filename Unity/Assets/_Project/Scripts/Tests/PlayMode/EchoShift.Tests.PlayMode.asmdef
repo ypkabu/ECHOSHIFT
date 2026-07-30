@@ -9,6 +9,7 @@
     "Unity.RenderPipelines.Universal.Runtime"
     ,"UnityEngine.AudioModule"
     ,"UnityEngine.ParticleSystemModule"
+    ,"UnityEngine.AnimationModule"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

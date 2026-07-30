@@ -109,8 +109,34 @@ Phase 4.1 adds an explicit third-party boundary. Original CC0 files and notices 
 
 The Phase 4.1 scene composition removes camera-crossing overhead beams and persistent identity labels. Phase 4.2 strengthens identity through visual-child-only scale, warm/cold emission, circular/segmented floor markers, generation fin count, and playing/stopped marks. `Phase4CapturePreset` stores eight non-gameplay camera compositions; its Editor pipeline reaches them through deterministic recorded routes and validates projected Actor bounds. Door/Goal visual adapters use external panels/frames but still read the existing authoritative `DoorController` and `GoalVolume`. Pause presentation remains UI-only and hides the gameplay HUD through its cached `CanvasGroup`; the probe exercises the real two-step Pause-menu Quit without changing production behavior.
 
+Phase 4.3 keeps animation below the same presentation boundary.
+`Phase4RobotPoseController` reads visual displacement, carry ownership,
+successful-interaction counters, and Echo playback completion, then drives six
+procedural poses on the project-owned visual bones. The semantic Animator is
+also below the visual root, has Root Motion disabled, and contains no gameplay
+curve or Animation Event. It never writes CharacterMotor, Rigidbody, Collider,
+Replay, Interaction, Stable ID, or gameplay-root Transform state.
+
+Battery scale and carry placement affect only its visual mesh and the shared
+Player/Echo Carry Socket. Floor circuits are collider-free, axis-aligned thin
+meshes generated at floor height. `DoorVisualFeedback` owns a fixed
+presentation assembly with split retracting panels while the existing
+`DoorController` root and Collider retain the coordinated one-tick gameplay
+state. The opt-in Phase 4.3 Presentation Probe advances the same recorded
+fixed-tick routes in ten-tick physics batches only to avoid render-startup
+sampling loss; visual observation still occurs every FixedUpdate. Production
+gameplay never enables the probe.
+
 ## Phase 3 validation boundary
 
 The final technical architecture gate is green: Scene generation, 61 EditMode tests, 61 PlayMode tests, P0-P3 real-Scene integration, deterministic P3 completion, and the Windows final-build probe pass with zero BuildReport warning and no matching Missing/Null/unhandled runtime problem. A source-blind graphical run also completed the three-section route and natural Pause/Quit path with no Critical or High issue.
 
-Human acceptance confirms the Phase 3 architecture is usable end to end, with Critical 0 and High 0. Phase 4.2 preserves that boundary: 99 EditMode and 105 PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay Drift `0 m`, normal-route interaction failures `0`, presentation bounds, HUD states, and external-asset/gameplay-root separation. The Phase 4.1 Human Visual Review was Conditional Fail; the corrected Build and captures still require a repeat human checklist. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.**
+Human acceptance confirms the Phase 3 architecture is usable end to end, with
+Critical 0 and High 0. Phase 4.3 preserves that boundary: 116 EditMode and 127
+PlayMode tests pass, including all P0-P3 integrations, P3 completion, Replay
+Drift `0 m`, normal-route Interaction `4/0`, visual-only pose ownership,
+Battery bounds, split-Door/Collider separation, and floor-circuit placement.
+The Phase 4.2 Human Visual Review passed Camera/HUD/readability but retained one
+High character-presentation issue. The Phase 4.3 Build and captures require a
+human motion/visual checklist. **Phase 4.3: Automation Passed; Human Visual
+Review pending.**

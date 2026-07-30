@@ -12,6 +12,7 @@ namespace EchoShift.Presentation
     {
         private const int WarmupFrames = 120;
         private const int RecorderWarmupFrames = 60;
+        private const int ComponentCostFrames = 120;
         private const int SampleFrames = 600;
         private const float EchoPreparationTimeoutSeconds = 5f;
         [SerializeField] private SectionTransitionCoordinator coordinator;
@@ -27,6 +28,8 @@ namespace EchoShift.Presentation
         private ProfilerRecorder _textureMemory;
         private ProfilerRecorder _cameraUpdate;
         private ProfilerRecorder _uiUpdate;
+        private ProfilerRecorder _animatorUpdate;
+        private ProfilerRecorder _doorVisualUpdate;
         private bool _recording;
         private float _transitionMaximumFrameMs;
         private float _transitionMaximumMainThreadMs;
@@ -48,6 +51,10 @@ namespace EchoShift.Presentation
             public float maximumCameraUpdateMs;
             public float averageUiUpdateMs;
             public float maximumUiUpdateMs;
+            public float averageAnimatorUpdateMs;
+            public float maximumAnimatorUpdateMs;
+            public float averageDoorVisualUpdateMs;
+            public float maximumDoorVisualUpdateMs;
             public float averageGpuFrameMs;
             public float maximumGpuFrameMs;
             public float transitionMaximumFrameMs;
@@ -76,6 +83,8 @@ namespace EchoShift.Presentation
             public bool textureMemoryAvailable;
             public bool cameraUpdateAvailable;
             public bool uiUpdateAvailable;
+            public bool animatorUpdateAvailable;
+            public bool doorVisualUpdateAvailable;
             public bool graphicalDevice;
         }
 
@@ -110,9 +119,39 @@ namespace EchoShift.Presentation
                 ProfilerCategory.Scripts, SectionCameraController.ProfilerMarkerName, 1);
             _uiUpdate = ProfilerRecorder.StartNew(
                 ProfilerCategory.Scripts, Phase4HudVisual.ProfilerMarkerName, 1);
+            _animatorUpdate = ProfilerRecorder.StartNew(
+                ProfilerCategory.Scripts, Phase4RobotPoseController.ProfilerMarkerName, 1);
+            _doorVisualUpdate = ProfilerRecorder.StartNew(
+                ProfilerCategory.Scripts, DoorVisualFeedback.ProfilerMarkerName, 1);
             _recording = true;
             for (int i = 0; i < RecorderWarmupFrames; i++) yield return null;
             yield return PrepareMaximumEchoes();
+            float totalAnimatorUpdate = 0f;
+            float maximumAnimatorUpdate = 0f;
+            float totalDoorVisualUpdate = 0f;
+            float maximumDoorVisualUpdate = 0f;
+            bool animatorUpdateAvailable = _animatorUpdate.Valid;
+            bool doorVisualUpdateAvailable = _doorVisualUpdate.Valid;
+            for (int frame = 0; frame < ComponentCostFrames; frame++)
+            {
+                yield return null;
+                if (_animatorUpdate.Valid)
+                {
+                    float animatorMs = _animatorUpdate.LastValue / 1000000f;
+                    totalAnimatorUpdate += animatorMs;
+                    maximumAnimatorUpdate = Mathf.Max(maximumAnimatorUpdate, animatorMs);
+                }
+                if (_doorVisualUpdate.Valid)
+                {
+                    float doorMs = _doorVisualUpdate.LastValue / 1000000f;
+                    totalDoorVisualUpdate += doorMs;
+                    maximumDoorVisualUpdate = Mathf.Max(maximumDoorVisualUpdate, doorMs);
+                }
+            }
+            // These two recorders add measurement-side managed traffic on this
+            // Unity version. Dispose them before the independent steady-GC window.
+            if (_animatorUpdate.Valid) _animatorUpdate.Dispose();
+            if (_doorVisualUpdate.Valid) _doorVisualUpdate.Dispose();
             for (int i = 0; i < WarmupFrames; i++) yield return null;
 
             float total = 0f;
@@ -205,6 +244,12 @@ namespace EchoShift.Presentation
                 maximumCameraUpdateMs = maximumCameraUpdate,
                 averageUiUpdateMs = _uiUpdate.Valid ? totalUiUpdate / SampleFrames : 0f,
                 maximumUiUpdateMs = maximumUiUpdate,
+                averageAnimatorUpdateMs = animatorUpdateAvailable
+                    ? totalAnimatorUpdate / ComponentCostFrames : 0f,
+                maximumAnimatorUpdateMs = maximumAnimatorUpdate,
+                averageDoorVisualUpdateMs = doorVisualUpdateAvailable
+                    ? totalDoorVisualUpdate / ComponentCostFrames : 0f,
+                maximumDoorVisualUpdateMs = maximumDoorVisualUpdate,
                 averageGpuFrameMs = _gpuFrameTime.Valid ? totalGpu / SampleFrames : 0f,
                 maximumGpuFrameMs = maximumGpu,
                 transitionMaximumFrameMs = _transitionMaximumFrameMs,
@@ -233,6 +278,8 @@ namespace EchoShift.Presentation
                 textureMemoryAvailable = _textureMemory.Valid,
                 cameraUpdateAvailable = _cameraUpdate.Valid,
                 uiUpdateAvailable = _uiUpdate.Valid,
+                animatorUpdateAvailable = animatorUpdateAvailable,
+                doorVisualUpdateAvailable = doorVisualUpdateAvailable,
                 graphicalDevice = SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null
             };
             string directory = Path.Combine(Application.persistentDataPath, "Phase4Performance");
@@ -247,6 +294,10 @@ namespace EchoShift.Presentation
                       $"cameraMaxMs={result.maximumCameraUpdateMs:F4};" +
                       $"uiAvgMs={result.averageUiUpdateMs:F4};" +
                       $"uiMaxMs={result.maximumUiUpdateMs:F4};" +
+                      $"animatorAvgMs={result.averageAnimatorUpdateMs:F4};" +
+                      $"animatorMaxMs={result.maximumAnimatorUpdateMs:F4};" +
+                      $"doorAvgMs={result.averageDoorVisualUpdateMs:F4};" +
+                      $"doorMaxMs={result.maximumDoorVisualUpdateMs:F4};" +
                       $"gpuAvgMs={result.averageGpuFrameMs:F3};gpuMaxMs={result.maximumGpuFrameMs:F3};" +
                       $"transitionFrameMaxMs={result.transitionMaximumFrameMs:F3};" +
                       $"transitionMainMaxMs={result.transitionMaximumMainThreadMs:F3};" +
@@ -319,6 +370,8 @@ namespace EchoShift.Presentation
             _drawCalls.Dispose(); _setPassCalls.Dispose(); _triangles.Dispose();
             _vertices.Dispose(); _usedMemory.Dispose(); _textureMemory.Dispose();
             _cameraUpdate.Dispose(); _uiUpdate.Dispose();
+            if (_animatorUpdate.Valid) _animatorUpdate.Dispose();
+            if (_doorVisualUpdate.Valid) _doorVisualUpdate.Dispose();
             _recording = false;
         }
 

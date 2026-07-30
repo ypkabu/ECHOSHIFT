@@ -60,6 +60,10 @@ namespace EchoShift.Presentation
                 sections[i].Player.Configure(
                     route, sections[i].Player.Motor, sections[i].Player.Interactor);
             }
+            // Install deterministic input before resetting to tick zero. A D3D11
+            // startup frame can otherwise advance past the route's opening input
+            // window before this probe coroutine begins.
+            coordinator.RestartGameInPlaceForTests();
 
             int advances = 0;
             int maximumEchoes = 0;
@@ -105,7 +109,7 @@ namespace EchoShift.Presentation
                 yield break;
             }
 
-            Debug.Log($"PHASE4_2_STANDALONE_COMPLETE_OK advances={advances};" +
+            Debug.Log($"PHASE4_3_STANDALONE_COMPLETE_OK advances={advances};" +
                       $"interactionSuccess={snapshot.InteractionSuccessCount};" +
                       $"interactionFailure={snapshot.InteractionFailureCount};" +
                       $"drift={snapshot.MaximumDrift:R};" +
@@ -115,7 +119,7 @@ namespace EchoShift.Presentation
 
         private void Fail(string reason)
         {
-            Debug.LogError($"PHASE4_2_STANDALONE_COMPLETE_FAILED reason={reason}", this);
+            Debug.LogError($"PHASE4_3_STANDALONE_COMPLETE_FAILED reason={reason}", this);
             Application.Quit(2);
         }
 

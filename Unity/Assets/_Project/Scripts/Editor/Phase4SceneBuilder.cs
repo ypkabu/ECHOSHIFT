@@ -165,22 +165,16 @@ namespace EchoShift.Editor
 
             BuildBulkhead(root, -length * 0.5f, settings, catalog);
             BuildBulkhead(root, length * 0.5f, settings, catalog);
-            Visual($"Section {number} Identity Strip", PrimitiveType.Cube, root,
-                new Vector3(0f, 0.12f, -length * 0.5f + 0.75f),
-                new Vector3(8.2f, 0.025f, 0.12f), settings.GetEchoMaterial(number));
+            for (int side = -1; side <= 1; side += 2)
+                Visual($"Section {number} Identity Edge {side}", PrimitiveType.Cube, root,
+                    new Vector3(side * 4.85f, 0.012f, -length * 0.5f + 0.75f),
+                    new Vector3(1.25f, 0.012f, 0.08f), settings.GetEchoMaterial(number));
 
             Light left = Light(root, $"Section {number} Fill A", new Vector3(-4.5f, 2.65f, -length * 0.22f));
             left.color = new Color(0.62f, 0.8f, 1f); left.intensity = 4.2f; left.range = 10f;
             Light right = Light(root, $"Section {number} Fill B", new Vector3(4.5f, 2.65f, length * 0.22f));
             right.color = new Color(1f, 0.7f, 0.46f); right.intensity = 3.6f; right.range = 10f;
 
-            LineRenderer[] wires = section.GetComponentsInChildren<LineRenderer>(true);
-            for (int i = 0; i < wires.Length; i++)
-            {
-                wires[i].widthMultiplier = 0.2f;
-                wires[i].numCornerVertices = 6;
-                wires[i].numCapVertices = 4;
-            }
         }
 
         private static void BuildMachineBank(
@@ -225,6 +219,7 @@ namespace EchoShift.Editor
             for (int i = 0; i < doors.Length; i++) BuildDoor(doors[i], settings, catalog);
             GoalVolume[] goals = section.GetComponentsInChildren<GoalVolume>(true);
             for (int i = 0; i < goals.Length; i++) BuildGoal(goals[i], settings, catalog);
+            BuildFloorCircuits(section, settings);
         }
 
         private static void BuildPlate(PressurePlate plate, Phase4VisualSettings settings)
@@ -251,19 +246,25 @@ namespace EchoShift.Editor
         private static void BuildBattery(CarryableBattery battery, Phase4VisualSettings settings)
         {
             DisableRootAndMarker(battery.transform);
-            Transform root = CompensatedRoot(battery.transform, "P4 Battery Visual");
+            Transform root = ReplaceCompensatedRoot(battery.transform, "P4 Battery Visual");
             GameObject core = Visual("Energy Core", PrimitiveType.Cylinder, root, Vector3.zero,
-                new Vector3(0.42f, 0.78f, 0.42f), settings.BatteryMaterial);
+                new Vector3(Phase4BatteryVisual.VisualDiameterMeters,
+                    Phase4BatteryVisual.VisualLengthMeters * 0.5f,
+                    Phase4BatteryVisual.VisualDiameterMeters), settings.BatteryMaterial);
             core.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             for (int side = -1; side <= 1; side += 2)
             {
                 Visual($"Battery Endcap {side}", PrimitiveType.Cylinder, root,
-                    new Vector3(0f, 0f, side * 0.43f), new Vector3(0.55f, 0.09f, 0.55f),
+                    new Vector3(0f, 0f, side * 0.38f), new Vector3(0.5f, 0.055f, 0.5f),
                     settings.FacilityDarkMaterial).transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                Visual($"Battery Key {side}", PrimitiveType.Cube, root,
-                    new Vector3(0f, 0.34f, side * 0.2f), new Vector3(0.16f, 0.16f, 0.52f),
-                    settings.PlayerMaterial);
             }
+            Visual("Battery Direction Key", PrimitiveType.Cube, root,
+                new Vector3(0f, 0.25f, 0.17f), new Vector3(0.13f, 0.11f, 0.34f),
+                settings.PlayerMaterial);
+            GameObject tip = Visual("Battery Insertion Tip", PrimitiveType.Cylinder, root,
+                new Vector3(0f, 0f, 0.44f), new Vector3(0.24f, 0.08f, 0.24f),
+                settings.PlayerMaterial);
+            tip.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             Phase4BatteryVisual visual = battery.gameObject.AddComponent<Phase4BatteryVisual>();
             visual.Configure(battery, root, core.GetComponent<Renderer>(), settings);
         }
@@ -290,31 +291,102 @@ namespace EchoShift.Editor
             Phase4ExternalAssetCatalog catalog)
         {
             DisableRootAndMarker(door.transform);
-            Transform root = CompensatedRoot(door.transform, "P4 Door Panel Visual");
-            GameObject panel = PrefabVisual("External Door Moving Panel", catalog.DoorPanel,
-                root, Vector3.zero, Quaternion.identity, Vector3.one);
-            Renderer panelRenderer = panel.GetComponentInChildren<Renderer>(true);
-            GameObject centerLine = Visual("Door Closed Center Emission", PrimitiveType.Cube, root,
-                new Vector3(0f, 0f, -0.24f), new Vector3(0.1f, 2.28f, 0.055f),
-                settings.DangerMaterial);
+            ReplaceCompensatedRoot(door.transform, "P4 Door Panel Visual");
             bool plateDoor = door.name.IndexOf("Plate", StringComparison.OrdinalIgnoreCase) >= 0;
             Material circuit = plateDoor ? settings.PlateMaterial : settings.BatteryMaterial;
-            int symbolBars = plateDoor ? 1 : 2;
-            for (int i = 0; i < symbolBars; i++)
-                Visual($"Door Circuit Symbol {i + 1}", PrimitiveType.Cube, root,
-                    new Vector3((i - (symbolBars - 1) * 0.5f) * 0.3f, 0.75f, -0.27f),
-                    new Vector3(0.14f, 0.38f, 0.055f), circuit);
+            string frameName = $"P4 Doorway Frame - {door.name}";
+            Transform oldFrame = door.transform.parent.Find(frameName);
+            if (oldFrame != null) Object.DestroyImmediate(oldFrame.gameObject);
             Transform frame = new GameObject("P4 Doorway Frame").transform;
+            frame.name = frameName;
             frame.SetParent(door.transform.parent, false);
             frame.localPosition = door.transform.localPosition;
             PrefabVisual("External Door Frame", catalog.DoorFrame, frame,
                 Vector3.zero, Quaternion.identity, Vector3.one);
+            Transform assembly = new GameObject("P4 Split Door Visual Assembly").transform;
+            assembly.SetParent(frame, false);
+            GameObject left = PrefabVisual("External Door Left Panel", catalog.DoorPanel,
+                assembly, new Vector3(-0.72f, 0f, 0f), Quaternion.identity,
+                new Vector3(0.49f, 1f, 1f));
+            GameObject right = PrefabVisual("External Door Right Panel", catalog.DoorPanel,
+                assembly, new Vector3(0.72f, 0f, 0f), Quaternion.identity,
+                new Vector3(0.49f, 1f, 1f));
+            List<Renderer> panelRenderers = new List<Renderer>(8);
+            panelRenderers.AddRange(left.GetComponentsInChildren<Renderer>(true));
+            panelRenderers.AddRange(right.GetComponentsInChildren<Renderer>(true));
+            GameObject centerLine = Visual("Door Closed Center Emission", PrimitiveType.Cube,
+                assembly, new Vector3(0f, 0f, -0.24f), new Vector3(0.075f, 2.28f, 0.04f),
+                circuit);
+            int symbolBars = plateDoor ? 1 : 2;
+            for (int i = 0; i < symbolBars; i++)
+                Visual($"Door Circuit Symbol {i + 1}", PrimitiveType.Cube, assembly,
+                    new Vector3((i - (symbolBars - 1) * 0.5f) * 0.3f, 0.75f, -0.27f),
+                    new Vector3(0.12f, 0.32f, 0.045f), circuit);
+            Renderer[] frameGlow = new Renderer[2];
             for (int side = -1; side <= 1; side += 2)
-                Visual($"Door Open Edge {side}", PrimitiveType.Cube, frame,
+                frameGlow[side > 0 ? 1 : 0] = Visual($"Door Open Edge {side}", PrimitiveType.Cube, frame,
                     new Vector3(side * 2.12f, 0f, -0.36f), new Vector3(0.075f, 2.72f, 0.07f),
-                    circuit);
+                    circuit).GetComponent<Renderer>();
             DoorVisualFeedback visual = door.GetComponent<DoorVisualFeedback>();
-            visual.Configure(door, panelRenderer, centerLine.GetComponent<Renderer>(), settings);
+            visual.Configure(door, left.transform, right.transform, panelRenderers.ToArray(),
+                centerLine.GetComponent<Renderer>(), frameGlow, settings, plateDoor);
+        }
+
+        private static void BuildFloorCircuits(
+            PuzzleSectionController section, Phase4VisualSettings settings)
+        {
+            LineRenderer[] sourceLines = section.GetComponentsInChildren<LineRenderer>(true);
+            for (int lineIndex = 0; lineIndex < sourceLines.Length; lineIndex++)
+            {
+                LineRenderer line = sourceLines[lineIndex];
+                bool plateCircuit = line.sharedMaterial != null &&
+                    line.sharedMaterial.name.IndexOf("Plate", StringComparison.OrdinalIgnoreCase) >= 0;
+                MonoBehaviour source = plateCircuit
+                    ? section.GetComponentInChildren<PressurePlate>(true)
+                    : section.GetComponentInChildren<PowerSocket>(true);
+                if (source == null)
+                    throw new InvalidOperationException(
+                        $"Floor circuit has no source: {section.name}/{line.name}");
+                Vector3 start = line.GetPosition(0);
+                Vector3 end = line.GetPosition(line.positionCount - 1);
+                Transform existing = line.transform.Find("P4 Floor Circuit");
+                if (existing != null) Object.DestroyImmediate(existing.gameObject);
+                Transform root = new GameObject("P4 Floor Circuit").transform;
+                root.SetParent(line.transform, false);
+                float side = start.x < 0f ? -1f : 1f;
+                float laneX = side * Mathf.Min(4.35f, Mathf.Abs(start.x) + 1.35f);
+                float frameX = side * 2.08f;
+                float approachZ = end.z - 0.24f;
+                Vector3[] points =
+                {
+                    new Vector3(start.x, Phase4FloorCircuitVisual.DefaultHeight, start.z),
+                    new Vector3(laneX, Phase4FloorCircuitVisual.DefaultHeight, start.z),
+                    new Vector3(laneX, Phase4FloorCircuitVisual.DefaultHeight, approachZ),
+                    new Vector3(frameX, Phase4FloorCircuitVisual.DefaultHeight, approachZ),
+                    new Vector3(frameX, Phase4FloorCircuitVisual.DefaultHeight, end.z)
+                };
+                Material material = plateCircuit ? settings.PlateMaterial : settings.BatteryMaterial;
+                Renderer[] renderers = new Renderer[points.Length - 1];
+                for (int i = 0; i < renderers.Length; i++)
+                    renderers[i] = BuildCircuitSegment(root, points[i], points[i + 1], material, i);
+                Phase4FloorCircuitVisual visual = root.gameObject.AddComponent<Phase4FloorCircuitVisual>();
+                visual.Configure(source, renderers,
+                    plateCircuit ? settings.PlateColor : settings.BatteryColor);
+                Object.DestroyImmediate(line);
+            }
+        }
+
+        private static Renderer BuildCircuitSegment(
+            Transform parent, Vector3 start, Vector3 end, Material material, int index)
+        {
+            Vector3 delta = end - start;
+            Vector3 midpoint = (start + end) * 0.5f;
+            bool horizontal = Mathf.Abs(delta.x) >= Mathf.Abs(delta.z);
+            Vector3 scale = horizontal
+                ? new Vector3(Mathf.Abs(delta.x), 0.018f, Phase4FloorCircuitVisual.DefaultWidth)
+                : new Vector3(Phase4FloorCircuitVisual.DefaultWidth, 0.018f, Mathf.Abs(delta.z));
+            return Visual($"Circuit Segment {index + 1}", PrimitiveType.Cube, parent,
+                midpoint, scale, material).GetComponent<Renderer>();
         }
 
         private static void BuildGoal(GoalVolume goal, Phase4VisualSettings settings,
@@ -376,10 +448,66 @@ namespace EchoShift.Editor
             Material accent = player ? settings.PlayerMaterial : settings.GetEchoMaterial(1);
             GameObject robot = PrefabVisual("Quaternius Robot Model", catalog.RobotVisual,
                 model, Vector3.zero, Quaternion.Euler(0f, 180f, 0f), Vector3.one);
-            Renderer[] bodies = robot.GetComponentsInChildren<Renderer>(true);
-            Transform rightArm = new GameObject("Carry Pose Reference").transform;
-            rightArm.SetParent(model, false);
-            rightArm.localPosition = new Vector3(0.48f, 0.12f, 0.05f);
+            List<Renderer> bodyRenderers = new List<Renderer>(
+                robot.GetComponentsInChildren<Renderer>(true));
+            Animator animator = robot.GetComponent<Animator>();
+            if (animator == null) animator = robot.AddComponent<Animator>();
+            animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+                Phase4AssetBuilder.RobotAnimatorControllerPath);
+            if (animator.runtimeAnimatorController == null)
+                throw new InvalidOperationException("Phase 4 Robot AnimatorController is missing.");
+            animator.applyRootMotion = false;
+            animator.enabled = false;
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            Interactor interactor = root.GetComponent<Interactor>();
+            if (interactor == null || interactor.CarrySocket == null)
+                throw new InvalidOperationException($"{root.name} has no Carry Socket.");
+            interactor.CarrySocket.localPosition = new Vector3(0f, 0.22f, 0.58f);
+            Phase4RobotPoseController pose = model.gameObject.AddComponent<Phase4RobotPoseController>();
+            pose.Configure(root.transform, actor, root.GetComponent<PlayerSimulation>(), playback,
+                animator,
+                FindDescendant(robot.transform, "UpperArm.L"),
+                FindDescendant(robot.transform, "LowerArm.L"),
+                FindDescendant(robot.transform, "Hand.L"),
+                FindDescendant(robot.transform, "UpperArm.R"),
+                FindDescendant(robot.transform, "LowerArm.R"),
+                FindDescendant(robot.transform, "Hand.R"),
+                FindDescendant(robot.transform, "UpperLeg.L"),
+                FindDescendant(robot.transform, "LowerLeg.L"),
+                FindDescendant(robot.transform, "UpperLeg.R"),
+                FindDescendant(robot.transform, "LowerLeg.R"),
+                FindDescendant(robot.transform, "Torso"),
+                FindDescendant(robot.transform, "Head"));
+            GameObject carryPoseRoot = new GameObject("Procedural Carry Pose Visual");
+            carryPoseRoot.transform.SetParent(model, false);
+            GameObject carryArmLeft = Visual("Carry Forearm Left", PrimitiveType.Cylinder,
+                carryPoseRoot.transform, Vector3.zero, new Vector3(0.09f, 0.4f, 0.09f),
+                settings.FacilityPanelMaterial);
+            GameObject carryLowerArmLeft = Visual("Carry Lower Arm Left", PrimitiveType.Cylinder,
+                carryPoseRoot.transform, Vector3.zero, new Vector3(0.085f, 0.35f, 0.085f),
+                settings.FacilityPanelMaterial);
+            GameObject carryArmRight = Visual("Carry Forearm Right", PrimitiveType.Cylinder,
+                carryPoseRoot.transform, Vector3.zero, new Vector3(0.09f, 0.4f, 0.09f),
+                settings.FacilityPanelMaterial);
+            GameObject carryLowerArmRight = Visual("Carry Lower Arm Right", PrimitiveType.Cylinder,
+                carryPoseRoot.transform, Vector3.zero, new Vector3(0.085f, 0.35f, 0.085f),
+                settings.FacilityPanelMaterial);
+            GameObject carryHandLeft = Visual("Carry Hand Left", PrimitiveType.Sphere,
+                carryPoseRoot.transform, Vector3.zero, Vector3.one * 0.17f,
+                settings.FacilityPanelMaterial);
+            GameObject carryHandRight = Visual("Carry Hand Right", PrimitiveType.Sphere,
+                carryPoseRoot.transform, Vector3.zero, Vector3.one * 0.17f,
+                settings.FacilityPanelMaterial);
+            bodyRenderers.Add(carryArmLeft.GetComponent<Renderer>());
+            bodyRenderers.Add(carryLowerArmLeft.GetComponent<Renderer>());
+            bodyRenderers.Add(carryArmRight.GetComponent<Renderer>());
+            bodyRenderers.Add(carryLowerArmRight.GetComponent<Renderer>());
+            bodyRenderers.Add(carryHandLeft.GetComponent<Renderer>());
+            bodyRenderers.Add(carryHandRight.GetComponent<Renderer>());
+            pose.ConfigureCarryVisuals(carryPoseRoot, carryArmLeft.transform,
+                carryLowerArmLeft.transform, carryArmRight.transform,
+                carryLowerArmRight.transform, carryHandLeft.transform, carryHandRight.transform,
+                FindArmRenderers(robot.transform));
             List<Renderer> accents = new List<Renderer>(16);
             accents.Add(Visual("Compact Visor", PrimitiveType.Cube, model,
                 new Vector3(0f, 0.55f, 0.57f), new Vector3(0.42f, 0.09f, 0.055f),
@@ -472,7 +600,7 @@ namespace EchoShift.Editor
             }
             Phase4ActorVisual visual = root.GetComponent<Phase4ActorVisual>();
             if (visual == null) visual = root.AddComponent<Phase4ActorVisual>();
-            visual.Configure(settings, actor, playback, model, rightArm, bodies,
+            visual.Configure(settings, actor, playback, model, pose, bodyRenderers.ToArray(),
                 accents.ToArray(), marks, playingMark, stoppedMark, !player, visualScale);
         }
 
@@ -539,6 +667,9 @@ namespace EchoShift.Editor
             Phase4StandaloneCompletionProbe completionProbe =
                 root.AddComponent<Phase4StandaloneCompletionProbe>();
             completionProbe.Configure(coordinator);
+            Phase4PresentationProbe presentationProbe =
+                root.AddComponent<Phase4PresentationProbe>();
+            presentationProbe.Configure(coordinator);
         }
 
         private static void BuildHud(GameplayHud hud, PauseMenuController pauseMenu,
@@ -743,6 +874,36 @@ namespace EchoShift.Editor
                 Mathf.Abs(scale.y) > 0.0001f ? 1f / scale.y : 1f,
                 Mathf.Abs(scale.z) > 0.0001f ? 1f / scale.z : 1f);
             return root;
+        }
+
+        private static Transform ReplaceCompensatedRoot(Transform parent, string name)
+        {
+            Transform old = parent.Find(name);
+            if (old != null) Object.DestroyImmediate(old.gameObject);
+            return CompensatedRoot(parent, name);
+        }
+
+        private static Transform FindDescendant(Transform root, string name)
+        {
+            Transform[] descendants = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < descendants.Length; i++)
+                if (descendants[i].name == name) return descendants[i];
+            throw new InvalidOperationException($"Robot bone is missing: {name}");
+        }
+
+        private static Renderer[] FindArmRenderers(Transform root)
+        {
+            Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+            List<Renderer> arms = new List<Renderer>(12);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                string name = renderers[i].name;
+                if (name.IndexOf("Arm", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    name.IndexOf("Hand", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    name.IndexOf("Shoulder", StringComparison.OrdinalIgnoreCase) >= 0)
+                    arms.Add(renderers[i]);
+            }
+            return arms.ToArray();
         }
 
         private static void DisableRootAndMarker(Transform root)

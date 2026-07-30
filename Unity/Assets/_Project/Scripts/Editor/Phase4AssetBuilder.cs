@@ -3,6 +3,7 @@ using System.IO;
 using EchoShift.Presentation;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -15,8 +16,12 @@ namespace EchoShift.Editor
     {
         public const string SettingsPath = "Assets/_Project/Settings/Phase4VisualSettings.asset";
         public const string CapturePresetPath = "Assets/_Project/Settings/Phase4CapturePreset.asset";
+        public const string CharacterCapturePresetPath =
+            "Assets/_Project/Settings/Phase4CharacterCapturePreset.asset";
         public const string FontPath = "Assets/_Project/Fonts/ThirdParty/NotoSansJP/NotoSansJP-Regular.ttf";
         public const string TmpFontPath = "Assets/_Project/Fonts/NotoSansJP_Phase4.asset";
+        public const string RobotAnimatorControllerPath =
+            "Assets/_Project/Art/Phase4/Animation/P4_RobotVisual.controller";
         private const string ArtRoot = "Assets/_Project/Art/Phase4";
         private const string MaterialRoot = ArtRoot + "/Materials";
         private const string UiRoot = ArtRoot + "/UI";
@@ -58,6 +63,7 @@ namespace EchoShift.Editor
             Phase4AudioCueSet cues = BuildAudioCues();
             GameObject vfx = BuildVfxPrefab(plate);
             VolumeProfile volume = BuildVolumeProfile();
+            BuildRobotAnimatorController();
 
             Phase4VisualSettings settings =
                 AssetDatabase.LoadAssetAtPath<Phase4VisualSettings>(SettingsPath);
@@ -69,6 +75,7 @@ namespace EchoShift.Editor
             settings.Configure(panels, dark, trim, player, plate, battery, goal, danger,
                 glass, echoes, font, tmpFont, vfx, cues, icons, volume);
             BuildCapturePreset();
+            BuildCharacterCapturePreset();
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
             return settings;
@@ -111,6 +118,88 @@ namespace EchoShift.Editor
                     new Vector3(0f, 0f, -0.5f), new Vector3(0f, 15.2f, -11.2f), 50f, true)
             });
             EditorUtility.SetDirty(preset);
+        }
+
+        private static void BuildRobotAnimatorController()
+        {
+            AnimatorController controller =
+                AssetDatabase.LoadAssetAtPath<AnimatorController>(RobotAnimatorControllerPath);
+            if (controller == null)
+                controller = AnimatorController.CreateAnimatorControllerAtPath(
+                    RobotAnimatorControllerPath);
+            AnimatorStateMachine machine = controller.layers[0].stateMachine;
+            string[] names =
+            {
+                "Idle", "Walk", "Carry Idle", "Carry Walk", "Interact", "Echo Stopped"
+            };
+            AnimatorState idle = null;
+            for (int i = 0; i < names.Length; i++)
+            {
+                string clipPath = $"{ArtRoot}/Animation/P4_{names[i].Replace(" ", string.Empty)}.anim";
+                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
+                if (clip == null)
+                {
+                    clip = new AnimationClip { name = names[i], wrapMode = WrapMode.Loop };
+                    AssetDatabase.CreateAsset(clip, clipPath);
+                }
+                AnimationUtility.SetAnimationEvents(clip, System.Array.Empty<AnimationEvent>());
+                EditorUtility.SetDirty(clip);
+
+                AnimatorState state = FindState(machine, names[i]);
+                if (state == null) state = machine.AddState(names[i]);
+                state.motion = clip;
+                state.writeDefaultValues = false;
+                if (i == 0) idle = state;
+            }
+            machine.defaultState = idle;
+            EditorUtility.SetDirty(controller);
+        }
+
+        private static void BuildCharacterCapturePreset()
+        {
+            Phase4CapturePreset preset =
+                AssetDatabase.LoadAssetAtPath<Phase4CapturePreset>(CharacterCapturePresetPath);
+            if (preset == null)
+            {
+                preset = ScriptableObject.CreateInstance<Phase4CapturePreset>();
+                AssetDatabase.CreateAsset(preset, CharacterCapturePresetPath);
+            }
+            preset.Configure(new[]
+            {
+                new Phase4CaptureShotPreset("01_player_idle.png",
+                    Phase4CaptureMoment.PlayerIdle, 1,
+                    new Vector3(0f, 0.1f, -5.4f), new Vector3(-2.8f, 8.8f, -6.4f), 40f, false),
+                new Phase4CaptureShotPreset("02_player_walk_turn.png",
+                    Phase4CaptureMoment.PlayerWalk, 1,
+                    new Vector3(-1.1f, 0.1f, -4.5f), new Vector3(3.4f, 9.4f, -5.9f), 41f, false),
+                new Phase4CaptureShotPreset("03_player_echo_pose.png",
+                    Phase4CaptureMoment.PlayerEchoPose, 1,
+                    new Vector3(-0.5f, 0.1f, -4.7f), new Vector3(-3.5f, 10.2f, -6.8f), 43f, false),
+                new Phase4CaptureShotPreset("04_battery_carry_idle.png",
+                    Phase4CaptureMoment.BatteryCarryIdle, 2,
+                    new Vector3(0.6f, 0.4f, -2.5f), new Vector3(-3.0f, 8.2f, 5.4f), 39f, false),
+                new Phase4CaptureShotPreset("05_battery_carry_walk.png",
+                    Phase4CaptureMoment.BatteryCarryWalk, 2,
+                    new Vector3(0.5f, 0.35f, -1.7f), new Vector3(3.5f, 9.1f, 6.2f), 41f, false),
+                new Phase4CaptureShotPreset("06_battery_insertion.png",
+                    Phase4CaptureMoment.BatteryInsertion, 2,
+                    new Vector3(0.7f, 0.25f, -0.5f), new Vector3(-3.2f, 8.6f, -5.5f), 38f, false),
+                new Phase4CaptureShotPreset("07_split_door_open.png",
+                    Phase4CaptureMoment.DoorOpen, 2,
+                    new Vector3(0f, 0.1f, 0.9f), new Vector3(3.4f, 9.8f, -6.0f), 40f, false),
+                new Phase4CaptureShotPreset("08_two_echo_roles.png",
+                    Phase4CaptureMoment.CharacterTwoEchoRoles, 3,
+                    new Vector3(-0.3f, 0.1f, -2f), new Vector3(-1.2f, 14.5f, -10.4f), 49f, false)
+            });
+            EditorUtility.SetDirty(preset);
+        }
+
+        private static AnimatorState FindState(AnimatorStateMachine machine, string name)
+        {
+            ChildAnimatorState[] states = machine.states;
+            for (int i = 0; i < states.Length; i++)
+                if (states[i].state != null && states[i].state.name == name) return states[i].state;
+            return null;
         }
 
         private static TMP_FontAsset BuildTmpFont(Font source, Phase3TextCatalog catalog)
@@ -372,6 +461,7 @@ namespace EchoShift.Editor
         {
             Folder("Assets/_Project/Art", "Phase4");
             Folder(ArtRoot, "Materials"); Folder(ArtRoot, "UI");
+            Folder(ArtRoot, "Animation");
             Folder("Assets/_Project", "Audio"); Folder("Assets/_Project/Audio", "Phase4");
             Folder("Assets/_Project/Prefabs", "VFX");
             Folder("Assets/_Project", "Resources");

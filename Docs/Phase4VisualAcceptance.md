@@ -1,8 +1,16 @@
 # Phase 4 Human Visual Acceptance
 
-**Status: Phase 4.1 Human Visual Review Conditional Fail; Phase 4.2 automation passed; repeat review pending**
+**Status: Phase 4.3 Automation Passed; Human Visual Review pending**
 
-The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.1 successfully integrated curated external assets, but its Human Visual Review was **Conditional Fail** because camera composition and persistent HUD quality remained High issues. Phase 4.2 applies the bounded readability corrections and passed automation. A human reviewer must now play `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe` and inspect `Captures/Phase4_2/`. Automation does not prove visual acceptance; any remaining Critical/High finding still blocks `phase4-validated`.
+The first primitive-led Phase 4 presentation was reviewed and rejected. Phase
+4.1 integrated curated external assets. Phase 4.2 corrected Camera, HUD, Pause,
+Actor identity, and capture framing; its Human Visual Review passed those goals
+but found one remaining High character-presentation issue plus three Medium
+device/presentation issues. Phase 4.3 implements the bounded Robot, Battery,
+floor-circuit, and Door corrections and passes automation. A human reviewer
+must now play `Builds/Phase4_3/ECHOSHIFT_Phase4_3.exe`, inspect
+`Captures/Phase4_3/`, and observe the recorded 30-second route in motion.
+Automation does not prove visual acceptance.
 
 ## Test record
 
@@ -10,8 +18,8 @@ The first primitive-led Phase 4 presentation was reviewed and rejected. Phase 4.
 |---|---|
 | Date/time | Not recorded |
 | Reviewer | Not recorded |
-| Commit/tag | Phase 4.2 automation candidate / `phase4-presentation-automation-passed` after creation |
-| Build | `Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe` |
+| Commit/tag | Phase 4.3 automation completion / `phase4-character-automation-passed` |
+| Build | `Builds/Phase4_3/ECHOSHIFT_Phase4_3.exe` |
 | Device / OS / GPU | Not recorded |
 | Resolution / display mode | Not recorded |
 | Input device | Not recorded |
@@ -70,6 +78,10 @@ Use `Pass`, `Fail`, or `Not checked`. Severity is `Critical`, `High`, `Medium`, 
 | P4-H04 | Pause Menu hierarchy/focus was not release-readable | High | First human Visual Review | Full-screen dimmer, centered card, focus arrow, separated Quit, hidden gameplay HUD | Corrected by automation; human recheck pending |
 | P4-M01 | Door and Goal needed stronger authored form | Medium | First human Visual Review | External frames/panels, circuit badges, portal/glow/`出口ゲート` | Corrected by automation; human recheck pending |
 | P4.1-H01 | Cyan/orange lamps, partial rails, and diagonal supports floated outside the facility | High | Phase 4.1 After capture review | Remove independent lamps and anchor full wall cladding to continuous floor-connected backing | Corrected by Builder and automation; human recheck pending |
+| P4.2-H01 | Robot arms read as a T-pose; Battery did not appear hand-held | High | Phase 4.2 Human Visual Review | Six visual-child poses, chest carry socket, smaller Battery, and state captures | Corrected by Phase 4.3 automation; human recheck pending |
+| P4.2-M01 | Circuit lines read as airborne lasers | Medium | Phase 4.2 Human Visual Review | Floor-height axis-aligned thin meshes | Corrected by Phase 4.3 automation; human recheck pending |
+| P4.2-M02 | Open Door read as a large board | Medium | Phase 4.2 Human Visual Review | Split panels retract inside fixed frame | Corrected by Phase 4.3 automation; human recheck pending |
+| P4.2-M03 | Battery was oversized for the Robot | Medium | Phase 4.2 Human Visual Review | 0.78m by 0.44m visual and chest-front carry | Corrected by Phase 4.3 automation; human recheck pending |
 
 ## Phase 4.1 Human Visual Review result
 
@@ -95,11 +107,44 @@ insertion/Door opening, two-Echo roles, Goal arrival, and compact gameplay HUD.
 Their automated framing passed, but their visual score is not updated until the
 repeat human review.
 
+## Phase 4.2 Human Visual Review result
+
+The bounded Camera, HUD, Pause Menu, Player/Echo identity, two-Echo roles, and
+capture composition goals passed. The overall Phase 4 decision remained
+unvalidated: Critical `0`, High `1`, Medium `3`, Low `2`.
+
+- High: the Robot read as a T-pose and the Battery carry presentation appeared
+  unfinished.
+- Medium: circuit lines appeared airborne, open Door panels appeared as a
+  large board, and the Battery was oversized.
+- Low: the Goal face was overexposed and the floor remained visually dense.
+
+Phase 4.3 automation verifies the replacement structures and states, but does
+not update these visual severities. Human review must decide whether the High
+and Medium observations are actually resolved in motion.
+
+## Phase 4.3 capture review
+
+Use `Pass`, `Fail`, or `Not checked`; all entries intentionally remain
+`Not checked` until a human reviews them.
+
+| File | Intended evidence | Result | Comment / Severity |
+|---|---|---|---|
+| `01_player_idle.png` | Natural non-T Idle | Not checked |  |
+| `02_player_walk_turn.png` | Walk/turn pose and foot sliding impression | Not checked |  |
+| `03_player_echo_pose.png` | Player/Echo pose differentiation | Not checked |  |
+| `04_battery_carry_idle.png` | Battery scale and static hand placement | Not checked |  |
+| `05_battery_carry_walk.png` | Carry gait and intersections | Not checked |  |
+| `06_battery_insertion.png` | Socket alignment and insertion readability | Not checked |  |
+| `07_split_door_open.png` | Retracting panels and clear passage | Not checked |  |
+| `08_two_echo_roles.png` | Two-Echo role and pose readability | Not checked |  |
+
 ## Decision
 
-- Critical: `0` in the completed Phase 4.1 review
-- High: `2` in the completed Phase 4.1 review; corrected by Phase 4.2 automation, human confirmation pending
-- Medium: `5` in the completed Phase 4.1 review; three remain later backlog work
-- Low: Multiple, not individually enumerated by the reviewer
-- Final human decision: Phase 4.1 Conditional Fail; Phase 4.2 repeat review pending
+- Latest completed human review: Phase 4.2 goals passed; overall Critical `0`,
+  High `1`, Medium `3`, Low `2`
+- Phase 4.3 automated correction: passed
+- Foot sliding, Carry Pose naturalness, Door motion, circuit readability, and
+  representative screenshot quality: Not checked by a human
+- Final human decision: pending
 - `phase4-validated` authorization: No

@@ -1,6 +1,11 @@
 # Phase 4 Visual Review and Later Backlog
 
-The first primitive-led Phase 4 pass failed Visual Review. Phase 4.1 integrated a curated CC0 external-asset subset, then received a Human Visual Review Conditional Fail with two High and five Medium findings. Phase 4.2 corrects the bounded camera, HUD, Actor-identity, Pause-focus, and capture findings and passes automation. **Phase 4.2: Automation Passed; repeat Human Visual Review pending.**
+The first primitive-led Phase 4 pass failed Visual Review. Phase 4.1 integrated
+a curated CC0 external-asset subset. Phase 4.2 corrected Camera, HUD,
+Actor-identity, Pause-focus, and capture findings; its Human Visual Review
+passed those goals but found one High character-presentation issue. Phase 4.3
+implements the bounded Robot pose, Battery carry, floor-circuit, and split-Door
+corrections. **Phase 4.3: Automation Passed; Human Visual Review pending.**
 
 ## Deferred from the Phase 4.1 Human Visual Review
 
@@ -11,17 +16,17 @@ These Medium items are intentionally outside the bounded Phase 4.2 pass:
   floating in a black void;
 - reduce main-route floor texture density, reserve busy panels for room edges,
   tune metallic/smoothness, and author device-zone panels and subtle guidance;
-- enrich Door presentation with split leaves, a lit center seam, staged retreat
-  and slide motion, internal frame light, short mechanical audio, and restrained
-  VFX without changing its authoritative open/collision state;
 - conduct the broader Visual Polish / Art Direction pass requested for
   Environment form/materials, Player/Echo production models and silhouettes,
   device models, Lighting, VFX, HUD design, transitions, color, material, and
   whole-screen cohesion.
 
-Phase 4.2 improved Pause selection and Player/Echo identity, but the repeat
-human review must determine whether those Medium observations are resolved in
-motion. They are not automatically marked accepted here.
+Phase 4.3 automation now supplies visual-child Idle/Walk/Carry/Interact/Stopped
+poses, a smaller chest-held Battery, floor-height right-angle circuits, and
+split retracting Door panels. Human review must determine whether foot sliding,
+Carry hand placement, Battery insertion, Door movement, and floor-circuit
+readability are actually resolved in motion. They are not automatically marked
+accepted here.
 
 ## Visual Polish / Art Direction
 
@@ -54,6 +59,8 @@ These were not reproduced as blocking human-acceptance issues, but remain useful
 - Replace or further art-direct the curated external meshes only if the Phase 4.1 human review still finds them below the intended portfolio bar; preserve collider and Stable-ID roots.
 - Add UVs, authored textures/decals, normal maps, richer material variation, and a final lightmap pass.
 - Add production character locomotion, interaction animation, Echo playback posing, and optional IK.
+- Reduce Goal-face overexposure without weakening its exit readability.
+- Continue reducing floor-pattern density where it competes with actors and devices.
 - Add final BGM, ambience, authored sound design, mixing, accessibility volume controls, and platform device testing.
 - Add production UI motion, final iconography, localization layout review, and ultrawide-specific art framing.
 - Produce trailer shots only after the Phase 4 human checklist passes and any Critical/High issue is rebuilt and retested.

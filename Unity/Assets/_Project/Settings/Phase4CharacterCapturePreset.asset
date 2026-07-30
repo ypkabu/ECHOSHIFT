@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7415234510807145a2678b75e5dd945, type: 3}
+  m_Name: Phase4CharacterCapturePreset
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4CapturePreset
+  shots:
+  - fileName: 01_player_idle.png
+    moment: 8
+    sectionNumber: 1
+    localFocus: {x: 0, y: 0.1, z: -5.4}
+    cameraOffset: {x: -2.8, y: 8.8, z: -6.4}
+    fieldOfView: 40
+    showGameplayHud: 0
+  - fileName: 02_player_walk_turn.png
+    moment: 9
+    sectionNumber: 1
+    localFocus: {x: -1.1, y: 0.1, z: -4.5}
+    cameraOffset: {x: 3.4, y: 9.4, z: -5.9}
+    fieldOfView: 41
+    showGameplayHud: 0
+  - fileName: 03_player_echo_pose.png
+    moment: 10
+    sectionNumber: 1
+    localFocus: {x: -0.5, y: 0.1, z: -4.7}
+    cameraOffset: {x: -3.5, y: 10.2, z: -6.8}
+    fieldOfView: 43
+    showGameplayHud: 0
+  - fileName: 04_battery_carry_idle.png
+    moment: 11
+    sectionNumber: 2
+    localFocus: {x: 0.6, y: 0.4, z: -2.5}
+    cameraOffset: {x: -3, y: 8.2, z: 5.4}
+    fieldOfView: 39
+    showGameplayHud: 0
+  - fileName: 05_battery_carry_walk.png
+    moment: 12
+    sectionNumber: 2
+    localFocus: {x: 0.5, y: 0.35, z: -1.7}
+    cameraOffset: {x: 3.5, y: 9.1, z: 6.2}
+    fieldOfView: 41
+    showGameplayHud: 0
+  - fileName: 06_battery_insertion.png
+    moment: 13
+    sectionNumber: 2
+    localFocus: {x: 0.7, y: 0.25, z: -0.5}
+    cameraOffset: {x: -3.2, y: 8.6, z: -5.5}
+    fieldOfView: 38
+    showGameplayHud: 0
+  - fileName: 07_split_door_open.png
+    moment: 14
+    sectionNumber: 2
+    localFocus: {x: 0, y: 0.1, z: 0.9}
+    cameraOffset: {x: 3.4, y: 9.8, z: -6}
+    fieldOfView: 40
+    showGameplayHud: 0
+  - fileName: 08_two_echo_roles.png
+    moment: 15
+    sectionNumber: 3
+    localFocus: {x: -0.3, y: 0.1, z: -2}
+    cameraOffset: {x: -1.2, y: 14.5, z: -10.4}
+    fieldOfView: 49
+    showGameplayHud: 0

@@ -141,6 +141,8 @@ namespace EchoShift.Gameplay
                 !HasCommandLineFlag("-phase3AutoQuit") &&
                 !HasCommandLineFlag("-phase4PerfProbe") &&
                 !HasCommandLineFlag("-phase4AutoCompleteProbe") &&
+                !HasCommandLineFlag("-phase4PauseQuitProbe") &&
+                !HasCommandLineFlag("-phase43PresentationProbe") &&
                 !HasCommandLineFlag("-phase4Capture"))
             {
                 ArmInteractiveStartForTests();

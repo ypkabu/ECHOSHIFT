@@ -10,7 +10,7 @@ namespace EchoShift.Presentation
         [SerializeField] private LoopActor actor;
         [SerializeField] private EchoPlayback playback;
         [SerializeField] private Transform modelRoot;
-        [SerializeField] private Transform rightArm;
+        [SerializeField] private Phase4RobotPoseController poseController;
         [SerializeField] private Renderer[] bodyRenderers = System.Array.Empty<Renderer>();
         [SerializeField] private Renderer[] accentRenderers = System.Array.Empty<Renderer>();
         [SerializeField] private GameObject[] generationMarks = System.Array.Empty<GameObject>();
@@ -21,7 +21,6 @@ namespace EchoShift.Presentation
 
         private MaterialPropertyBlock _properties;
         private Vector3 _baseScale;
-        private Quaternion _armRestRotation;
         private int _appliedGeneration = -1;
         private int _lastInteractionSuccess;
         private int _lastInteractionFailure;
@@ -30,7 +29,8 @@ namespace EchoShift.Presentation
         private bool _lastStopped;
 
         public bool HasRequiredReferences =>
-            settings != null && actor != null && modelRoot != null && rightArm != null &&
+            settings != null && actor != null && modelRoot != null && poseController != null &&
+            poseController.HasRequiredReferences &&
             bodyRenderers != null && bodyRenderers.Length >= 1 &&
             accentRenderers != null && accentRenderers.Length >= 2 &&
             generationMarks != null && generationMarks.Length == 3 &&
@@ -51,7 +51,7 @@ namespace EchoShift.Presentation
             LoopActor loopActor,
             EchoPlayback echoPlayback,
             Transform visualRoot,
-            Transform carryArm,
+            Phase4RobotPoseController robotPoseController,
             Renderer[] bodies,
             Renderer[] accents,
             GameObject[] marks,
@@ -64,7 +64,7 @@ namespace EchoShift.Presentation
             actor = loopActor;
             playback = echoPlayback;
             modelRoot = visualRoot;
-            rightArm = carryArm;
+            poseController = robotPoseController;
             bodyRenderers = bodies ?? System.Array.Empty<Renderer>();
             accentRenderers = accents ?? System.Array.Empty<Renderer>();
             generationMarks = marks ?? System.Array.Empty<GameObject>();
@@ -80,7 +80,6 @@ namespace EchoShift.Presentation
             playback ??= GetComponent<EchoPlayback>();
             _properties = new MaterialPropertyBlock();
             if (modelRoot != null) _baseScale = modelRoot.localScale;
-            if (rightArm != null) _armRestRotation = rightArm.localRotation;
         }
 
         private void OnEnable()
@@ -127,14 +126,6 @@ namespace EchoShift.Presentation
             float pulseScale = 1f + Mathf.Abs(_interactionPulse) * 0.08f;
             modelRoot.localScale = _baseScale * (easedSpawn * pulseScale);
 
-            bool carrying = false;
-            PlayerSimulation simulation = GetComponent<PlayerSimulation>();
-            if (simulation != null) carrying = simulation.Interactor?.CarriedBattery != null;
-            else if (playback != null) carrying = playback.Interactor?.CarriedBattery != null;
-            rightArm.localRotation = Quaternion.Slerp(
-                rightArm.localRotation,
-                carrying ? Quaternion.Euler(-62f, 0f, 0f) : _armRestRotation,
-                Mathf.Clamp01(Time.unscaledDeltaTime * 12f));
         }
 
         public void PulseInteraction(bool success)

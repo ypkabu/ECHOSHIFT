@@ -13,6 +13,8 @@ namespace EchoShift.Editor
             "Builds/Phase4_1_NonDevelopment/ECHOSHIFT_Phase4_1_NonDevelopment.exe";
         public const string PresentationRelativeOutput =
             "Builds/Phase4_2/ECHOSHIFT_Phase4_2.exe";
+        public const string CharacterPresentationRelativeOutput =
+            "Builds/Phase4_3/ECHOSHIFT_Phase4_3.exe";
 
         [MenuItem("ECHO SHIFT/Build Phase 4 Windows Development")]
         public static void BuildWindowsDevelopment()
@@ -32,6 +34,13 @@ namespace EchoShift.Editor
         {
             BuildWindows(PresentationRelativeOutput, BuildOptions.Development,
                 "PHASE4_2_BUILD_OK");
+        }
+
+        [MenuItem("ECHO SHIFT/Build Phase 4.3 Windows Development")]
+        public static void BuildPhase4ThreeWindowsDevelopment()
+        {
+            BuildWindows(CharacterPresentationRelativeOutput, BuildOptions.Development,
+                "PHASE4_3_BUILD_OK");
         }
 
         private static void BuildWindows(string relativeOutput, BuildOptions buildOptions,

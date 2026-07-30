@@ -12,7 +12,15 @@ namespace EchoShift.Presentation
         RecordedInsertionDoorOpen,
         TwoEchoRoles,
         GoalArrival,
-        GameplayHud
+        GameplayHud,
+        PlayerIdle,
+        PlayerWalk,
+        PlayerEchoPose,
+        BatteryCarryIdle,
+        BatteryCarryWalk,
+        BatteryInsertion,
+        DoorOpen,
+        CharacterTwoEchoRoles
     }
 
     [Serializable]

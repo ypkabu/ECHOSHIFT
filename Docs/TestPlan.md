@@ -208,3 +208,44 @@ Latest results on 2026-07-22:
   Pause-menu Quit exited `0`; Missing/Null/unhandled matches `0`.
 - Raw XML, logs, captures, Builds, and Library remain ignored. Human visual
   judgment is still required before `phase4-validated`.
+
+## Phase 4.3 character and device presentation gate
+
+```powershell
+$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase43EditModeAccepted.xml" -logFile "$PWD\Logs\Phase43EditModeAccepted.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase43PlayModeAccepted.xml" -logFile "$PWD\Logs\Phase43PlayModeAccepted.log"
+& $unity -batchmode -force-d3d11 -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CapturePhase43ExistingFromCommandLine -logFile "$PWD\Logs\Phase43CaptureAccepted.log"
+& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildPhase4ThreeWindowsDevelopment -logFile "$PWD\Logs\Phase43BuildReleaseCandidate.log"
+& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase4AutoCompleteProbe -logFile "$PWD\Logs\Phase43StandaloneReleaseCandidate.log"
+& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase4PauseQuitProbe -logFile "$PWD\Logs\Phase43PauseQuitReleaseCandidate.log"
+& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -batchmode -force-d3d11 -screen-width 1920 -screen-height 1080 -phase4PerfProbe -logFile "$PWD\Logs\Phase43PerformanceAcceptedRepeat.log"
+& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase43PresentationProbe -logFile "$PWD\Logs\Phase43PresentationProbeFinal.log"
+```
+
+Accepted results on 2026-07-23:
+
+- EditMode `116/116` in `49.3721874 s`; PlayMode `127/127` in
+  `37.6364498 s`; failed/skipped `0/0`; Unity exit `0`.
+- P0-P2 Scene object hashes match HEAD; P0-P3 integrations and the full P3
+  presentation route pass.
+- Final Standalone completed Sections 1-3 with Drift `0 m`, Interaction
+  success/failure `4/0`, Telemetry JSON, Pause, Quit, and exit `0`.
+- Maximum-three-Echo 600-frame repeat: frame average/p95/max
+  `8.342/8.388/8.883 ms`, Main Thread average/max `8.331/8.894 ms`,
+  Camera average/max `0.0126/0.0432 ms`, UI average/max
+  `0.0070/0.0310 ms`, Robot pose average/max `0.0054/0.0389 ms`, Door
+  visual average/max `0.0181/0.0423 ms`, steady GC `0 B/frame`.
+- Transition maximum was `16.887 ms` in the first accepted run and
+  `18.038 ms` in the repeat. It is recorded as a bounded spike, not hidden or
+  represented as a strict 16.6ms maximum.
+- D3D11 Capture: eight unique 1920x1080 PNGs. Normal-rendered Presentation
+  Probe: `30.025 s`, nine required state screenshots, all Sections complete,
+  exit `0`.
+- Windows x86_64 Development Build: BuildReport Success,
+  `PHASE4_3_BUILD_OK`, warning/error `0/0`, 291 files, no matching
+  Compiler/Missing/Null/unhandled final-log entry.
+- Captures, Builds, Logs, TestResults, and Unity Library remain ignored with
+  zero tracked files. Human review is still required for foot sliding, pose
+  naturalness, Battery hand placement, Door motion, circuit readability, and
+  representative-image quality.

@@ -16,24 +16,23 @@ namespace EchoShift.Tests.PlayMode
         {
             yield return Load();
             Assert.That(FindByName("External Floor 1-1"), Is.Not.Null);
-            Assert.That(FindByName("External Door Moving Panel"), Is.Not.Null);
+            Assert.That(FindByName("External Door Left Panel"), Is.Not.Null);
+            Assert.That(FindByName("External Door Right Panel"), Is.Not.Null);
             Assert.That(FindByName("External Goal Frame"), Is.Not.Null);
             Assert.That(FindByName("Quaternius Robot Model"), Is.Not.Null);
         }
 
         [UnityTest]
-        public IEnumerator ImportedRobotVisualDoesNotAnimateOrMoveItsAdapterTransform()
+        public IEnumerator ImportedRobotAnimationStaysBelowStableVisualAdapterTransform()
         {
             yield return Load();
             Transform robot = FindByName("P4 Robot Visual");
             Assert.That(robot, Is.Not.Null);
-            Component[] components = robot.GetComponentsInChildren<Component>(true);
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i] == null) continue;
-                Assert.That(components[i].GetType().Name, Is.Not.EqualTo("Animator"));
-                Assert.That(components[i].GetType().Name, Is.Not.EqualTo("Animation"));
-            }
+            Assert.That(robot.GetComponent<Animator>(), Is.Null);
+            Animator[] animators = robot.GetComponentsInChildren<Animator>(true);
+            Assert.That(animators.Length, Is.EqualTo(1));
+            Assert.That(animators[0].applyRootMotion, Is.False);
+            Assert.That(animators[0].transform, Is.Not.SameAs(robot));
             Vector3 position = robot.localPosition;
             Quaternion rotation = robot.localRotation;
             for (int i = 0; i < 12; i++) yield return null;

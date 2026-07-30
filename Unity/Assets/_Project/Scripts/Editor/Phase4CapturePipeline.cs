@@ -33,6 +33,20 @@ namespace EchoShift.Editor
             EditorApplication.Exit(0);
         }
 
+        public static void CapturePhase43FromCommandLine()
+        {
+            CapturePhase43Internal(true);
+            Debug.Log("PHASE4_3_CAPTURES_OK count=8;width=1920;height=1080;api=D3D11");
+            EditorApplication.Exit(0);
+        }
+
+        public static void CapturePhase43ExistingFromCommandLine()
+        {
+            CapturePhase43Internal(false);
+            Debug.Log("PHASE4_3_CAPTURES_OK count=8;width=1920;height=1080;api=D3D11;scene=existing");
+            EditorApplication.Exit(0);
+        }
+
         [MenuItem("ECHO SHIFT/Capture Phase 4.2 Presentation Frames")]
         public static void CaptureAll()
         {
@@ -93,6 +107,121 @@ namespace EchoShift.Editor
                 Cursor.visible = cursorVisible;
                 EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             }
+        }
+
+        private static void CapturePhase43Internal(bool rebuildScene)
+        {
+            if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Direct3D11)
+                throw new InvalidOperationException(
+                    $"Phase 4.3 capture requires D3D11, actual={SystemInfo.graphicsDeviceType}.");
+            if (rebuildScene) P3SceneBuilder.BuildScene();
+            Scene scene = EditorSceneManager.OpenScene(P3SceneBuilder.ScenePath, OpenSceneMode.Single);
+            PuzzleSectionController[] sections = Object.FindObjectsByType<PuzzleSectionController>(
+                FindObjectsInactive.Include);
+            Array.Sort(sections, (left, right) => left.SectionNumber.CompareTo(right.SectionNumber));
+            if (sections.Length != 3)
+                throw new InvalidOperationException("Phase 4.3 capture scene needs three sections.");
+            Phase4VisualSettings settings = AssetDatabase.LoadAssetAtPath<Phase4VisualSettings>(
+                Phase4AssetBuilder.SettingsPath);
+            Phase4CapturePreset preset = AssetDatabase.LoadAssetAtPath<Phase4CapturePreset>(
+                Phase4AssetBuilder.CharacterCapturePresetPath);
+            if (settings == null || preset == null || !preset.IsValid())
+                throw new InvalidOperationException("Phase 4.3 capture settings are incomplete.");
+            Camera camera = Object.FindAnyObjectByType<Camera>(FindObjectsInactive.Include);
+            GameplayHud hud = Object.FindAnyObjectByType<GameplayHud>(FindObjectsInactive.Include);
+            PauseMenuController pause = Object.FindAnyObjectByType<PauseMenuController>(
+                FindObjectsInactive.Include);
+            if (camera == null || hud == null || pause == null)
+                throw new InvalidOperationException("Phase 4.3 capture camera or UI is missing.");
+            string repository = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+            string directory = Path.Combine(repository, "Captures", "Phase4_3");
+            Directory.CreateDirectory(directory);
+            string[] oldPngs = Directory.GetFiles(directory, "*.png", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < oldPngs.Length; i++) File.Delete(oldPngs[i]);
+            bool cursorVisible = Cursor.visible;
+            try
+            {
+                Cursor.visible = false;
+                DisableDebugOverlays();
+                ConfigureCanvases(camera);
+                Canvas gameplayCanvas = hud.GetComponent<Canvas>();
+                Canvas pauseCanvas = pause.GetComponent<Canvas>();
+                gameplayCanvas.enabled = false;
+                pauseCanvas.enabled = false;
+                GameObject pausePanel = FindByName(scene, "Pause Panel");
+                if (pausePanel != null) pausePanel.SetActive(false);
+                ConfigureRoutes(sections);
+                CapturePhase43SectionOne(sections, camera, gameplayCanvas, pauseCanvas,
+                    preset, settings, directory);
+                CapturePhase43SectionTwo(sections, camera, gameplayCanvas, pauseCanvas,
+                    preset, settings, directory);
+                CapturePhase43SectionThree(sections, camera, gameplayCanvas, pauseCanvas,
+                    preset, settings, directory);
+                ValidateOutputs(preset, settings, directory);
+            }
+            finally
+            {
+                Cursor.visible = cursorVisible;
+                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            }
+        }
+
+        private static void CapturePhase43SectionOne(
+            PuzzleSectionController[] sections, Camera camera,
+            Canvas gameplayCanvas, Canvas pauseCanvas,
+            Phase4CapturePreset preset, Phase4VisualSettings settings, string directory)
+        {
+            PuzzleSectionController section = Activate(sections, 1);
+            Capture(preset.GetShot(0), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+            AdvanceUntil(section, 1, 22, 100);
+            Capture(preset.GetShot(1), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+            AdvanceUntil(section, 2, 40, 500);
+            Capture(preset.GetShot(2), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+        }
+
+        private static void CapturePhase43SectionTwo(
+            PuzzleSectionController[] sections, Camera camera,
+            Canvas gameplayCanvas, Canvas pauseCanvas,
+            Phase4CapturePreset preset, Phase4VisualSettings settings, string directory)
+        {
+            PuzzleSectionController section = Activate(sections, 2);
+            AdvanceUntil(section, 1, 70, 300);
+            CarryableBattery battery = section.GetComponentInChildren<CarryableBattery>();
+            if (battery == null || !battery.IsHeld)
+                throw new InvalidOperationException("Phase 4.3 Carry Idle route has no held Battery.");
+            Capture(preset.GetShot(3), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+            AdvanceUntil(section, 1, 92, 100);
+            Capture(preset.GetShot(4), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+            AdvanceUntil(section, 1, 108, 100);
+            PowerSocket socket = section.GetComponentInChildren<PowerSocket>();
+            if (socket == null || !socket.IsPowered)
+                throw new InvalidOperationException("Phase 4.3 insertion route did not power Socket.");
+            Capture(preset.GetShot(5), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+            AdvanceUntil(section, 2, 112, 500);
+            DoorController door = section.GetComponentInChildren<DoorController>();
+            if (door == null || !door.IsOpen)
+                throw new InvalidOperationException("Phase 4.3 route did not open Door.");
+            Capture(preset.GetShot(6), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
+        }
+
+        private static void CapturePhase43SectionThree(
+            PuzzleSectionController[] sections, Camera camera,
+            Canvas gameplayCanvas, Canvas pauseCanvas,
+            Phase4CapturePreset preset, Phase4VisualSettings settings, string directory)
+        {
+            PuzzleSectionController section = Activate(sections, 3);
+            AdvanceUntil(section, 3, 185, 1200);
+            if (section.Director.EchoCount < 2)
+                throw new InvalidOperationException("Phase 4.3 two-role shot needs two Echoes.");
+            Capture(preset.GetShot(7), section, camera, gameplayCanvas, pauseCanvas,
+                settings, directory);
         }
 
         private static void CaptureSectionOne(
@@ -246,7 +375,8 @@ namespace EchoShift.Editor
         {
             if (shot.SectionNumber != section.SectionNumber)
                 throw new InvalidOperationException($"Capture preset section mismatch: {shot.FileName}");
-            RefreshPresentation(section);
+            RefreshPresentation(section, shot.Moment);
+            ApplyCharacterCapturePose(section, shot.Moment);
             PositionCamera(camera, section, shot, settings);
             gameplayCanvas.enabled = shot.ShowGameplayHud;
             pauseCanvas.enabled = false;
@@ -261,14 +391,26 @@ namespace EchoShift.Editor
             Phase4CaptureShotPreset shot, Phase4VisualSettings settings)
         {
             Vector3 focus = section.transform.position + shot.LocalFocus;
-            camera.transform.position = focus + shot.CameraOffset;
+            if (shot.Moment == Phase4CaptureMoment.BatteryCarryIdle ||
+                shot.Moment == Phase4CaptureMoment.BatteryCarryWalk)
+            {
+                Transform actor = section.Player.transform;
+                Vector3 forward = Vector3.ProjectOnPlane(actor.forward, Vector3.up).normalized;
+                Vector3 side = Vector3.Cross(Vector3.up, forward);
+                focus = actor.position + Vector3.up * 0.2f;
+                camera.transform.position = shot.Moment == Phase4CaptureMoment.BatteryCarryIdle
+                    ? focus + forward * 6.2f - side * 2.4f + Vector3.up * 5.4f
+                    : focus + side * 6.2f + Vector3.up * 5.2f;
+            }
+            else camera.transform.position = focus + shot.CameraOffset;
             camera.transform.rotation = Quaternion.LookRotation(
                 focus - camera.transform.position, Vector3.up);
             camera.fieldOfView = shot.FieldOfView;
             camera.aspect = settings.CaptureWidth / (float)settings.CaptureHeight;
         }
 
-        private static void RefreshPresentation(PuzzleSectionController section)
+        private static void RefreshPresentation(
+            PuzzleSectionController section, Phase4CaptureMoment moment)
         {
             Phase4ActorVisual[] actors = section.GetComponentsInChildren<Phase4ActorVisual>(true);
             for (int i = 0; i < actors.Length; i++) actors[i].RefreshNowForTests();
@@ -277,13 +419,55 @@ namespace EchoShift.Editor
             for (int i = 0; i < plates.Length; i++) plates[i].RefreshNowForTests();
             Phase4BatteryVisual[] batteries =
                 section.GetComponentsInChildren<Phase4BatteryVisual>(true);
-            for (int i = 0; i < batteries.Length; i++) batteries[i].RefreshNowForTests();
+            for (int i = 0; i < batteries.Length; i++)
+            {
+                if (moment == Phase4CaptureMoment.BatteryInsertion)
+                    batteries[i].AdvanceForTests(
+                        Phase4BatteryVisual.InsertionVisualDuration * 0.55f);
+                else batteries[i].RefreshNowForTests();
+            }
             Phase4SocketVisual[] sockets =
                 section.GetComponentsInChildren<Phase4SocketVisual>(true);
             for (int i = 0; i < sockets.Length; i++) sockets[i].RefreshNowForTests();
             DoorVisualFeedback[] doors =
                 section.GetComponentsInChildren<DoorVisualFeedback>(true);
             for (int i = 0; i < doors.Length; i++) doors[i].RefreshNowForTests();
+        }
+
+        private static void ApplyCharacterCapturePose(
+            PuzzleSectionController section, Phase4CaptureMoment moment)
+        {
+            Phase4RobotPoseController[] poses =
+                section.GetComponentsInChildren<Phase4RobotPoseController>(true);
+            for (int i = 0; i < poses.Length; i++)
+            {
+                LoopActor actor = poses[i].GetComponentInParent<LoopActor>();
+                Phase4RobotPoseState state = Phase4RobotPoseState.Idle;
+                if (moment == Phase4CaptureMoment.PlayerWalk &&
+                    actor != null && actor.Kind == LoopActorKind.Player)
+                    state = Phase4RobotPoseState.Walk;
+                else if (moment == Phase4CaptureMoment.PlayerEchoPose && actor != null)
+                    state = actor.Kind == LoopActorKind.Player
+                        ? Phase4RobotPoseState.Idle : Phase4RobotPoseState.Walk;
+                else if (moment == Phase4CaptureMoment.BatteryCarryIdle)
+                    state = Phase4RobotPoseState.CarryIdle;
+                else if (moment == Phase4CaptureMoment.BatteryCarryWalk)
+                    state = Phase4RobotPoseState.CarryWalk;
+                else if (moment == Phase4CaptureMoment.BatteryInsertion)
+                    state = Phase4RobotPoseState.Interact;
+                else if (moment == Phase4CaptureMoment.DoorOpen &&
+                         actor != null && actor.Kind == LoopActorKind.Player)
+                    state = Phase4RobotPoseState.Walk;
+                else if (moment == Phase4CaptureMoment.CharacterTwoEchoRoles && actor != null)
+                {
+                    state = actor.Kind == LoopActorKind.Player
+                        ? Phase4RobotPoseState.Walk
+                        : actor.ReplayGeneration == 1
+                            ? Phase4RobotPoseState.EchoStopped
+                            : Phase4RobotPoseState.CarryIdle;
+                }
+                poses[i].ForcePoseForCapture(state);
+            }
         }
 
         private static void ValidateActorFraming(
@@ -293,10 +477,12 @@ namespace EchoShift.Editor
             ValidateActor(camera, section.Player.GetComponent<LoopActor>(), margin);
             int requiredEchoes = moment == Phase4CaptureMoment.PlayerAndEchoOne ||
                                  moment == Phase4CaptureMoment.EchoOnPlatePlayerAtDoor ||
-                                 moment == Phase4CaptureMoment.RecordedInsertionDoorOpen
+                                 moment == Phase4CaptureMoment.RecordedInsertionDoorOpen ||
+                                 moment == Phase4CaptureMoment.PlayerEchoPose
                 ? 1
                 : moment == Phase4CaptureMoment.TwoEchoRoles ||
-                  moment == Phase4CaptureMoment.GameplayHud
+                  moment == Phase4CaptureMoment.GameplayHud ||
+                  moment == Phase4CaptureMoment.CharacterTwoEchoRoles
                     ? 2
                     : 0;
             if (section.Director.EchoCount < requiredEchoes)
