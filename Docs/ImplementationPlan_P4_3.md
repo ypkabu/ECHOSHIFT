@@ -127,3 +127,42 @@ Camera、HUD、Pause Menuの再設計、Puzzle Layout、Section構造、Gameplay
 - Windows x86_64 Development Build、P3完走、Telemetry、Pause／Quit、自然終了code 0を確認した。
 
 自動化は状態、参照、投影範囲、寸法、性能、回帰を確認した。足滑りの知覚、Carry Poseの自然さ、Door動作の自然さ、代表画像としての完成度はHuman Visual Review未確認であり、Pass扱いしない。
+
+## Human Review動画追補（2026-07-31）
+
+静止画Human Visual ReviewでCharacter、Battery、Door、床配線は合格したため、
+これらの構造は固定する。追補作業は、旧Presentation ProbeでGameplayを覆った
+pooled VFXの可読性修正、通常速度のHuman Review用動画、録画終了時
+`0xC0000005`の切り分けだけを対象とする。
+
+- `P4 Pulse VFX`の不透明Particle Material、burst数、event別size／alpha、
+  同時発火数、Bloom寄与を監査する。
+- Pool構造とGameplay eventは維持し、soft radial alphaを持つ透明Particleへ
+  置換する。Bloomは無効化せず、通常Gameplayを覆わない値へ抑える。
+- `-phase43HumanReviewProbe`を追加し、`Time.timeScale = 1`、D3D11、
+  Debug Overlay／cursor OFFで、Idle、直線Walk、斜め移動、方向転換、
+  Echo生成／移動／停止、Battery取得／Carry Idle／Carry Walk／挿入、
+  Door開放／通過を30～40秒の通常速度映像として記録する。
+- 録画開始／flushを外部FFmpegとsignal fileで同期し、Unity Splash、黒画面、
+  長時間のCompleted画面を動画へ含めない。
+- 通常Standaloneと外部Capture pipelineを分け、Pause Quit、自動Quit、
+  capture有無、capture初期化のみの条件で終了code、log末尾、Windows
+  Application event、flush時刻、終了順を記録する。
+- EditMode／PlayMode、P0～P3実Scene、P3自動完走、Drift、Interaction、
+  steady GCを再検証する。
+
+この追補では`phase4-character-automation-passed`を変更せず、
+`phase4-validated`を作成しない。
+
+### 追補結果
+
+- 白飛びVFXはsoft additive pulseへ置換し、動画全体の明部最大占有率
+  2.00%、巨大な白Particle 0件を確認した。
+- Human Review動画は39.97秒、Gameplay 39.626秒、Completed 0秒、
+  12場面、`Time.timeScale = 1`で生成した。
+- EditMode 120/120、PlayMode 130/130、P3完走、Drift 0m、
+  Interaction 4/0、Build warning/error 0/0を確認した。
+- D3D11 headless steady probeはGC 0 B/frameを維持した。
+- Visible Standaloneは録画有無にかかわらず終了後
+  `UnityPlayer.dll`の`0xC0000005`を再現した。Capture固有ではないHighとして
+  Phase 4正式Validatedを停止する。動画のHuman motion review自体は実施可能。

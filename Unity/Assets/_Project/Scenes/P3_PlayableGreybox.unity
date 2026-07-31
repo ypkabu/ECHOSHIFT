@@ -43215,6 +43215,7 @@ GameObject:
   - component: {fileID: 1361464423}
   - component: {fileID: 1361464422}
   - component: {fileID: 1361464421}
+  - component: {fileID: 1361464426}
   m_Layer: 0
   m_Name: Phase 4 Feedback
   m_TagString: Untagged
@@ -43237,6 +43238,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1608251237}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1361464426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361464419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84cb4ce99e2b4336bd78d29475afd118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4HumanReviewProbe
+  coordinator: {fileID: 1608251235}
 --- !u!114 &1361464421
 MonoBehaviour:
   m_ObjectHideFlags: 0

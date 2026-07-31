@@ -1,6 +1,6 @@
 # Phase 4.3 Character and Device Presentation Validation
 
-**Status: Automation Passed; Human Visual Review pending**
+**Status: Static Human Visual Review Passed; motion review pending; shutdown High open**
 
 ## Scope
 
@@ -166,5 +166,34 @@ Automation does not mark the following as Pass:
   ordinary human play.
 
 `phase4-character-automation-passed` records only this automation gate.
-`phase4-validated` remains forbidden until the review reports Critical 0 and
-High 0 and any required correction is rebuilt and revalidated.
+`phase4-validated` remains forbidden until the motion review reports Critical
+0 and High 0, the normal-window shutdown High is resolved, and any required
+correction is rebuilt and revalidated.
+
+## Human Review video follow-up (2026-07-31)
+
+The reviewer accepted all eight static Phase 4.3 captures:
+
+- T-pose eliminated and Idle/Walk poses differ;
+- Player/Echo and the two Echo roles are distinguishable;
+- Battery size, chest-front Carry Pose, and insertion presentation pass;
+- floor circuits and the split Door presentation pass.
+
+Character, Battery, Door, and floor-circuit structures were frozen for the
+follow-up. Only transient VFX and the Human Review probe changed.
+
+The replacement
+`Captures/Phase4_3/Phase4_3_HumanReview.mp4` is 39.97 s of normal-speed
+Gameplay with twelve timed scenes and no Completed screen. It is ready for
+human motion review. The VFX white-out gate passes at a 2.00% maximum
+bright-luma frame occupancy with no giant white particle mass.
+
+The final full regression is EditMode 120/120 and PlayMode 130/130. P3 still
+completes all Sections with Drift 0 m and Interaction 4/0. The final Build
+reports warning/error 0/0.
+
+The visible Standalone Player nevertheless reproduces `0xC0000005` in
+`UnityPlayer.dll` after normal cleanup, with and without external recording and
+for both Pause and automatic Quit. This is not classified as capture-only.
+It is an open High and blocks Phase 4 validation even if the new motion review
+passes. Full evidence is in `Phase4VfxAndCaptureValidation.md`.

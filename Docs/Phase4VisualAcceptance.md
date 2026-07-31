@@ -1,6 +1,6 @@
 # Phase 4 Human Visual Acceptance
 
-**Status: Phase 4.3 Automation Passed; Human Visual Review pending**
+**Status: Phase 4.3 static review passed; motion review pending; shutdown High open**
 
 The first primitive-led Phase 4 presentation was reviewed and rejected. Phase
 4.1 integrated curated external assets. Phase 4.2 corrected Camera, HUD, Pause,
@@ -141,10 +141,50 @@ Use `Pass`, `Fail`, or `Not checked`; all entries intentionally remain
 
 ## Decision
 
-- Latest completed human review: Phase 4.2 goals passed; overall Critical `0`,
-  High `1`, Medium `3`, Low `2`
+- Latest completed human review: Phase 4.3 static captures passed for Robot,
+  Battery, circuits, split Door, and two-Echo role readability
 - Phase 4.3 automated correction: passed
-- Foot sliding, Carry Pose naturalness, Door motion, circuit readability, and
-  representative screenshot quality: Not checked by a human
-- Final human decision: pending
+- Foot sliding, Carry motion, insertion continuity, Door motion, VFX in motion,
+  and Japanese glyphs in motion: Not checked by a human
+- Visible Standalone normal exit: High open (`UnityPlayer.dll`,
+  `0xC0000005`)
+- Final Phase 4 decision: blocked pending motion review and shutdown fix
 - `phase4-validated` authorization: No
+
+## Phase 4.3 static Human Visual Review result
+
+The reviewer accepted the following static evidence:
+
+- T-pose eliminated;
+- Idle and Walk pose difference;
+- Player/Echo identity;
+- smaller Battery and chest-front Carry Pose;
+- Battery insertion presentation;
+- floor circuit presentation;
+- split Door presentation;
+- two-Echo role readability.
+
+No structural change to Character, Battery, Door, or floor wiring is authorized
+after this acceptance.
+
+## Phase 4.3 motion-review replacement
+
+`Captures/Phase4_3/Phase4_3_HumanReview.mp4` replaces the previous fast probe.
+It provides 39.626 s of measured Gameplay at normal time scale, twelve required
+scenes, and no Completed screen. Automated image analysis found no giant white
+particle mass; maximum whole-frame bright-luma occupancy is 2.00%.
+
+The following remain **Not checked by a human** until that video is reviewed:
+
+- visible foot sliding in straight/diagonal/turn motion;
+- turn twisting and pose stability;
+- Echo Stopped motion readability;
+- Carry Walk hand/Battery/body intersections and floor clearance;
+- whether insertion looks continuous rather than instantaneous;
+- mechanical quality and occlusion during Door opening;
+- VFX and Japanese glyph quality in motion.
+
+An independent shutdown finding is open as **High**: visible Standalone exits
+with `0xC0000005` in `UnityPlayer.dll` after normal cleanup in all tested
+recording and non-recording Quit conditions. Human motion review may proceed,
+but Phase 4 cannot be marked Validated while this High remains.

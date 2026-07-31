@@ -143,6 +143,7 @@ namespace EchoShift.Gameplay
                 !HasCommandLineFlag("-phase4AutoCompleteProbe") &&
                 !HasCommandLineFlag("-phase4PauseQuitProbe") &&
                 !HasCommandLineFlag("-phase43PresentationProbe") &&
+                !HasCommandLineFlag("-phase43HumanReviewProbe") &&
                 !HasCommandLineFlag("-phase4Capture"))
             {
                 ArmInteractiveStartForTests();
@@ -542,7 +543,9 @@ namespace EchoShift.Gameplay
             bool paused = SetPaused(true);
             Debug.Log($"PHASE4_PAUSE_QUIT_PROBE menu={pauseMenu.IsVisible};paused={paused}", this);
             pauseMenu.RequestQuit();
-            yield return null;
+            // Keep the automated confirmation cadence representative of two
+            // deliberate UI activations rather than dispatching both at once.
+            yield return new WaitForSecondsRealtime(0.25f);
             pauseMenu.RequestQuit();
         }
 

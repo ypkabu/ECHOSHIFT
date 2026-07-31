@@ -670,6 +670,9 @@ namespace EchoShift.Editor
             Phase4PresentationProbe presentationProbe =
                 root.AddComponent<Phase4PresentationProbe>();
             presentationProbe.Configure(coordinator);
+            Phase4HumanReviewProbe humanReviewProbe =
+                root.AddComponent<Phase4HumanReviewProbe>();
+            humanReviewProbe.Configure(coordinator);
         }
 
         private static void BuildHud(GameplayHud hud, PauseMenuController pauseMenu,

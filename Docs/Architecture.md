@@ -101,6 +101,20 @@ The Player and Echo roots retain the same collider, kinematic body, layers, move
 
 `GameplayHud` caches unchanged section/loop/Echo values and precomputes timer strings before measurement. This preserves the existing UI contract while eliminating steady-state per-frame string allocation. The runtime performance probe preallocates its sample array, prepares the maximum three-Echo condition, measures transition spikes separately, and writes value-only JSON outside the project.
 
+Phase 4.3 transient feedback remains scene-owned and pooled. A single generated
+URP Particles/Unlit radial-alpha prefab is preallocated by
+`Phase4FeedbackPool`; event sizes and alpha are clamped, and at most four pooled
+systems may be alive concurrently. The feedback director observes existing
+Gameplay events but has no authority over loop, interaction, Door, or Section
+state.
+
+`Phase4HumanReviewProbe` is command-line gated and disabled during normal play.
+It uses the same fixed-tick input/replay path as the Standalone completion
+probe, but spaces twelve presentation states in realtime at
+`Time.timeScale = 1`. File signals coordinate an external D3D11/FFmpeg capture
+without injecting Recorder state into Gameplay. Generated video and handshake
+files stay outside tracked source.
+
 The Japanese path uses project assets only: a static TextMeshPro atlas containing the catalog glyph set plus a packaged legacy `Font` for the retained Unity UI/TextMesh boundary. Runtime OS font discovery was removed. Noto Sans JP source and its OFL notice are stored in the project/`ThirdPartyNotices`; TMP Essential Resources provide the explicit fallback/material infrastructure.
 
 Rendering uses one soft-shadow Directional Light, at most two unshadowed local lights per active section, ambient/fog separation, and one global URP Volume containing safe ACES Tonemapping, Color Adjustments, mild Bloom, and mild Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent. Capture and build orchestration remains Editor-only. Runtime performance and Standalone-completion probes are scene-owned, command-line opt-in validation components that disable themselves during ordinary play. The completion probe is present only to verify a Development Player and uses the same fixed-tick route, Replay, interaction, telemetry, and quit paths as the retained P3 integration test.

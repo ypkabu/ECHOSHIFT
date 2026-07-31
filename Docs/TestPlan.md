@@ -249,3 +249,29 @@ Accepted results on 2026-07-23:
   zero tracked files. Human review is still required for foot sliding, pose
   naturalness, Battery hand placement, Door motion, circuit readability, and
   representative-image quality.
+
+## Phase 4.3 VFX and Human Review video gate
+
+Final follow-up results on 2026-07-31:
+
+- EditMode `120/120`; PlayMode `130/130`; failed/skipped `0/0`.
+- Soft additive pulse uses a radial-alpha texture, eight particles, maximum
+  cue size `0.32 m`, maximum alpha `0.42`, and four concurrent pooled systems.
+- Bloom remains enabled at intensity `0.22`, threshold `1.35`, scatter `0.42`.
+- Final 39.966667 s H.264 video is 1920x1080/30 fps and contains 39.626 s
+  measured Gameplay, zero Completed seconds, time scale 1, and all twelve
+  required scenes.
+- Whole-frame `luma >= 210` occupancy peaks at `2.00%`; giant opaque white
+  particle masses found: `0`.
+- P3 completes all Sections in 1,070 advances with Drift `0 m`, Interaction
+  `4/0`, and Telemetry output.
+- Maximum-three-Echo D3D11 headless steady probe: average/p95/maximum
+  `8.342/8.405/8.639 ms`, Main Thread average/maximum
+  `8.337/8.637 ms`, steady GC `0 B/frame`.
+- Build marker `PHASE4_3_BUILD_OK`, warning/error `0/0`, final log
+  Compiler/Missing/Null/unhandled matches `0`.
+- Visible Standalone shutdown is a failed High gate: all six recording,
+  non-recording, Pause, auto-Quit, recorder-initialized, and
+  recorder-uninitialized conditions reproduced `0xC0000005` in
+  `UnityPlayer.dll`. The capture encoder itself exited `0`; the issue is not
+  isolated to capture.
