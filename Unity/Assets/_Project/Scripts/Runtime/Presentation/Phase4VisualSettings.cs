@@ -171,7 +171,7 @@ namespace EchoShift.Presentation
             audioCues = cues;
             hudIcons = icons ?? Array.Empty<Sprite>();
             volumeProfile = profile;
-            bloomIntensity = 0.3f;
+            bloomIntensity = 0.22f;
             vignetteIntensity = 0.07f;
             colorContrast = 2f;
             colorSaturation = -2f;

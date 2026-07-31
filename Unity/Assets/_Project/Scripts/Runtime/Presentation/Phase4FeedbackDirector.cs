@@ -10,6 +10,9 @@ namespace EchoShift.Presentation
 {
     public sealed class Phase4FeedbackDirector : MonoBehaviour
     {
+        public const float LargestCueSize = 0.28f;
+        public const float LargestCueAlpha = 0.38f;
+
         [SerializeField] private PuzzleSectionController[] sections =
             Array.Empty<PuzzleSectionController>();
         [SerializeField] private SectionTransitionCoordinator coordinator;
@@ -69,8 +72,14 @@ namespace EchoShift.Presentation
                 if (requested == _doorStates[i]) continue;
                 _doorStates[i] = requested;
                 Color color = requested ? settings.GoalColor : settings.DangerColor;
-                feedbackPool.Emit(door.transform.position + Vector3.up, color,
-                    requested ? 1.25f : 0.8f, 0.42f);
+                feedbackPool.Emit(
+                    door.transform.position + Vector3.up,
+                    WithAlpha(color, requested ? 0.32f : 0.24f),
+                    requested ? 0.22f : 0.16f,
+                    0.32f,
+                    requested
+                        ? Phase4FeedbackEvent.DoorOpened
+                        : Phase4FeedbackEvent.DoorClosed);
                 audioController.Play(Phase4AudioCue.Door, 0.62f, requested ? 1.05f : 0.82f);
                 DoorFeedbackCount++;
             }
@@ -116,15 +125,30 @@ namespace EchoShift.Presentation
             Vector3 position = coordinator.ActiveSection != null
                 ? coordinator.ActiveSection.Player.transform.position
                 : transform.position;
-            feedbackPool.Emit(position + Vector3.up, settings.GetEchoColor(summary.ReplayGeneration), 1.2f);
-            feedbackPool.Emit(position + Vector3.up * 0.35f, Color.white, 0.72f, 0.24f);
+            feedbackPool.Emit(
+                position + Vector3.up,
+                WithAlpha(settings.GetEchoColor(summary.ReplayGeneration), 0.34f),
+                0.22f,
+                0.34f,
+                Phase4FeedbackEvent.EchoCreated);
+            feedbackPool.Emit(
+                position + Vector3.up * 0.35f,
+                WithAlpha(Color.white, 0.18f),
+                0.10f,
+                0.20f,
+                Phase4FeedbackEvent.LoopTransition);
             audioController.Play(Phase4AudioCue.LoopEnd, 0.72f);
             audioController.Play(Phase4AudioCue.EchoSpawn, 0.58f, 1.05f);
         }
 
         private void OnEchoRemoved(Vector3 position, int generation)
         {
-            feedbackPool.Emit(position + Vector3.up, settings.GetEchoColor(generation), 0.9f, 0.3f);
+            feedbackPool.Emit(
+                position + Vector3.up,
+                WithAlpha(settings.GetEchoColor(generation), 0.24f),
+                0.16f,
+                0.25f,
+                Phase4FeedbackEvent.EchoRemoved);
             EchoRemovalFeedbackCount++;
         }
 
@@ -133,13 +157,28 @@ namespace EchoShift.Presentation
             Vector3 position = actor != null ? actor.transform.position + Vector3.up : transform.position;
             if (!execution.Succeeded)
             {
-                feedbackPool.Emit(position, settings.DangerColor, 0.75f, 0.32f);
+                feedbackPool.Emit(
+                    position,
+                    WithAlpha(settings.DangerColor, 0.32f),
+                    0.15f,
+                    0.28f,
+                    Phase4FeedbackEvent.InteractionFailure);
                 audioController.Play(Phase4AudioCue.InteractionFailure, 0.55f);
                 actor?.GetComponent<Phase4ActorVisual>()?.PulseInteraction(false);
                 return;
             }
 
-            feedbackPool.Emit(position, Color.white, 0.65f, 0.3f);
+            Phase4FeedbackEvent feedbackEvent = Phase4FeedbackEvent.InteractionSuccess;
+            if (execution.Command.Kind == InteractionKind.PickupBattery)
+                feedbackEvent = Phase4FeedbackEvent.BatteryPickup;
+            else if (execution.Command.Kind == InteractionKind.InsertBattery)
+                feedbackEvent = Phase4FeedbackEvent.BatteryInsert;
+            feedbackPool.Emit(
+                position,
+                WithAlpha(Color.white, 0.20f),
+                0.12f,
+                0.24f,
+                feedbackEvent);
             audioController.Play(Phase4AudioCue.InteractionSuccess, 0.5f);
             if (execution.Command.Kind == InteractionKind.PickupBattery)
                 audioController.Play(Phase4AudioCue.BatteryPickup, 0.6f);
@@ -156,7 +195,14 @@ namespace EchoShift.Presentation
                 _goalFeedbackPlayed[sectionIndex]) return;
             _goalFeedbackPlayed[sectionIndex] = true;
             bool final = coordinator.ActiveSectionNumber >= sections.Length;
-            feedbackPool.Emit(actor.transform.position + Vector3.up, settings.GoalColor, 1.8f, 0.8f);
+            feedbackPool.Emit(
+                actor.transform.position + Vector3.up,
+                WithAlpha(settings.GoalColor, LargestCueAlpha),
+                LargestCueSize,
+                0.48f,
+                final
+                    ? Phase4FeedbackEvent.GameCompleted
+                    : Phase4FeedbackEvent.SectionCompleted);
             audioController.Play(
                 final ? Phase4AudioCue.GameComplete : Phase4AudioCue.SectionComplete,
                 final ? 0.9f : 0.75f);
@@ -179,6 +225,12 @@ namespace EchoShift.Presentation
                 offset += found.Length;
             }
             _doorStates = new bool[trackedDoors.Length];
+        }
+
+        private static Color WithAlpha(Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
         }
     }
 }

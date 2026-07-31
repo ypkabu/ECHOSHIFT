@@ -29,6 +29,8 @@ namespace EchoShift.Editor
         private const string PrefabRoot = "Assets/_Project/Prefabs/VFX";
         private const string VolumePath = ArtRoot + "/Phase4VolumeProfile.asset";
         private const string VfxPath = PrefabRoot + "/P4_Pulse.prefab";
+        public const string VfxMaterialPath = MaterialRoot + "/P4_SoftPulse.mat";
+        public const string VfxTexturePath = ArtRoot + "/VFX/P4_SoftParticle.asset";
         private static readonly Color[] EchoColors =
         {
             new Color(0.06f, 0.78f, 1f, 1f),
@@ -61,7 +63,9 @@ namespace EchoShift.Editor
 
             Sprite[] icons = BuildHudIcons();
             Phase4AudioCueSet cues = BuildAudioCues();
-            GameObject vfx = BuildVfxPrefab(plate);
+            Texture2D vfxTexture = BuildSoftParticleTexture();
+            Material vfxMaterial = BuildVfxMaterial(vfxTexture);
+            GameObject vfx = BuildVfxPrefab(vfxMaterial);
             VolumeProfile volume = BuildVolumeProfile();
             BuildRobotAnimatorController();
 
@@ -293,6 +297,72 @@ namespace EchoShift.Editor
             return material;
         }
 
+        private static Texture2D BuildSoftParticleTexture()
+        {
+            const int size = 64;
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(VfxTexturePath);
+            if (texture == null)
+            {
+                texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    name = "P4 Soft Particle",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Bilinear
+                };
+                AssetDatabase.CreateAsset(texture, VfxTexturePath);
+            }
+            else if (texture.width != size || texture.height != size)
+            {
+                texture.Reinitialize(size, size, TextureFormat.RGBA32, false);
+            }
+
+            Color32[] pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float nx = ((x + 0.5f) / size) * 2f - 1f;
+                float ny = ((y + 0.5f) / size) * 2f - 1f;
+                float radial = Mathf.Clamp01(1f - Mathf.Sqrt(nx * nx + ny * ny));
+                float alpha = radial * radial * (3f - 2f * radial);
+                pixels[y * size + x] = new Color32(
+                    255, 255, 255, (byte)Mathf.RoundToInt(alpha * 255f));
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, false);
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.filterMode = FilterMode.Bilinear;
+            EditorUtility.SetDirty(texture);
+            return texture;
+        }
+
+        private static Material BuildVfxMaterial(Texture2D texture)
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (shader == null)
+                throw new InvalidOperationException("URP Particles/Unlit shader is missing.");
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(VfxMaterialPath);
+            if (material == null)
+            {
+                material = new Material(shader) { name = "P4 Soft Pulse" };
+                AssetDatabase.CreateAsset(material, VfxMaterialPath);
+            }
+            material.shader = shader;
+            material.SetTexture("_BaseMap", texture);
+            material.SetColor("_BaseColor", Color.white);
+            material.SetFloat("_Surface", 1f);
+            material.SetFloat("_Blend", 2f);
+            material.SetFloat("_BlendModePreserveSpecular", 0f);
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            material.SetFloat("_DstBlend", (float)BlendMode.One);
+            material.SetFloat("_ZWrite", 0f);
+            material.SetFloat("_AlphaClip", 0f);
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.DisableKeyword("_ALPHATEST_ON");
+            material.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
         private static Sprite[] BuildHudIcons()
         {
             Sprite[] icons = new Sprite[Phase4VisualSettings.RequiredHudIcons];
@@ -407,17 +477,35 @@ namespace EchoShift.Editor
             GameObject root = new GameObject("P4 Pulse VFX");
             ParticleSystem particles = root.AddComponent<ParticleSystem>();
             ParticleSystem.MainModule main = particles.main;
-            main.playOnAwake = false; main.loop = false; main.duration = 0.8f;
-            main.startLifetime = 0.55f; main.startSpeed = 2.2f; main.startSize = 0.14f;
-            main.maxParticles = 32; main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.playOnAwake = false; main.loop = false; main.duration = 0.5f;
+            main.startLifetime = 0.38f; main.startSpeed = 0.8f; main.startSize = 0.1f;
+            main.maxParticles = 12; main.simulationSpace = ParticleSystemSimulationSpace.World;
             ParticleSystem.EmissionModule emission = particles.emission;
             emission.enabled = true;
             emission.rateOverTime = 0f;
-            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 18) });
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 8) });
             ParticleSystem.ShapeModule shape = particles.shape;
-            shape.shapeType = ParticleSystemShapeType.Sphere; shape.radius = 0.24f;
+            shape.shapeType = ParticleSystemShapeType.Sphere; shape.radius = 0.12f;
+            ParticleSystem.ColorOverLifetimeModule color = particles.colorOverLifetime;
+            color.enabled = true;
+            Gradient fade = new Gradient();
+            fade.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f),
+                    new GradientColorKey(Color.white, 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0f, 0f),
+                    new GradientAlphaKey(1f, 0.16f),
+                    new GradientAlphaKey(0f, 1f)
+                });
+            color.color = fade;
             ParticleSystemRenderer renderer = root.GetComponent<ParticleSystemRenderer>();
             renderer.sharedMaterial = material;
+            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            renderer.maxParticleSize = 0.08f;
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, VfxPath);
             Object.DestroyImmediate(root);
             return prefab;
@@ -440,7 +528,8 @@ namespace EchoShift.Editor
             Tonemapping tone = AddVolumeComponent<Tonemapping>(profile);
             tone.mode.Override(TonemappingMode.ACES);
             Bloom bloom = AddVolumeComponent<Bloom>(profile);
-            bloom.intensity.Override(0.3f); bloom.threshold.Override(1.2f); bloom.scatter.Override(0.48f);
+            bloom.intensity.Override(0.22f); bloom.threshold.Override(1.35f);
+            bloom.scatter.Override(0.42f);
             ColorAdjustments color = AddVolumeComponent<ColorAdjustments>(profile);
             color.postExposure.Override(0.35f); color.contrast.Override(2f); color.saturation.Override(-2f);
             Vignette vignette = AddVolumeComponent<Vignette>(profile);
@@ -460,7 +549,7 @@ namespace EchoShift.Editor
         private static void EnsureFolders()
         {
             Folder("Assets/_Project/Art", "Phase4");
-            Folder(ArtRoot, "Materials"); Folder(ArtRoot, "UI");
+            Folder(ArtRoot, "Materials"); Folder(ArtRoot, "UI"); Folder(ArtRoot, "VFX");
             Folder(ArtRoot, "Animation");
             Folder("Assets/_Project", "Audio"); Folder("Assets/_Project/Audio", "Phase4");
             Folder("Assets/_Project/Prefabs", "VFX");
