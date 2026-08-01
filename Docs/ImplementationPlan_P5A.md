@@ -77,3 +77,31 @@ Captureと`revised_audio_preview.wav`は`Captures/Phase5A/SelectedRevision/`へ�
 - P0～P3: 基準SHA-256一致、Production Scene／Gameplay Prefab差分0。
 - 生成対象: Project-ownedなSelected Revision Material／SVG／hash manifest／Preview Scene／Builder／testのみ。
 - 状態: 自動工程完了。Human Review待ち。本番P3への適用、tag作成、Phase 4 blocker変更は未実施。
+
+## Selected Revision 2 plan
+
+Revision 1は2026-08-02 JSTのHuman ReviewでFailとなった。HighはLogo、Echo Chamber、Decal、Section 3 Identityの4件、MediumはActor motif、Goal識別、Audio cue証跡の3件。Color Hierarchyと日本語UI CopyはPassとして固定し、別案比較へ戻さない。
+
+Revision 2は`Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision2.unity`、`Assets/_Project/Art/Phase5A/SelectedRevision2/`、`Captures/Phase5A/SelectedRevision2/`だけへ生成する。
+
+1. `ECHO//SHIFT`を全文字で残し、Oの外周だけを分割Seal化した背景非依存Wordmarkを作る。
+2. Chamberを床固定Base、Rear Support、厚い金属Outer Frame、内部Hologram Arc、支持されたCore、埋め込みIndicatorへ再構成する。
+3. Actorの突き出し記号を廃止し、Body surfaceへ密着したStrip／Seal／足元Segmentへ置換する。
+4. GoalをPlateより大きい床埋め込み二重Sealとし、Socket形状を持たせない。
+5. Decalを区画壁、Rack、機器角、装置側面、Door上、床へ用途別に分散し、巨大黒板を廃止する。
+6. MaintenanceはRack／charging slot／conduit／service unit、ObservationはChamber向きframe／monitor／3 indicator／consoleを設備単位で構成する。
+7. 8 cueの個別WAV、cue timing付きpreview、timelineを生成する。
+8. 11枚の1920×1080 D3D11 Captureとcontact sheetを生成し、Human Review項目は未判定のまま停止する。
+
+Production Scene、Gameplay Prefab、Stable ID、Collider、Replay、Text Catalog stable key、Phase 4 audio原本、ThirdParty原本、Windows crash証跡は変更しない。
+
+## Selected Revision 2 execution result
+
+- Revision 2 Builder: Unity `6000.4.6f1`／URP `17.4.0`／D3D11、exit code 0。
+- 生成: 1920×1080 PNG 11/11、contact sheet 1/1、個別WAV 8/8、10.000秒preview 1/1、timeline 1/1。
+- Audio: 個別cue 0.42～1.75秒、peak 0.80～0.84。Preview peak 0.86。clipping 0。
+- EditMode: 135/135 Pass。PlayMode: 130/130 Pass。
+- P3自動完走: Pass。最大Drift `0 m`。Interaction success 4／failure 0。
+- P0～P3: 基準SHA-256一致。Production Scene、Gameplay Prefab、Runtime、ThirdParty、Windows crash証跡のGit差分0。
+- Capture／Audio／Logs／TestResultsはgitignore対象、追跡ファイル0。
+- 状態: Revision 2自動工程完了。Human Visual／Audio Review待ち。本番適用とtag作成は未実施。

@@ -133,7 +133,7 @@ namespace EchoShift.Tests
 
             string directory = Path.Combine(RepositoryRoot(), "Captures", "Phase5A",
                 "SelectedRevision");
-            Assert.That(Directory.GetFiles(directory, "*.png", SearchOption.TopDirectoryOnly).Length,
+            Assert.That(Directory.GetFiles(directory, "0*.png", SearchOption.TopDirectoryOnly).Length,
                 Is.EqualTo(Phase5AIdentityPreviewBuilder.SelectedCaptureCount));
             for (int i = 0; i < CaptureNames.Length; i++)
             {

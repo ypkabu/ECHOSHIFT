@@ -58,4 +58,28 @@ PreviewはGameplay component、Collider、Rigidbody、Stable IDを持たず、�
 - Goalが太陽markではない。
 - Gameplay対象が明確で、無料Asset感が減っている。
 
-状態: **Selected Revision生成・自動検証完了／最終Human Review前／Production Scene未変更**。
+## Human Review result
+
+2026-08-02 JST、Revision 1 Human ReviewはFail。
+
+- High 4件: Logo、Echo Chamber、Decal、Section 3 Identity。
+- Medium 3件: Player／Echo motif、Goal識別、Audio cue証跡。
+- Pass: Color Hierarchy、日本語UI Copy、Audio技術仕様。
+- Production Application: 未開始。
+
+Revision 1は比較証跡として保持し、本番へ適用しない。次の判定対象は独立したRevision 2 Previewである。
+
+状態: **Selected Revision 1 Automation Passed／Human Review Failed／Production Scene未変更**。
+
+## Revision 2 handoff
+
+Revision 1のHigh 4件とMedium 3件を対象にした独立Revision 2 Previewを生成した。Color Hierarchyと日本語UI CopyのPass結果は維持し、Production Sceneへは適用していない。
+
+- Builder: exit code 0、D3D11、11 Capture、8個別cue。
+- EditMode: 135/135 Pass。
+- PlayMode: 130/130 Pass。
+- P3: 全Section完走、Drift `0 m`、Interaction success 4／failure 0。
+- P0～P3 hash: 基準値一致。Production Scene差分0。
+- Human Visual／Audio Review: 未判定。
+
+詳細とHuman判定項目は`Docs/Phase5ASelectedRevision2.md`へ分離した。

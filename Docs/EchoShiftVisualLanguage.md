@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 5A Human-selected direction。Selected Revisionの自動生成・回帰検証は完了したが、最終Human Review前であり、本番Sceneへは未適用。Option Cの静かな分割Sealを造形の基礎とし、Option Aの機能色・明瞭なCopy・Audioだけを用途別に統合する。Option Bは使用しない。
+Phase 5A Human-selected direction。Selected Revision 1はAutomation Passed／Human Review Failed。Revision 2のHuman Review前であり、本番Sceneへは未適用。Option Cの静かな分割Sealを造形の基礎とし、Option Aの機能色・明瞭なCopy・Audioだけを用途別に統合する。Option Bは使用しない。
 
 ## Canonical identity
 
@@ -29,6 +29,7 @@ Phase 5A Human-selected direction。Selected Revisionの自動生成・回帰検
 ## Logo system
 
 - `ECHO//SHIFT`の`O`へ分割Sealを統合する。
+- `O`の文字形を消さず、外周だけをSeal化する。`ECH + 記号 + SHIFT`と読ませない。
 - 横長版、正方形Icon版、単色版を持つ。
 - Echo Chamberや背景Assetなしで成立させる。
 - 小型表示では細線を減らし、欠け位置と3 Tickを残す。
@@ -37,6 +38,8 @@ Phase 5A Human-selected direction。Selected Revisionの自動生成・回帰検
 ## Echo Chamber
 
 構成はOuter Hex Seal、3層Inner Phase Arc、欠番Segment 1個、短いTick 3本、小型Core 1個だけとする。交差棒、垂下棒、均等な装飾突起、Actorを隠す前景部品、巨大矩形frameは禁止する。
+
+Outer Frameは暗い金属筐体としてBase PedestalとRear Supportへ物理接続する。浮遊可能なのはOuter Frame内のHologram Arcだけとし、Coreも支持構造を持たせる。
 
 状態はread-only visual responseとする。
 
@@ -74,6 +77,8 @@ Phase 5A Human-selected direction。Selected Revisionの自動生成・回帰検
 15. Missing index
 
 壁面へ密着させ、環境Materialへ馴染ませる。新品の純白、巨大な黒い浮遊看板、全面反復、同一Camera内3個以上の同一Decalは禁止する。
+
+異なる用途の文字を1枚の説明板へ集約しない。区画名、Rack名、検品Stamp、Serial、Sector、床矢印は対応する壁／機器／床面へ分離する。
 
 ## Section 3 functional asymmetry
 
@@ -116,3 +121,11 @@ Stable Text Keyを維持し、次の値を正式候補とする。
 ## Explicitly rejected
 
 Option B全体、Coral／Mint、Relay Chevron、軌跡線の床／壁反復、Option Aの大型黄色frameと黄色破片、太陽型Goal、Archive中心HUD語彙、同寸motifの全Object貼付、ランダム斜め壁、浮遊MAINTENANCE看板を使用しない。
+
+## Selected Revision 2 implementation record
+
+Revision 2 Previewでは、Canonical表記のO文字を残して外周Sealだけを重ねた。Chamberの金属Outer Frameは床BaseとRear Supportへ接続し、浮遊表現は内部Hologram Arcへ限定した。Actor motifは胸部／背面surfaceと床面segmentへ統合し、Goalは床埋め込みOuter Hex＋Inner 3 Segmentへ分離した。
+
+MaintenanceはBattery rack、charging slot、conduit、service unit、tool box、wall consoleで構成し、Observationはwindow frame、record monitor、3 indicator、console、meter、cable terminationで構成した。Decalは黒い背景板を持たず、対応する壁、rack、機器、Door、床へ直接配置した。
+
+これは自動構造検証済みのPreview仕様であり、Logoの一読性、Chamberの完成感、Actor motifの自然さ、Goal識別、Decalの馴染み、区画用途の伝達、Audio cueの識別はHuman Review pendingである。
