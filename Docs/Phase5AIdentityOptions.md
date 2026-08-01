@@ -2,7 +2,16 @@
 
 ## 状態
 
-Phase 5AはHuman選定前の比較工程である。Option A／B／Cはいずれも、既存のQuaternius／Kenney CC0原本、Project-owned primitive、既存FontだけからEditor Builderで生成した。画像生成AI、新規外部Asset、Gameplay変更は使用していない。本書は比較材料を提示するもので、採用案を決定しない。
+Phase 5AのHuman選定は2026-08-02 JSTに完了した。以下のA／B／C比較は選定に至った履歴として保持し、再比較や再選定には使用しない。正式方向はOption Cの造形を基礎とし、Option Aから既存機能色、明瞭な日本語Copy、上昇Phase Tick Audio方針だけを用途階層として統合する。Option Bは不採用である。
+
+選定結果:
+
+- 採用Shape: 分割六角Seal、欠けた記録環、欠番Segment、3層Phase Arc、短い3 Tick。
+- 採用Color hierarchy: Violet=施設Identity、Cyan=Current Player／記録、Amber=Battery／操作対象、Lime=成功のみ、Red=失敗／閉鎖のみ、White=中立情報。
+- 採用Copy／Audio: Option Aの明瞭さと上昇Phase Tickを基礎にする。
+- 不採用: Option B、Coral／Mint、Relay Chevron、軌跡線反復、Option Aの大型黄色frame／破片、太陽型Goal、Archive中心HUD語彙。
+- 次の成果物: `Captures/Phase5A/SelectedRevision/`の選定Revision 1案。
+- 状態: 最終Human Review前。本番P3 Scene未変更。
 
 共通の製品境界:
 

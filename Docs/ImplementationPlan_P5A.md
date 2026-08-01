@@ -2,7 +2,7 @@
 
 ## 目的
 
-Phase 4.3で合格したCamera、HUD可読性、Character pose、Battery carry、Door、床配線を固定したまま、既存のCC0素材とProject-owned primitiveを再構成し、ECHO SHIFT固有の視覚・文言・音の候補を三案提示する。Phase 5Aは選定前の比較工程であり、A／B／Cの勝者を自動決定しない。
+Phase 4.3で合格したCamera、HUD可読性、Character pose、Battery carry、Door、床配線を固定したまま、Human選定済みのECHO SHIFT固有Identityを独立Previewで確定する。Option Cの分割六角Sealを造形の基礎、Option Aの既存機能色・明瞭な日本語Copy・上昇Phase Tick Audioを機能層として統合する。Option Bは不採用であり、再比較しない。
 
 ## 固定境界
 
@@ -24,38 +24,46 @@ Phase 4.3で合格したCamera、HUD可読性、Character pose、Battery carry�
 - P2 SHA-256: `73EC41AA4B72E30BDFCD874E0DFA3BBC59C7F407519B3160A157C9380F08822C`
 - P3 SHA-256: `4ACA5F734DB1C754E7C237CA6EE819B30F8F50B53BB5C37298C31C92F36961E8`
 
-## 候補生成
+## Human選定済み方向
 
-各Optionは次の同一フォーマットを持つ。
+- Primary shape: 分割六角Seal。
+- Secondary shape: 欠けた円環。
+- Tertiary shape: 3本の短いPhase Tick。
+- Violetは施設Identity、CyanはCurrent Player／記録、AmberはBattery／操作対象、Limeは成功状態のみ、Redは失敗／閉鎖状態のみ、Whiteは文章／中立情報へ固定する。
+- LogoはOption Cのsealを基礎に、既存Canonical表記`ECHO//SHIFT`単体で成立する横長版、正方形Icon版、単色版を作る。
+- Echo ChamberはOuter Seal、3層Phase Arc、欠番Segment、3 Tick、小型Coreだけへ簡略化する。
+- Goalの太陽型markを廃止し、入口側が欠けた床面Sealへ置き換える。
+- EchoはViolet＋世代別Tick数／欠け位置、PlayerはCyan＋小型Seal、BatteryはAmber、DoorはNeutral＋状態色をPreview上で示す。
+- 15種の施設Decalを最大1024 atlasへまとめる。巨大看板、浮遊看板、ランダム斜め壁、全床への同一Seal反復は禁止する。
+- Section 3 Previewは左Maintenance Bay、右Observation Bay、中央Gameplay通路という用途差で非対称性を作る。
+- UIはStable Keyを変えず、明瞭な日本語候補だけを表示する。
+- AudioはOption A系の最大3音の上昇Phase Tickを基本とし、低い余韻はLoop／Section完了相当に限定する。
 
-- 固有motif、palette、logo lockup、monochrome mark、emissive variant。
-- Echo Chamber hero object。現段階ではPreview状態を明示し、採用後もLoop eventを読み取るだけのVisual hookとする。
-- 12種の1024px以下SVG decal atlas。環境運用表示は短い英語／section code、HUDは日本語を原則とする。
-- Section 3のGameplay座標を模した非Gameplay preview layout。asymmetry、密度階層、Goal焦点、保守／観察領域を比較する。
-- stable text keyを維持した短い日本語copy set。
-- Kenney CC0原音から生成した15秒以内のpreview WAV。原本を編集せず、pitch、EQ、reverse tail、layer、delayだけをOption別に適用する。
+不採用要素はOption B全体、Coral／Mint、Relay Chevron、軌跡線反復、Option Aの大型黄色frame／黄色破片、太陽型Goal、Archive中心HUD語彙である。
 
 ## Preview出力
 
-各Optionに次の5枚をD3D11相当のURP Editor render、1920×1080で出力する。
+選定Revision 1案だけをD3D11のURP Editor render、1920×1080で出力する。
 
-1. LogoとEcho Chamber
-2. Section 3 overview
-3. Player、Echo、固有motif
-4. Door、Battery、decal
-5. HUD copyとGoal
+1. Revised Logo
+2. Simplified Echo Chamber
+3. Player／Echo Color Hierarchy
+4. Door／Battery／Goal
+5. Section 3全景
+6. UI Copy
+7. Decal close-up
 
-Captureは`Captures/Phase5A/Options/{A|B|C}/`へ保存し、Git管理しない。Option source、Builder、SVG atlasはProject-owned assetとして追跡する。
+Captureと`revised_audio_preview.wav`は`Captures/Phase5A/SelectedRevision/`へ保存し、Git管理しない。生成元Builder、SVG logo／decal atlas、独立Preview SceneはProject-owned assetとして追跡する。本番P3 Sceneへ適用しない。
 
 ## 検証
 
-- Preview Builderをbatchmodeで実行し、15 PNGが1920×1080、3 WAVが15秒以内であることを確認する。
-- Optionごとに12 decal、5 capture、1 audio preview、logo／chamber／UI copyを検証する。
+- Selected Revision Builderをbatchmodeで実行し、7 PNGが1920×1080、1 WAVが15秒以内であることを確認する。
+- 15 decal、3 logo variant、簡略Chamber、Goal floor seal、color hierarchy、用途別Section 3 layout、UI copyを検証する。
 - Production SceneのGit diff 0とP0～P3 SHA-256一致を確認する。
 - Stable ID、Collider、Replay、P3自動完走、Drift 0.05m以内、Interaction失敗0の既存回帰を実行する。
 - Text Catalog、Kenney／Quaternius原本、Phase 4 tag、shutdown evidenceのdiff 0を確認する。
 - Capture、audio preview、Build、Log、Library、TestResultsが追跡対象外であることを確認する。
 
-## Human選定ゲート
+## 最終Human Reviewゲート
 
-自動工程はOptionの成立性と非侵襲性だけを確認する。Steam代表画像としての強さ、ES作品としての適切さ、借り物感の低減、過剰演出リスク、最終的なA／B／C選択はHuman Review対象である。選定まで製品Sceneへ適用せず、Phase 5 tagは作成しない。
+自動工程は選定仕様の成立、出力仕様、非侵襲性だけを確認する。Cの固有性、寄せ集め感の有無、Lime制限、Chamberの整理、Logo単体成立、Goal識別、無料Asset感の低減は最終Human Review対象である。承認まで製品Sceneへ適用せず、Phase 5 tagを作成しない。
