@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 5A Human-selected direction。最終Human Review前であり、本番Sceneへは未適用。Option Cの静かな分割Sealを造形の基礎とし、Option Aの機能色・明瞭なCopy・Audioだけを用途別に統合する。Option Bは使用しない。
+Phase 5A Human-selected direction。Selected Revisionの自動生成・回帰検証は完了したが、最終Human Review前であり、本番Sceneへは未適用。Option Cの静かな分割Sealを造形の基礎とし、Option Aの機能色・明瞭なCopy・Audioだけを用途別に統合する。Option Bは使用しない。
 
 ## Canonical identity
 

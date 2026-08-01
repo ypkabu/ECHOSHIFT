@@ -8,7 +8,7 @@
 
 ## Selected Revision deliverables
 
-本番Sceneへ反映する前に、独立Preview 1案を生成する。
+本番Sceneへ反映する前の独立Preview 1案をUnity `6000.4.6f1`、URP `17.4.0`、D3D11で生成した。
 
 - `01_revised_logo.png`
 - `02_simplified_echo_chamber.png`
@@ -20,6 +20,21 @@
 - `revised_audio_preview.wav`
 
 出力先は`Captures/Phase5A/SelectedRevision/`。Capture／WAVはGit管理しない。生成元SVG、Material、Builder、独立Preview Sceneだけを追跡する。
+
+Builder結果: `PHASE5A_SELECTED_REVISION_OK captures=7;decals=15;graphics=Direct3D11`、終了コード0、compiler warning／error 0。PNGは7/7が1920×1080。Audioは44.1 kHz／16-bit／mono、10.000秒、peak `0.8600`、SHA-256 `E3DB1D1DB95EEB4DC9BA88426F89A28036AA33B408BDE4DD171345AE5E27C834`。
+
+## Automated validation
+
+- EditMode全件: 129/129 Pass。
+- PlayMode全件: 130/130 Pass。
+- Selected Preview Scene内のCollider、Rigidbody、Stable ID、LoopDirector、CharacterMotor: 0件。
+- 15 Decal、3 Logo variant、7 Capture、1 Audio preview: 生成済み。
+- P0～P3 SHA-256: Phase 5A開始時の4値と一致。生成時hash manifestをProject-owned assetとして保持する。
+- Gameplay Prefab、Stable ID、Collider、Text Catalog stable key、Phase 4 audio原本、ThirdParty原本、Windows crash証跡: Git差分0。
+- Production Scene: Git差分0。EditMode内で既存Scene Builderテストが作る一時差分は検証後に基準HEADへ復元した。
+- Capture、WAV、Logs、TestResults、Library: Git追跡対象外。
+
+自動検証は出力数、解像度、構造、非侵襲性、既存回帰だけを保証する。Logoの記憶性、Cの固有性、寄せ集め感、Chamberの造形品質、Goal識別、無料Asset感の低減はHuman Reviewでのみ確定する。
 
 ## Frozen production scope
 
@@ -43,4 +58,4 @@ PreviewはGameplay component、Collider、Rigidbody、Stable IDを持たず、�
 - Goalが太陽markではない。
 - Gameplay対象が明確で、無料Asset感が減っている。
 
-状態: **最終Human Review前／Production Scene未変更**。
+状態: **Selected Revision生成・自動検証完了／最終Human Review前／Production Scene未変更**。

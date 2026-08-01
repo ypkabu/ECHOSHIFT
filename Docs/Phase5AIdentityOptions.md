@@ -10,8 +10,8 @@ Phase 5AのHuman選定は2026-08-02 JSTに完了した。以下のA／B／C比�
 - 採用Color hierarchy: Violet=施設Identity、Cyan=Current Player／記録、Amber=Battery／操作対象、Lime=成功のみ、Red=失敗／閉鎖のみ、White=中立情報。
 - 採用Copy／Audio: Option Aの明瞭さと上昇Phase Tickを基礎にする。
 - 不採用: Option B、Coral／Mint、Relay Chevron、軌跡線反復、Option Aの大型黄色frame／破片、太陽型Goal、Archive中心HUD語彙。
-- 次の成果物: `Captures/Phase5A/SelectedRevision/`の選定Revision 1案。
-- 状態: 最終Human Review前。本番P3 Scene未変更。
+- 選定成果物: `Captures/Phase5A/SelectedRevision/`へ7 PNGとAudio Previewを生成済み。
+- 状態: Selected Revision自動検証完了、最終Human Review前。本番P3 Scene未変更。
 
 共通の製品境界:
 

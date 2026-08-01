@@ -67,3 +67,13 @@ Captureと`revised_audio_preview.wav`は`Captures/Phase5A/SelectedRevision/`へ�
 ## 最終Human Reviewゲート
 
 自動工程は選定仕様の成立、出力仕様、非侵襲性だけを確認する。Cの固有性、寄せ集め感の有無、Lime制限、Chamberの整理、Logo単体成立、Goal識別、無料Asset感の低減は最終Human Review対象である。承認まで製品Sceneへ適用せず、Phase 5 tagを作成しない。
+
+## 実行結果
+
+- Selected Revision Builder: Unity `6000.4.6f1`／URP `17.4.0`／D3D11、exit code 0。
+- 出力: 1920×1080 PNG 7/7、10.000秒WAV 1/1、15 Decal atlas、Logo 3 variant。
+- EditMode: 129/129 Pass。
+- PlayMode: 130/130 Pass。
+- P0～P3: 基準SHA-256一致、Production Scene／Gameplay Prefab差分0。
+- 生成対象: Project-ownedなSelected Revision Material／SVG／hash manifest／Preview Scene／Builder／testのみ。
+- 状態: 自動工程完了。Human Review待ち。本番P3への適用、tag作成、Phase 4 blocker変更は未実施。

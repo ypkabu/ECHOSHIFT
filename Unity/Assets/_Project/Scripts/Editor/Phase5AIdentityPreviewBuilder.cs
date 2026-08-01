@@ -48,7 +48,7 @@ namespace EchoShift.Editor
         public string AudioTreatment { get; }
     }
 
-    public static class Phase5AIdentityPreviewBuilder
+    public static partial class Phase5AIdentityPreviewBuilder
     {
         public const int CaptureWidth = 1920;
         public const int CaptureHeight = 1080;
