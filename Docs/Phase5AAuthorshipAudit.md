@@ -1,7 +1,7 @@
 # Phase 5A Authorship Audit
 
-監査日: 2026-08-02 JST  
-対象: commit `4d0269ef50b9e03d2712fc95596c7e0bfb227529`のP3／Phase 4.3 presentation  
+監査日: 2026-08-02 JST
+対象: commit `4d0269ef50b9e03d2712fc95596c7e0bfb227529`のP3／Phase 4.3 presentation
 判定方法: Scene Builder、Prefab wrapper、Material、Text Catalog、Audio cue、Phase 4.3 Capture 8枚の読み取り。Visual／Gameplay実装は変更していない。
 
 ## 結論
@@ -25,7 +25,8 @@ Phase 4.3は可読性と機能説明には成功している。一方、床・�
 | Materials | `FacilityPanels`、`FacilityDark`、`FacilityTrim`、`PlayerAccent`、`PlateAccent`、`BatteryAccent`、`GoalAccent`、`Echo1/2/3`、`DangerAccent`、`FacilityGlass` | 全装置を同じ金属／emission作法で揃えているため、意図的な“手がかりの偏り”が少ない。 |
 | VFX | `P4_Pulse.prefab`／`P4_SoftPulse.mat`、`Phase 4 Feedback` pool、`Goal Vertical Particles` | 白飛びは修正済み。pulse／particleは汎用成功feedbackで、Echo固有の残像・欠落・位相差が弱い。 |
 | Audio | `Phase4AudioCueSet`: `laserSmall_000`、`lowFrequency_explosion_001`、`impactMetal_001`、`doorOpen_001`、`forceField_000`、`forceField_004` | Kenney原音の直接割当が多く、個々の効果は分かるがゲーム固有の短い音型へ統合されていない。 |
-| Text | `Phase3TextCatalog.asset`の`section1Name`～`quitConfirm` | 「セクション」「装置」「協力」「実験」など仕様説明語が多く、施設の作者性や時間テーマを示すvoiceが弱い。 |
+| Text | `Phase3TextCatalog.asset`の`section1Name`／`section2Name`／`section3Name`、`section1Objective`～`section3Objective`、`interactKeyboard`、`loopLabel`、`timeLabel`、`echoLabel`、`batteryCarried`、`gameCompleted`、`paused`、`restartSection`、`quit` | 「セクション」「装置」「協力」「実験」など仕様説明語が多く、施設の作者性や時間テーマを示すvoiceが弱い。stable text keyは変更せず、値だけを候補比較する。 |
+| Phase 4.3 captures | `01_player_idle.png`、`02_player_walk_turn.png`、`03_player_echo_pose.png`、`04_battery_carry_idle.png`、`05_battery_carry_walk.png`、`06_battery_insertion.png`、`07_split_door_open.png`、`08_two_echo_roles.png` | Character／Carry／Door／Wiringの可読性は合格。一方、8枚を横断する固有logo、Hero object、decal grammar、sonic identityはまだない。 |
 
 ## Severity findings
 
