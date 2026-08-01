@@ -1,16 +1,35 @@
 # Phase 4 Human Visual Acceptance
 
-**Status: Phase 4.3 static review passed; motion review pending; shutdown High open**
+**Status: Visual Human Review Passed; Release Validation Blocked by Unity native shutdown crash**
 
 The first primitive-led Phase 4 presentation was reviewed and rejected. Phase
 4.1 integrated curated external assets. Phase 4.2 corrected Camera, HUD, Pause,
 Actor identity, and capture framing; its Human Visual Review passed those goals
 but found one remaining High character-presentation issue plus three Medium
 device/presentation issues. Phase 4.3 implements the bounded Robot, Battery,
-floor-circuit, and Door corrections and passes automation. A human reviewer
-must now play `Builds/Phase4_3/ECHOSHIFT_Phase4_3.exe`, inspect
-`Captures/Phase4_3/`, and observe the recorded 30-second route in motion.
-Automation does not prove visual acceptance.
+floor-circuit, and Door corrections and passes automation. The final Phase 4
+Visual Human Review has accepted the bounded Phase 4.3 presentation. This
+visual acceptance does not satisfy release validation because graphical
+Windows Players still fail intermittently inside Unity native shutdown cleanup.
+
+## Final Visual Human Review record
+
+| Item | Final result |
+|---|---|
+| Visual Human Review | Passed |
+| Character presentation | Passed |
+| Battery size / Carry presentation | Passed |
+| Split Door presentation | Passed |
+| Floor wiring presentation | Passed |
+| Player / Echo identity and two-Echo roles | Passed |
+| Critical visual issues | 0 |
+| High visual issues | 0 |
+| Release Validation | **Blocked** |
+| Release blocker | Unity Windows native graphical shutdown crash |
+
+The detailed checklists below preserve the pre-final review history and fields
+that were not numerically recorded. They do not override this final visual
+decision.
 
 ## Test record
 
@@ -141,14 +160,13 @@ Use `Pass`, `Fail`, or `Not checked`; all entries intentionally remain
 
 ## Decision
 
-- Latest completed human review: Phase 4.3 static captures passed for Robot,
-  Battery, circuits, split Door, and two-Echo role readability
-- Phase 4.3 automated correction: passed
-- Foot sliding, Carry motion, insertion continuity, Door motion, VFX in motion,
-  and Japanese glyphs in motion: Not checked by a human
-- Visible Standalone normal exit: High open (`UnityPlayer.dll`,
+- Final Phase 4 Visual Human Review: Passed
+- Character / Carry / Door / Wiring: Passed
+- Critical / High visual findings: `0 / 0`
+- Visible Standalone normal exit: release blocker (`UnityPlayer.dll`,
   `0xC0000005`)
-- Final Phase 4 decision: blocked pending motion review and shutdown fix
+- Release Validation: Blocked by Unity Windows native shutdown crash
+- Final Phase 4 validation: Not complete
 - `phase4-validated` authorization: No
 
 ## Phase 4.3 static Human Visual Review result
@@ -174,17 +192,11 @@ It provides 39.626 s of measured Gameplay at normal time scale, twelve required
 scenes, and no Completed screen. Automated image analysis found no giant white
 particle mass; maximum whole-frame bright-luma occupancy is 2.00%.
 
-The following remain **Not checked by a human** until that video is reviewed:
+The final reviewer accepted the visual target after the static and motion
+evidence cycle. No further Character, Battery, Door, wiring, Camera, HUD,
+Animation, or Gameplay change is authorized by this document.
 
-- visible foot sliding in straight/diagonal/turn motion;
-- turn twisting and pose stability;
-- Echo Stopped motion readability;
-- Carry Walk hand/Battery/body intersections and floor clearance;
-- whether insertion looks continuous rather than instantaneous;
-- mechanical quality and occlusion during Door opening;
-- VFX and Japanese glyph quality in motion.
-
-An independent shutdown finding is open as **High**: visible Standalone exits
-with `0xC0000005` in `UnityPlayer.dll` after normal cleanup in all tested
-recording and non-recording Quit conditions. Human motion review may proceed,
-but Phase 4 cannot be marked Validated while this High remains.
+An independent release blocker remains: graphical Windows Standalone exits can
+end with `0xC0000005` in `UnityPlayer.dll` native cleanup. This is not counted as
+a visual Critical/High issue, but Phase 4 cannot be marked Validated while the
+release shutdown gate is blocked.

@@ -1,0 +1,14 @@
+# Generated Unity state and staged test evidence
+MinimalRepro/Library/
+MinimalRepro/Temp/
+MinimalRepro/Obj/
+MinimalRepro/Logs/
+MinimalRepro/UserSettings/
+MinimalRepro/Builds/
+Working/
+Evidence/Dumps/
+Evidence/RawLogs/
+Evidence/CrashArchives/
+*.dmp
+*.pdb
+*.ilk
