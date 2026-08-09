@@ -246,11 +246,11 @@ Accepted results on 2026-07-23:
   `PHASE4_3_BUILD_OK`, warning/error `0/0`, 291 files, no matching
   Compiler/Missing/Null/unhandled final-log entry.
 - Captures, Builds, Logs, TestResults, and Unity Library remain ignored with
-  zero tracked files. Human review is still required for foot sliding, pose
+  zero tracked files. Manual visual review is still required for foot sliding, pose
   naturalness, Battery hand placement, Door motion, circuit readability, and
   representative-image quality.
 
-## Phase 4.3 VFX and Human Review video gate
+## VFX and manual video review
 
 Final follow-up results on 2026-07-31:
 

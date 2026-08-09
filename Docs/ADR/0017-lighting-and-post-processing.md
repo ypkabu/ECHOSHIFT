@@ -28,4 +28,4 @@ Automated screenshots and safe-range tests cannot judge subjective exposure, bla
 
 ## Replacement conditions
 
-Human review or target-hardware profiling may tune values within the documented language. Any new Volume override, shadowed light, lightmap, or renderer feature requires three-resolution screenshots, performance capture, and P0-P3 regression.
+Manual visual review or target-hardware profiling may tune values within the documented language. Any new Volume override, shadowed light, lightmap, or renderer feature requires three-resolution screenshots, performance capture, and P0-P3 regression.

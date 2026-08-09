@@ -23,7 +23,7 @@ Adopt an austere near-future temporal research facility using a small generated 
 
 ## Current limitations
 
-Generated primitives do not provide final topology, UVs, authored textures, decals, or production character animation. Human review must decide whether the slice is portfolio-usable.
+Generated primitives do not provide final topology, UVs, authored textures, decals, or production character animation. Manual visual review must decide whether the slice is portfolio-usable.
 
 ## Replacement conditions
 
