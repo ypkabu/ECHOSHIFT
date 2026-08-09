@@ -17,7 +17,7 @@
 - Tag created: **No**
 - State: **REVISION 2.1 PRODUCTION APPLICATION PASSED／FORMAL VALIDATION NOT STARTED**
 
-Automationは生成再現性、構造、寸法、色用途、回帰、安全境界だけを確認した。主観判定は`Docs/Phase5ARevision21HumanReview.md`へ分離し、Visualは`PASS WITH P2 POLISH`、Audioは人間による実聴で`PASS`に確定した。Production Application、Formal Validation、tag作成は本工程に含めない。
+Automationは生成再現性、構造、寸法、色用途、回帰、安全境界だけを確認した。Visualは`PASS WITH P2 POLISH`、Audioは人間による実聴で`PASS`に確定した。Production Application、Formal Validation、tag作成は本工程に含めない。
 
 ## P1 Finding Resolution
 
@@ -165,7 +165,6 @@ EditModeの初回は4倍sample幅のテスト期待値を`819`と誤記したた
 - Visual P0／P1: **0／0**。
 - Audio: **PASS**。人間の実聴でEcho Spawn 03とSection Completeを音だけで識別でき、小音量でも差が成立した。
 - Human Listening Required: **CLOSED**。
-- 詳細: `Docs/Phase5ARevision21HumanReview.md`。
 
 ## Final Recommendation
 

@@ -71,7 +71,7 @@ are inside the configured viewport margin, and the output validation marker is
 The final visual inspection found no clipped required Actor. The identity shot
 was regenerated after moving its capture tick from 20 to 40 so Player and Echo
 read as separate Actors; the two-role shot was reframed closer to reduce black
-background. These are automation/codex checks, not the pending human verdict.
+background. These are automated checks, not the pending human verdict.
 
 ## Performance
 
