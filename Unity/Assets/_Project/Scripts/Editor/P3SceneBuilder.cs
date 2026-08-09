@@ -47,11 +47,22 @@ namespace EchoShift.Editor
         public static void BuildFromCommandLine()
         {
             BuildScene();
-            Debug.Log($"Phase 3 scene generated at {ScenePath}.");
+            Debug.Log($"Phase 3 scene validated or generated at {ScenePath}.");
         }
 
         public static void BuildScene()
         {
+            if (Phase5AIdentityPreviewBuilder.IsApprovedProductionSerializationCanonical(
+                    out string canonicalStatus))
+            {
+                Scene active = SceneManager.GetActiveScene();
+                if (SceneManager.sceneCount != 1 || active.path != ScenePath)
+                    EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+                Debug.Log($"PHASE5A_PRODUCTION_CANONICAL_OK {canonicalStatus};writeCount=0");
+                return;
+            }
+
+            Debug.Log($"PHASE5A_PRODUCTION_REBUILD_REQUIRED {canonicalStatus}");
             EnsureFolders();
             int playerLayer = RequireLayer("Player");
             int environmentLayer = RequireLayer("Environment");

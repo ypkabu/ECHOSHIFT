@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using EchoShift.Gameplay;
 using EchoShift.Interaction;
 using EchoShift.Presentation;
@@ -20,6 +21,23 @@ namespace EchoShift.Editor
             ProductionAudioRoot + "/Phase5AAudioCueSet.asset";
         public const string ProductionIdentityRootName = "Phase 5A Approved Identity";
 
+        private static readonly KeyValuePair<string, string>[]
+            ApprovedProductionSerializationHashes =
+            {
+                new KeyValuePair<string, string>(
+                    Phase4AssetBuilder.RobotAnimatorControllerPath,
+                    "EE885A3CE1AA515DC6C1EE40AEE629DA4E51CA9822C982A2D5335639E30D8C92"),
+                new KeyValuePair<string, string>(
+                    "Assets/_Project/Art/Phase4/Phase4VolumeProfile.asset",
+                    "D85DF4E9C7C20D6FADC2DB06899D4B6437E79EEF4BB9B65922257485B51C19C3"),
+                new KeyValuePair<string, string>(
+                    "Assets/_Project/Prefabs/Actors/P3_Echo.prefab",
+                    "0FBB217DCA6A1D6132F17F1F4B512A83124A5C33D47D2F492A4BC08820903B52"),
+                new KeyValuePair<string, string>(
+                    P3SceneBuilder.ScenePath,
+                    "A1887A182ECD17E4E1712E2926765230DCB9D1F6DF9B71D748EBDE49A086B854")
+            };
+
         private static readonly string[] ApprovedCueFiles =
         {
             "echo_spawn_01.wav", "echo_spawn_02.wav", "echo_spawn_03.wav",
@@ -38,6 +56,42 @@ namespace EchoShift.Editor
         };
 
         public static IReadOnlyList<string> ProductionCaptures => ProductionCaptureNames;
+
+        public static IReadOnlyList<KeyValuePair<string, string>>
+            CanonicalProductionSerializationHashes => ApprovedProductionSerializationHashes;
+
+        public static bool IsApprovedProductionSerializationCanonical(out string status)
+        {
+            for (int i = 0; i < ApprovedProductionSerializationHashes.Length; i++)
+            {
+                KeyValuePair<string, string> expected =
+                    ApprovedProductionSerializationHashes[i];
+                string absolute = Path.GetFullPath(Path.Combine(
+                    Application.dataPath, "..", expected.Key));
+                if (!File.Exists(absolute))
+                {
+                    status = $"missing={expected.Key}";
+                    return false;
+                }
+
+                string actual;
+                using (SHA256 sha = SHA256.Create())
+                {
+                    actual = BitConverter.ToString(
+                            sha.ComputeHash(File.ReadAllBytes(absolute)))
+                        .Replace("-", string.Empty);
+                }
+                if (!string.Equals(actual, expected.Value,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    status = $"mismatch={expected.Key};expected={expected.Value};actual={actual}";
+                    return false;
+                }
+            }
+
+            status = $"assets={ApprovedProductionSerializationHashes.Length}";
+            return true;
+        }
 
         public static void ApplyApprovedRevision21ToProduction(
             PuzzleSectionController[] sections, Transform systems,

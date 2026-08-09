@@ -171,3 +171,15 @@ Human Review確定commit `156b28dd7f461928c88cacdad3d6ad6985240185`を基準に�
 - Production Capture: D3D11／1920×1080 PNG **9/9**。
 - Unexpected差分: `0`。ThirdParty、Project Settings、Packages、Gameplay rulesは変更なし。
 - 状態: **Production Application Passed／Ready for Phase 5A Formal Validation**。Formal Validationとtag作成は未実施。
+
+## Production Builder determinism fix plan
+
+Formal Validation commit `3ed79071cd8615cf4802054fc98424098f49534c`では、承認済みProduction状態から`P3SceneBuilder`を再実行した際にRobot Controller、Volume Profile、P3 Echo Prefab、P3 Sceneのtracked YAMLが再serializeされるため、Builder determinism／idempotenceだけがFailとなった。Visual、Audio、Gameplay、ThirdParty、Packages、Project Settingsは固定する。
+
+1. 修正前に独立Unity processで3回再現し、4ファイルのexact hashとYAML差分を保存する。
+2. fileIDとYAML document順を正規化した内容を比較し、semantic changeとserialization-only changeを分離する。
+3. 承認済み4ファイルのexact serialized hashをEditor-only canonical stateとして検証する。全件一致時はPhase 4／P3の破壊的再生成経路へ入らず、assetをload、dirty、saveしない。
+4. canonical stateでBuilderを3回呼んでも4ファイルがbyte-identicalであるEditMode回帰テストを追加する。
+5. 独立batchmode processを最低3回起動し、各回exit code 0、Production asset diff 0、hash不変を確認する。
+6. EditMode／PlayMode全件、P3自動完走、Drift、Interaction、compiler／Missing／NullReference／Unhandledを再検証する。
+7. Production Visual、8 Audio cue、Runtime、ThirdParty、Packages、Project Settingsの差分0を監査し、Builder infrastructure、test、文書だけをcommitする。tagは作成せず、Formal Validationの判定は更新しない。

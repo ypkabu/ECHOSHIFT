@@ -177,6 +177,28 @@ namespace EchoShift.Tests
                     Is.EqualTo(ProtectedSceneHashes[i].Value), ProtectedSceneHashes[i].Key);
         }
 
+        [Test]
+        public void ProductionCommandLineBuilderIsByteStableForThreeConsecutiveRuns()
+        {
+            Assert.That(
+                Phase5AIdentityPreviewBuilder.IsApprovedProductionSerializationCanonical(
+                    out string status),
+                Is.True, status);
+            IReadOnlyList<KeyValuePair<string, string>> expected =
+                Phase5AIdentityPreviewBuilder.CanonicalProductionSerializationHashes;
+            string[] before = SnapshotHashes(expected);
+
+            for (int run = 0; run < 3; run++)
+            {
+                P3SceneBuilder.BuildFromCommandLine();
+                string[] after = SnapshotHashes(expected);
+                Assert.That(after, Is.EqualTo(before), $"Builder run {run + 1} changed YAML bytes.");
+                Assert.That(
+                    Phase5AIdentityPreviewBuilder.IsApprovedProductionSerializationCanonical(
+                        out status), Is.True, $"Builder run {run + 1}: {status}");
+            }
+        }
+
         private static void AssertApprovedMotif(Transform model)
         {
             Assert.That(model, Is.Not.Null);
@@ -237,6 +259,14 @@ namespace EchoShift.Tests
             using SHA256 sha = SHA256.Create();
             return BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(absolute)))
                 .Replace("-", string.Empty);
+        }
+
+        private static string[] SnapshotHashes(
+            IReadOnlyList<KeyValuePair<string, string>> assets)
+        {
+            string[] hashes = new string[assets.Count];
+            for (int i = 0; i < assets.Count; i++) hashes[i] = Hash(assets[i].Key);
+            return hashes;
         }
 
         private static KeyValuePair<string, string> Pair(string key, string value) =>
