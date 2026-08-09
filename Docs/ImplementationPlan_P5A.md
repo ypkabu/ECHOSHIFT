@@ -183,3 +183,18 @@ Formal Validation commit `3ed79071cd8615cf4802054fc98424098f49534c`では、承�
 5. 独立batchmode processを最低3回起動し、各回exit code 0、Production asset diff 0、hash不変を確認する。
 6. EditMode／PlayMode全件、P3自動完走、Drift、Interaction、compiler／Missing／NullReference／Unhandledを再検証する。
 7. Production Visual、8 Audio cue、Runtime、ThirdParty、Packages、Project Settingsの差分0を監査し、Builder infrastructure、test、文書だけをcommitする。tagは作成せず、Formal Validationの判定は更新しない。
+
+## Formal Revalidation execution result
+
+- Validation start HEAD: `35bc519acd25fa010756c19a5daf4e0ff1ce6a62`。
+- Gate 4監査でcanonical mismatch後にlegacy rebuildへ進む経路を発見し、isolated temporary fixture testを追加した。Production assetが一部でも存在するmismatch／partial-missingはwrite前にfail-closedする修正を`d471010a76f6de14bce42d13c136307b8a6403d3`へ分離した。
+- Final tested HEAD: `d471010a76f6de14bce42d13c136307b8a6403d3`。
+- Builder: same-process 3/3、cross-process 3/3でexit／test Pass、Production diff `0`、approved 4 hash一致、`writeCount=0`。
+- EditMode: **151/151 Pass**。PlayMode: **131/131 Pass**。
+- P3: 全Section完走、Interaction success `4`／failure `0`、maximum Drift `0 m`。
+- Fresh Production Capture: D3D11／1920×1080、9/9生成・構成確認。
+- Scene hash: P0～P3 approved hash一致。Audio: 8/8 approved hashとrouting一致。
+- compiler warning／error、Missing、NullReference、Unhandled、Assertion、AudioListener、serialization error: `0`。
+- Runtime、Scene、Prefab、Audio、ThirdParty、Packages、Project Settings unexpected diff: `0`。Generated tracking: `0`。
+- Human Review: P0 `0`、P1 `0`を維持。承認済みP2 4件だけを残す。
+- Formal Revalidation: **PASS**。初回FAIL記録は`Docs/Phase5AFormalValidation.md`へ保持する。状態は`READY TO CREATE PHASE 5A VALIDATED TAG`だが、本工程ではtagを作成しない。
