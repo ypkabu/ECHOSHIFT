@@ -19,7 +19,7 @@
 | Feature branches | milestoneと調査scopeを分離し、validated baselineを保持 | `feature/phase1-*`〜`feature/phase5a-*` |
 | Small-purpose commits | implementation、fix、test、docs、performanceを履歴上で分離 | commit prefix counts and log |
 | Fast-forward integration | validated Phase 1〜3を履歴を増やさず`main`へ統合 | `Docs/Phase2Validation.md`, `Docs/Phase3Validation.md` |
-| Tags | automation passとhuman/formal validationを区別 | `phase3-automation-passed`, `phase3-validated`, Phase 4 automation tags |
+| Tags | automation passとプレイテスト受入/formal validationを区別 | `phase3-automation-passed`, `phase3-validated`, Phase 4 automation tags |
 | `git status` / `git diff` / hashes | Builder/test side effect、unexpected Scene/Prefab changes、generated output追跡を監査 | Phase 4/5A validation docs |
 | Isolated fix commits | failure evidence、root-cause fix、安全追加、revalidationを分離 | `3ed7907`, `35bc519`, `d471010`, `1245b8a` |
 
@@ -42,7 +42,7 @@
 Gitは単なるbackupではなく、次の判断境界として使用した。
 
 - Phaseごとの仕様scopeとvalidated baselineを固定する。
-- Human Review前のautomation tagと正式validated tagを区別する。
+- プレイテスト受入前のautomation tagと正式validated tagを区別する。
 - failure evidenceを消さず、fixと再検証を別commitに残す。
 - Scene Builder再実行がProduction YAMLを意図せず変更していないか、hashとdiffで検出する。
 - Captures、Builds、Logs、TestResults、Libraryをreproducible generated evidenceとして追跡対象外にする。
@@ -52,11 +52,11 @@ Gitは単なるbackupではなく、次の判断境界として使用した。
 
 - 共同branch、Pull Request、review comment、conflict resolution、CI server、remote release運用は未経験として扱う。
 - Phase 3以降は応募公開時にPull Requestで`main`へ統合する。既存commitとvalidated/automation tagは履歴rewriteせず維持する。
-- commit authorは1名で、Codex-assisted changesを含む。commit数だけを手作業量の証明には使わない。
+- commit authorは1名であり、commit数だけを共同開発経験の証明には使わない。
 
 ## Interview points
 
-1. なぜautomation passとhuman/formal validationを別tagにしたか。
+1. なぜautomation passとプレイテスト受入/formal validationを別tagにしたか。
 2. なぜ最初のFormal Validation FAILを削除せず、fixとrevalidationを分けたか。
 3. Unity Scene YAMLのbyte差分とsemantic差分をどう切り分けたか。
 4. generated XML/logをcommitせず、再現commandとstable result summaryを残した理由。

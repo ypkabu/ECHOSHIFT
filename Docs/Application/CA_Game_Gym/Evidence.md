@@ -11,8 +11,8 @@
 | Unity経験 | Unity 6 URPでPlayer、Echo、Replay、Physics、Interaction、Carry、Door、Goal、Camera、HUD、Pause、Tutorial、Audio/VFX、Scene lifecycle、Input System、Editor Builderを実装・検証 | `Unity/Assets/_Project/Scripts/`, `Docs/Architecture.md`, `5c87e8b`, `d0e0fe5`, `ef053f9` |
 | Git経験 | 53 commits、milestone別feature branch、目的別commit、fast-forward integration、automation/validated tag分離、diff/hash audit | `Docs/Application/CA_Game_Gym/GitExperience.md`, `Docs/Phase3Validation.md`, Git log |
 | ゲームクライアント志望との関連 | 入力からfixed-tick simulation、Physics、Replay、device state、Camera/UI、feedback、buildまでclient runtimeの一連を扱う | `Docs/Architecture.md`, `Unity/Assets/_Project/Scripts/Runtime/` |
-| 課題解決 | Carry lifecycle、Human Review由来のBuilder修正、Production Builder determinism、安全なmismatch rejectionを原因から修正し回帰testを追加 | `Docs/Phase1Validation.md`, `Docs/Phase4FloatingVisualAudit.md`, `Docs/Phase5ABuilderDeterminismFix.md` |
-| 主体性 | milestone plan、ADR、Human ReviewのP0/P1/P2管理、失敗記録保持、全Gate再実行、未解決shutdown defectのboundary確定 | `Docs/ImplementationPlan_*.md`, `Docs/ADR/`, `Docs/Phase5AFormalValidation.md`, `Docs/Phase4WindowsExitCrashInvestigation.md` |
+| 課題解決 | Carry lifecycle、プレイテストで発見したBuilder問題、Production Builder determinism、安全なmismatch rejectionを原因から修正し回帰testを追加 | `Docs/Phase1Validation.md`, `Docs/Phase4FloatingVisualAudit.md`, `Docs/Phase5ABuilderDeterminismFix.md` |
+| 主体性 | milestone plan、ADR、プレイテスト指摘のP0/P1/P2管理、失敗記録保持、全Gate再実行、未解決shutdown defectのboundary確定 | `Docs/ImplementationPlan_*.md`, `Docs/ADR/`, `Docs/Phase5AFormalValidation.md`, `Docs/Phase4WindowsExitCrashInvestigation.md` |
 | チーム開発への適性 | Runtime/Editor/Test assembly分離、ADR、再現command、small-purpose commits、fail-closed validation、license/provenance記録 | `Docs/Architecture.md`, `Docs/TestPlan.md`, `Docs/ADR/`, `Docs/ThirdPartyAssets.md` |
 
 ## Unity implementation inventory
@@ -45,7 +45,7 @@
 | Replay Drift | maximum `0 m` (`<= 0.05 m`) |
 | Interaction | `4` success / `0` failure |
 | Error audit | compiler warning/error, Missing, NullReference, Unhandled: all `0` |
-| Human review | Phase 3 gameplay acceptance Pass; Phase 4 visual target Pass; Phase 5A visual/audio P0=0, P1=0 |
+| Playtest / presentation check | Phase 3 gameplay acceptance Pass; Phase 4 visual target Pass; Phase 5A visual/audio P0=0, P1=0 |
 | Repository hygiene | generated artifacts tracked 0; credential/private path findings 0; license blockers 0 |
 
 ## Problem-solving evidence
@@ -74,12 +74,12 @@
 - Verification: same-process/cross-process各3 runでdiff 0、isolated mismatch rejection、151/151・131/131再検証。
 - Evidence: `Docs/Phase5ABuilderDeterminismFix.md`, `35bc519`, `d471010`, `1245b8a`。
 
-### 4. Camera/HUD readability after Human Review
+### 4. Camera/HUD readability after playtesting
 
 - Problem: Actor切れ、大きなHUD、Player/Echo識別不足。
 - Cause: player-only framing、persistent objective/prompt、color中心のidentity。
 - Decision: section bounds/look-ahead/group zoom、compact transient HUD、silhouette/marker generation差。
-- Verification: five aspect/resolution camera/HUD tests、two-Echo projection tests、new captures、Human Review Pass。
+- Verification: five aspect/resolution camera/HUD tests、two-Echo projection tests、new captures、画面確認Pass。
 - Evidence: `Docs/Phase4PresentationReadabilityValidation.md`, `910956a`, `e92736e`, `2757044`。
 
 ### 5. Windows graphical shutdown crash boundary

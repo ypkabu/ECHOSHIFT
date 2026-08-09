@@ -7,7 +7,7 @@ CA Game Gymの書類選考で、ECHO//SHIFTを根拠にUnity経験、Git経験�
 ## Scope
 
 1. 公式募集要項とcurrent repository evidenceを照合する。
-2. READMEを作品、技術、検証、AI-assisted development、既知制約が30秒で読める構成へ更新する。
+2. READMEを作品、技術、検証、既知制約が30秒で読める構成へ更新する。
 3. Git経験、応募文案、evidence matrix、recruiter reviewを作成する。
 4. 代表画像を生成済みProduction Captureから選び、追跡可能な応募用Mediaとして保存する。
 5. Markdown link、Git diff、privacy、credential、license、generated artifactを監査する。
@@ -24,8 +24,8 @@ CA Game Gymの書類選考で、ECHO//SHIFTを根拠にUnity経験、Git経験�
 
 - 開発期間、commit数、branch、tagはGitから取得する。
 - test数、drift、interaction結果はfresh XML/logまたはFormal Revalidationから取得する。
-- Human Reviewとautomationを混同しない。
-- AI/Codex支援を明記し、本人の具体的な担当範囲を推測しない。
+- プレイテストとautomationを混同しない。
+- 制作者の設計判断、実装、検証についてrepositoryで確認できる事実だけを記載する。
 - 学籍、卒業年、参加可否、所有PC、公開URLは本人未確認として残す。
 
 ## Completion gate
