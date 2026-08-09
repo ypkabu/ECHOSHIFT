@@ -11,13 +11,13 @@
 ## Final Status
 
 - Revision 2.1 Automation: **Passed**
-- Ready for Human Review: **Yes**
+- Human Review: **PASS WITH P2 POLISH — PRODUCTION CANDIDATE**
 - Production Application allowed: **No**
 - Phase 5A Formal Validation started: **No**
 - Tag created: **No**
-- State: **READY FOR REVISION 2.1 HUMAN REVIEW**
+- State: **REVISION 2.1 HUMAN REVIEW FINALIZED／PRODUCTION APPLICATION NOT STARTED**
 
-Automationは生成再現性、構造、寸法、色用途、回帰、安全境界だけを確認する。Actor silhouette、Goalの一秒認識、Logo perception、Chamber／Observation hierarchy、Audioイベント識別はHuman Review未判定であり、本書ではPassにしない。
+Automationは生成再現性、構造、寸法、色用途、回帰、安全境界だけを確認した。主観判定は`Docs/Phase5ARevision21HumanReview.md`へ分離し、Visualは`PASS WITH P2 POLISH`、Audioは人間による実聴で`PASS`に確定した。Production Application、Formal Validation、tag作成は本工程に含めない。
 
 ## P1 Finding Resolution
 
@@ -42,7 +42,7 @@ Automationは生成再現性、構造、寸法、色用途、回帰、安全境�
 - Automated check: Locked配下Lime 0、Unlocked配下Lime 4以上、外周signal幅、Neutral registration markを検証した。
 - Evidence: `07_goal_locked.png`、`08_goal_unlocked.png`、`13_gameplay_goal_readability.png`。
 - Automation status: **Passed**。
-- Gameplay recognition status: **Pending Human Review**。
+- Gameplay recognition status: **Passed Human Review／P1 Closed**。
 
 ### P1-03 64px Logo Evidence
 
@@ -54,7 +54,7 @@ Automationは生成再現性、構造、寸法、色用途、回帰、安全境�
 - Automated check: 64×64 Icon、64px高wordmark、4倍wordmarkの厳密寸法、300px超の分離、label、Capture解像度を検証した。
 - Evidence: `03_logo_actual_64px_comparison.png`。
 - Automation status: **Passed**。
-- O／Sealの知覚可読性: **Pending Human Review**。
+- O／Sealの知覚可読性: **Passed Human Review with P2 spacing polish／P1 Closed**。
 
 ## P2 Changes
 
@@ -97,7 +97,7 @@ Automationは生成再現性、構造、寸法、色用途、回帰、安全境�
 | `section_complete.wav` | 1.950s | 0.8400 | 0 | `3A0317258FCE13ED0F4BF59F08D32156E3D73EFAAD9B172417082C78B8504B7D` |
 | `spawn03_section_complete_comparison.wav` | 5.000s | 0.8400 | 0 | `7CA50C14D55BF66FA1ED6666779BD2F12C534CBAA7037E70CC1AE805AB84A814` |
 
-Comparisonでは`echo_spawn_03`を0.35秒、`section_complete`を2.25秒から再生する。duration／peak／clippingと終端構造は自動確認済み。実際に別イベントとして聞き分けられるかはHuman Audio Review未判定。
+Comparisonでは`echo_spawn_03`を0.35秒、`section_complete`を2.25秒から再生する。duration／peak／clippingと終端構造は自動確認済み。後続のHuman Audio Reviewでは、人間の実聴により両eventを音だけで識別でき、Section Completeの上位event感と小音量での差も成立すると確認された。
 
 ## Preview Evidence
 
@@ -157,19 +157,20 @@ EditModeの初回は4倍sample幅のテスト期待値を`819`と誤記したた
 - `phase5a-authorship-validated`: 未作成。
 - `phase4-validated`: 存在しない。
 
-## Remaining Human Review Items
+## Human Review Closure
 
-- Actor motifがGameplay Camera距離でRobot surfaceの一部に見え、Debug marker／antennaに見えないか。
-- Cyan Player／Violet Echoの識別性とRobot silhouetteが維持されているか。
-- Locked GoalをLimeなしで一秒以内にGoalとして発見できるか。
-- Locked → UnlockedのLime変化が即座に読め、Limeが装飾色へ退化していないか。
-- Actual 64px sampleでOとSealが読め、独立badgeとして先に見えないか。
-- ChamberのOuter Frame／Arc／Coreの階層とisometric supportが明確か。
-- Observationが文字なしでもMonitoring用途へ近づいたか。
-- `section_complete`と`echo_spawn_03`を短いGameplay contextで聞き分けられるか。
+- Actor motif: **CLOSED**。
+- Goal readability: **CLOSED**。LockedのLimeは0、UnlockedのLime ruleも維持。
+- 64px Logo: **CLOSED**。軽度のspacing／badge感だけをP2へ残す。
+- Visual P0／P1: **0／0**。
+- Audio: **PASS**。人間の実聴でEcho Spawn 03とSection Completeを音だけで識別でき、小音量でも差が成立した。
+- Human Listening Required: **CLOSED**。
+- 詳細: `Docs/Phase5ARevision21HumanReview.md`。
 
 ## Final Recommendation
 
-**READY FOR REVISION 2.1 HUMAN REVIEW**
+**PASS WITH P2 POLISH — PRODUCTION CANDIDATE**
 
-Production Application、Phase 5A正式Validation、tag作成には進まない。
+`Revision 2.2 is not required before Production Application.`
+
+Production Application、Phase 5A正式Validation、tag作成は未実施。

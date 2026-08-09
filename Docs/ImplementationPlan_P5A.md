@@ -133,4 +133,6 @@ Revision 2.1は`Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision21.unity`
 - compiler warning／error、Missing Script／Reference、NullReferenceException、Unhandled Exception: 0。
 - P0～P3: 基準SHA-256一致。Production Scene、Gameplay Prefab、Runtime、ThirdParty、Windows crash証跡のGit差分0。
 - Capture／Audio／Logs／TestResults／Libraryはgitignore対象、追跡ファイル0。
-- 状態: **Revision 2.1 Automation Passed／READY FOR REVISION 2.1 HUMAN REVIEW**。Human Visual／Audio Review、Production Application、Phase 5A正式Validation、tag作成は未実施。
+- Human Visual Review: **PASS WITH P2 POLISH**。Revision 2のP1 3件（Actor motif、Goal readability、64px Logo）はすべてClosed。Visual P0／P1は0件。
+- Human Audio Review: **PASS**。人間が`spawn03_section_complete_comparison.wav`を実聴し、Echo Spawn 03とSection Completeの識別、Section Completeの上位event感、終端mechanical transient／confirmation tone、小音量での差を確認した。
+- 状態: **Revision 2.1 Human Review Passed with P2 Polish／Production Candidate**。Revision 2.2はProduction Application前に不要。Production Application、Phase 5A正式Validation、tag作成は未実施。

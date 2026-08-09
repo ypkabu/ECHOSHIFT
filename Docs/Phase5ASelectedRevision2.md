@@ -2,7 +2,7 @@
 
 ## Status
 
-Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了した。2026-08-09 JSTのHuman ReviewはVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`、Overall `FAIL / REVISION REQUIRED`となった。P1 3件を限定修正したRevision 2.1 Automationは完了し、Human Review待ちで停止している。
+Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了した。2026-08-09 JSTのRevision 2 Human ReviewはVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`、Overall `FAIL / REVISION REQUIRED`だった。P1 3件を限定修正したRevision 2.1はAutomationとHuman Visual／Audio Reviewを完了し、`PASS WITH P2 POLISH — PRODUCTION CANDIDATE`となった。
 
 確定状態:
 
@@ -15,7 +15,9 @@ Revision 1 Human Review Failを受けた独立Preview。Production Application�
 - Selected Revision 2 Human Audio Review: Passed with minor fixes
 - Selected Revision 2 Overall Review: Failed / Revision required
 - Revision 2.1 Automation: Passed
-- Revision 2.1 Human Visual／Audio Review: Pending
+- Revision 2.1 Human Visual Review: Passed with P2 polish
+- Revision 2.1 Human Audio Review: Passed
+- Revision 2.1 Overall Review: Passed with P2 polish / Production candidate
 - Revision 2.1 Production Application: Not started
 - Production Application: Not started
 - Phase 5A Validation: Pending
@@ -103,4 +105,15 @@ EditModeのScene Builder testが一時的に変更する既知の4ファイル�
 - Automation: EditMode 143/143、PlayMode 130/130、P3完走、Drift 0 m、Interaction 4/0、診断0。
 - Validation: `Docs/Phase5ARevision21Validation.md`。
 
-状態: **Revision 2.1 Automation Passed／READY FOR REVISION 2.1 HUMAN REVIEW／Production Scene未変更**。
+## Revision 2.1 Human Review result
+
+詳細は`Docs/Phase5ARevision21HumanReview.md`を参照。
+
+- Visual: **PASS WITH P2 POLISH**。
+- Audio: **PASS**。人間の実聴でEcho Spawn 03とSection Completeを音だけで識別でき、小音量でも差を確認した。
+- P0／P1: **0／0**。Revision 2のActor motif、Goal readability、64px LogoはすべてClosed。
+- P2: Logo spacing／badge感、Chamber密度、Observationのtext依存、Decalの馴染み等。Production blockerではない。
+- Production Candidate: **YES**。
+- Revision 2.2: Production Application前には不要。
+
+状態: **PASS WITH P2 POLISH — PRODUCTION CANDIDATE／Production Scene未変更**。
