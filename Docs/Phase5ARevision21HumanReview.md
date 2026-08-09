@@ -15,7 +15,7 @@
 - P0: **0件**。
 - P1: **0件**。
 - Production Candidate: **YES**。
-- Production Application performed: **NO**。
+- Production Application performed: **YES**。承認済み内容だけを適用し、Post-Application Smoke Validationを通過した。
 - Phase 5A Formal Validation started: **NO**。
 - Tag created: **NO**。
 
@@ -78,15 +78,15 @@
 
 ## Production Safety
 
-Human Review確定時にProductionへRevision 2.1を適用していない。再確認結果は次のとおり。
+Human Review確定時点ではProduction未適用だった。後続の承認済みProduction Application後の再確認結果は次のとおり。
 
 - P0 Scene SHA-256: `1411EB0EC0574F1E24BEDF09AE78DEE33ADA3B69B70FC1A3DDBC0BA5E27124C5`。
 - P1 Scene SHA-256: `4AADD3D34BE36B0288DDF4B46E167017758C007E8FC65E4D7095FD0B80747EBB`。
 - P2 Scene SHA-256: `73EC41AA4B72E30BDFCD874E0DFA3BBC59C7F407519B3160A157C9380F08822C`。
-- P3 Scene SHA-256: `4ACA5F734DB1C754E7C237CA6EE819B30F8F50B53BB5C37298C31C92F36961E8`。
-- Production Scene差分: 0。
-- Gameplay Prefab差分: 0。
-- Runtime差分: 0。
+- P3 Scene SHA-256: `A1887A182ECD17E4E1712E2926765230DCB9D1F6DF9B71D748EBDE49A086B854`（承認済みProduction applicationのexpected差分）。
+- Production Scene差分: 承認済みPhase 5A identityのみ。
+- Gameplay Prefab差分: 承認済みActor visual motifのみ。
+- Runtime差分: Presentation-only Goal state adapterとaudio cue routingのみ。Gameplay behavior差分0。
 - ThirdParty差分: 0。
 - Captures／Builds／Logs／TestResults／Libraryの追跡: 0。
 - `phase5a-*` tag: 未作成。
@@ -97,4 +97,4 @@ Human Review確定時にProductionへRevision 2.1を適用していない。再�
 
 `Revision 2.2 is not required before Production Application.`
 
-Production Application、Phase 5A Formal Validation、tag作成、P2 polish、Audio再生成は本Human Review確定工程では実施しない。
+後続工程で承認済みProduction Applicationは完了した。Phase 5A Formal Validation、tag作成、P2 polish、Audio再生成は未実施。

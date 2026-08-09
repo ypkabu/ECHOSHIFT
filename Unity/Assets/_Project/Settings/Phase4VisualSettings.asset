@@ -14,32 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4VisualSettings
   environmentLight: {r: 0.82, g: 0.86, b: 0.9, a: 1}
   environmentDark: {r: 0.035, g: 0.05, b: 0.075, a: 1}
-  playerColor: {r: 1, g: 0.68, b: 0.12, a: 1}
+  playerColor: {r: 0.3176, g: 0.7098, b: 0.7686, a: 1}
   plateColor: {r: 0.05, g: 0.82, b: 1, a: 1}
   batteryColor: {r: 1, g: 0.36, b: 0.055, a: 1}
   goalColor: {r: 0.72, g: 1, b: 0.82, a: 1}
   dangerColor: {r: 1, g: 0.12, b: 0.16, a: 1}
   echoColors:
-  - {r: 0.06, g: 0.78, b: 1, a: 1}
-  - {r: 0.66, g: 0.32, b: 1, a: 1}
-  - {r: 0.16, g: 1, b: 0.68, a: 1}
+  - {r: 0.3, g: 0.2, b: 0.55, a: 1}
+  - {r: 0.5, g: 0.42, b: 0.76, a: 1}
+  - {r: 0.7, g: 0.56, b: 0.98, a: 1}
   facilityPanelMaterial: {fileID: 2100000, guid: c7a77b87c093cdb4bb1692242efca435, type: 2}
   facilityDarkMaterial: {fileID: 2100000, guid: 5fecde87b137e194191e032dae239662, type: 2}
   facilityTrimMaterial: {fileID: 2100000, guid: 3d572219c2bc2e54bb39bf801c68f2f0, type: 2}
-  playerMaterial: {fileID: 2100000, guid: 9851e0371f01c5446bbdd421d68e4092, type: 2}
+  playerMaterial: {fileID: 2100000, guid: 3087ef222f67f064c926dd4248ce1c68, type: 2}
   plateMaterial: {fileID: 2100000, guid: 0d19a5dcb0da72e4f972a9fe14d1ddfc, type: 2}
   batteryMaterial: {fileID: 2100000, guid: 81f39e55b6cfd4141884c26411e0bc61, type: 2}
   goalMaterial: {fileID: 2100000, guid: bd05bddce74ed66469fff5121607ccda, type: 2}
   dangerMaterial: {fileID: 2100000, guid: e387681ec20dc1945bc53e74e868d850, type: 2}
   glassMaterial: {fileID: 2100000, guid: 7463a4e7e9cffbe4c9c98c17e611c867, type: 2}
   echoMaterials:
-  - {fileID: 2100000, guid: 1f22af32b7370f84595a972c76c3ddad, type: 2}
-  - {fileID: 2100000, guid: 922b837b59d8ac446bcb55e4dcf1999e, type: 2}
-  - {fileID: 2100000, guid: 0639e0aa523fab84aa028677978cfdd6, type: 2}
+  - {fileID: 2100000, guid: 86cdbc240bd10fa44ae539428a8e7dee, type: 2}
+  - {fileID: 2100000, guid: 86cdbc240bd10fa44ae539428a8e7dee, type: 2}
+  - {fileID: 2100000, guid: 86cdbc240bd10fa44ae539428a8e7dee, type: 2}
   packagedJapaneseFont: {fileID: 12800000, guid: 795f79d456c2168489209b7fa20eba0a, type: 3}
   packagedJapaneseTmpFont: {fileID: 11400000, guid: 3d51e297456863648bb068d652407e5c, type: 2}
   pulseVfxPrefab: {fileID: 3748279326946941473, guid: 5104f73b4e655c143b20f4d96b1ba03d, type: 3}
-  audioCues: {fileID: 11400000, guid: 4dc81a97be0413440954b0d38c84e0b6, type: 2}
+  audioCues: {fileID: 11400000, guid: 7dcce974885ff7a47950e77e4a229e8c, type: 2}
   hudIcons:
   - {fileID: 616506205494408100, guid: 47fb639af3b06394b8ffc2fc1acc9271, type: 2}
   - {fileID: -1903749415114699922, guid: a851292c083ff314f853891c868a6c5b, type: 2}

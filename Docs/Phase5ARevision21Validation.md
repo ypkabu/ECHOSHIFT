@@ -12,10 +12,10 @@
 
 - Revision 2.1 Automation: **Passed**
 - Human Review: **PASS WITH P2 POLISH — PRODUCTION CANDIDATE**
-- Production Application allowed: **No**
+- Production Application: **Passed after Human Review**
 - Phase 5A Formal Validation started: **No**
 - Tag created: **No**
-- State: **REVISION 2.1 HUMAN REVIEW FINALIZED／PRODUCTION APPLICATION NOT STARTED**
+- State: **REVISION 2.1 PRODUCTION APPLICATION PASSED／FORMAL VALIDATION NOT STARTED**
 
 Automationは生成再現性、構造、寸法、色用途、回帰、安全境界だけを確認した。主観判定は`Docs/Phase5ARevision21HumanReview.md`へ分離し、Visualは`PASS WITH P2 POLISH`、Audioは人間による実聴で`PASS`に確定した。Production Application、Formal Validation、tag作成は本工程に含めない。
 
@@ -173,4 +173,18 @@ EditModeの初回は4倍sample幅のテスト期待値を`819`と誤記したた
 
 `Revision 2.2 is not required before Production Application.`
 
-Production Application、Phase 5A正式Validation、tag作成は未実施。
+## Post-Human Review Production Application
+
+- Approved Revision 2.1だけをProduction P3へ適用した。Revision 2.2／P2 polish／追加Visual／Audio再生成は行っていない。
+- Scene Builder: exit code `0`。
+- EditMode: **149/149 Pass**。PlayMode: **131/131 Pass**。
+- P3全Section完走: Pass。最大Replay Drift `0 m`。Interaction success `4`／failure `0`。
+- compiler error／warning、Missing Script／Reference、NullReferenceException、Unhandled Exception: `0`。
+- Production evidence: D3D11／1920×1080 PNG `9/9`。
+- P0～P2 Scene hashは基準一致。P3 Scene hashは`A1887A182ECD17E4E1712E2926765230DCB9D1F6DF9B71D748EBDE49A086B854`。
+- Unexpected差分、ThirdParty差分、Project Settings／Packages差分、Evidence-only混入: `0`。
+- 詳細: `Docs/Phase5AProductionApplication.md`。
+
+**READY FOR PHASE 5A FORMAL VALIDATION**
+
+Phase 5A Formal Validationとtag作成は未実施。

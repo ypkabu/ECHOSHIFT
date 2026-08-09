@@ -13,6 +13,7 @@ namespace EchoShift.Presentation
 
         public int PlayCount { get; private set; }
         public int SuppressedCount { get; private set; }
+        public Phase4AudioCueSet CueSet => cueSet;
         public bool HasValidReferences
         {
             get

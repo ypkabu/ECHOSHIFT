@@ -530,37 +530,59 @@ namespace EchoShift.Editor
                     new Vector3(0.5f, 0.2f, 0f), new Vector3(0.055f, 0.7f, 0.055f),
                     accent).GetComponent<Renderer>());
             }
+            Transform surfaceIdentity = new GameObject(player
+                ? "Current Player Body Integrated Identity"
+                : "Echo Body Integrated Identity").transform;
+            surfaceIdentity.SetParent(model, false);
+            accents.Add(Visual("Chest Embedded Emission Strip", PrimitiveType.Cube,
+                surfaceIdentity, new Vector3(0f, 0.58f, -0.49f),
+                new Vector3(0.28f, 0.035f, 0.01f), accent).GetComponent<Renderer>());
+            Transform chestSeal = new GameObject("Chest Surface Split Seal").transform;
+            chestSeal.SetParent(surfaceIdentity, false);
+            chestSeal.localPosition = new Vector3(0f, 0.42f, -0.492f);
+            for (int side = 0; side < 6; side++)
+            {
+                if (side == (player ? 5 : 0)) continue;
+                float angle = side * 60f;
+                float radians = angle * Mathf.Deg2Rad;
+                GameObject segment = Visual($"Chest Seal Segment {side + 1}",
+                    PrimitiveType.Cube, chestSeal,
+                    new Vector3(Mathf.Cos(radians) * 0.075f,
+                        Mathf.Sin(radians) * 0.075f, 0f),
+                    new Vector3(0.065f, 0.018f, 0.008f), accent);
+                segment.transform.localRotation = Quaternion.Euler(0f, 0f, angle + 90f);
+                accents.Add(segment.GetComponent<Renderer>());
+            }
+
+            Transform rearTicks = new GameObject("Back Panel Surface Generation Ticks").transform;
+            rearTicks.SetParent(surfaceIdentity, false);
             GameObject[] marks = new GameObject[3];
             for (int i = 0; i < marks.Length; i++)
             {
-                marks[i] = Visual($"Generation Fin {i + 1}", PrimitiveType.Cube, model,
-                    new Vector3((i - 1) * 0.18f, 0.97f, -0.05f),
-                    new Vector3(0.08f, 0.2f + i * 0.045f, 0.1f), accent);
-                marks[i].transform.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * 13f);
+                marks[i] = Visual($"Embedded Surface Tick {i + 1}", PrimitiveType.Cube,
+                    rearTicks, new Vector3((i - 1) * 0.087f, 0.65f, 0.48f),
+                    new Vector3(0.055f, 0.018f, 0.008f), accent);
                 accents.Add(marks[i].GetComponent<Renderer>());
             }
-            if (player)
+
+            Transform floorMarker = new GameObject(player
+                ? "Player Circular Floor Marker"
+                : "Echo Segmented Hex Marker").transform;
+            floorMarker.SetParent(model, false);
+            floorMarker.localPosition = new Vector3(0f, -0.94f, 0f);
+            int missingFloorSegment = player ? 5 : 0;
+            for (int side = 0; side < 6; side++)
             {
-                accents.Add(Visual("Player Circular Floor Marker", PrimitiveType.Cylinder,
-                    model, new Vector3(0f, -0.94f, 0f),
-                    new Vector3(0.54f, 0.018f, 0.54f), accent).GetComponent<Renderer>());
-            }
-            else
-            {
-                Transform hex = new GameObject("Echo Segmented Hex Marker").transform;
-                hex.SetParent(model, false);
-                hex.localPosition = new Vector3(0f, -0.94f, 0f);
-                for (int side = 0; side < 6; side++)
-                {
-                    float angle = side * 60f;
-                    float radians = angle * Mathf.Deg2Rad;
-                    GameObject segment = Visual($"Hex Segment {side + 1}", PrimitiveType.Cube,
-                        hex, new Vector3(Mathf.Cos(radians) * 0.58f, 0f,
-                            Mathf.Sin(radians) * 0.58f),
-                        new Vector3(0.52f, 0.018f, 0.08f), accent);
-                    segment.transform.localRotation = Quaternion.Euler(0f, -angle - 90f, 0f);
-                    accents.Add(segment.GetComponent<Renderer>());
-                }
+                if (side == missingFloorSegment) continue;
+                float angle = side * 60f;
+                float radians = angle * Mathf.Deg2Rad;
+                GameObject segment = Visual($"Floor Seal Segment {side + 1}",
+                    PrimitiveType.Cube, floorMarker,
+                    new Vector3(Mathf.Cos(radians) * 0.302f, 0.006f,
+                        Mathf.Sin(radians) * 0.302f),
+                    new Vector3(0.27f, 0.006f, 0.042f), accent);
+                segment.transform.localRotation = Quaternion.Euler(0f, -angle - 90f, 0f);
+                accents.Add(segment.GetComponent<Renderer>());
             }
 
             GameObject playingMark = new GameObject("Echo Replaying Mark");
@@ -935,6 +957,10 @@ namespace EchoShift.Editor
             for (int i = 0; i < renderers.Length; i++)
             {
                 if (renderers[i].name.EndsWith(" Marker", StringComparison.Ordinal))
+                    renderers[i].enabled = false;
+                if (renderers[i].name == "Player Identity Ring")
+                    renderers[i].enabled = false;
+                if (renderers[i].name == "Echo Identity Ring")
                     renderers[i].enabled = false;
             }
         }

@@ -177,5 +177,20 @@ namespace EchoShift.Presentation
             colorSaturation = -2f;
             captureDirectory = "Captures/Phase4_2";
         }
+
+        public void ApplyPhase5AIdentity(Material approvedPlayer,
+            Material approvedEcho, Phase4AudioCueSet approvedAudio)
+        {
+            playerColor = new Color(0.3176f, 0.7098f, 0.7686f, 1f);
+            echoColors = new[]
+            {
+                new Color(0.30f, 0.20f, 0.55f, 1f),
+                new Color(0.50f, 0.42f, 0.76f, 1f),
+                new Color(0.70f, 0.56f, 0.98f, 1f)
+            };
+            playerMaterial = approvedPlayer;
+            echoMaterials = new[] { approvedEcho, approvedEcho, approvedEcho };
+            audioCues = approvedAudio;
+        }
     }
 }

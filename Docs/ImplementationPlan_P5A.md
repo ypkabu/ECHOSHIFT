@@ -136,3 +136,38 @@ Revision 2.1は`Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision21.unity`
 - Human Visual Review: **PASS WITH P2 POLISH**。Revision 2のP1 3件（Actor motif、Goal readability、64px Logo）はすべてClosed。Visual P0／P1は0件。
 - Human Audio Review: **PASS**。人間が`spawn03_section_complete_comparison.wav`を実聴し、Echo Spawn 03とSection Completeの識別、Section Completeの上位event感、終端mechanical transient／confirmation tone、小音量での差を確認した。
 - 状態: **Revision 2.1 Human Review Passed with P2 Polish／Production Candidate**。Revision 2.2はProduction Application前に不要。Production Application、Phase 5A正式Validation、tag作成は未実施。
+
+## Approved Revision 2.1 Production Application plan
+
+Human Review確定commit `156b28dd7f461928c88cacdad3d6ad6985240185`を基準に、Revision 2.1で承認されたIdentityだけを製品`P3_PlayableGreybox`へ移植する。本工程は新RevisionでもFormal Validationでもなく、P2 polish、追加Asset、Gameplay変更、tag作成を含めない。
+
+### Source → Production対応
+
+- Logo: `SelectedRevision2/P5A_R2_Logo_Wordmark.svg`の承認済み本体だけをProduction UIへ配置する。64px label、4x inspection、比較layout、annotationは除外する。
+- Chamber: Revision 2のFloor Base／Rear Support／Metal Outer Frame／Support Core／3 Indicatorへ、Revision 2.1の抑制済みArc Material／寸法をそのまま適用し、Section 3のVisual-only環境rootへ配置する。
+- Actor: Revision 2.1のChest Strip、Surface Seal、Rear Tick、薄型Floor SegmentをPlayer／EchoのVisual Childへ適用する。Cyan Player／Violet Echoを維持し、Gameplay Transform、Collider、Replay、pose制御は変更しない。
+- Goal: Revision 2.1のLocked／Unlocked表現をVisual-only childとして適用する。Locked Lime Rendererは0、全Door解錠時だけ承認済みLime perimeter／center Segmentを表示する。
+- Maintenance／Observation／Real Decal: 承認済み設備構成とRevision 2.1 monitor contrastだけをSection 3 Visual rootへ配置し、追加装飾やP2改善を行わない。
+- Audio: 承認済み8 WAVをProduction audio folderへ複製し、Echo generation別spawn、Echo remove、Loop end、Interaction success、Battery insert、Section completeへ明示配線する。比較WAVはEvidence専用として除外する。
+
+### 実装と検証
+
+1. 再生成可能な`Phase5AProductionApplicationBuilder`を追加し、`P3SceneBuilder`のPhase 4適用後にだけ呼び出す。
+2. Production-owned Material／Logo／Audio assetとVisual-only runtime adapterを追加する。ThirdParty原本、P0～P2 Scene、Project Settings、Packageは変更しない。
+3. Builderをbatchmode実行してP3 Sceneを再生成し、Evidence-only object／audio 0、Missing 0、承認済み構成とaudio referenceを検査する。
+4. EditMode／PlayMode全件、P3自動完走、Drift `0.05 m`以内、Interaction failure 0をSmoke Validationとして実行する。結果はFormal Validation完了と扱わない。
+5. `Captures/Phase5A/ProductionApplication/`へProduction確認用9枚を生成し、Git管理しない。
+6. Expected Production Application差分とUnexpected差分を分類し、Unexpected 0の場合だけ単一commit `feat: apply approved phase 5A identity to production`を作成する。tagは作成しない。
+
+## Approved Revision 2.1 Production Application execution result
+
+- Production Application Builder: Unity `6000.4.6f1`／URP `17.4.0`、exit code `0`。
+- 適用: 承認済みLogo、Chamber、Actor surface motif、Locked／Unlocked Goal、Maintenance、Observation、Real Decal、Audio 8 cue。
+- Evidence-only除外: 64px label、inspection／comparison UI、Preview Camera、comparison WAV、review helperはいずれもProductionへ未混入。
+- EditMode: **149/149 Pass**。PlayMode: **131/131 Pass**。
+- P3自動完走: Pass。最大Drift `0 m`。Interaction success `4`／failure `0`。
+- P0～P2 Scene hash: 基準一致。P3は承認済みProduction applicationによるexpected差分だけ。
+- compiler error／warning、Missing Script／Reference、NullReferenceException、Unhandled Exception: `0`。
+- Production Capture: D3D11／1920×1080 PNG **9/9**。
+- Unexpected差分: `0`。ThirdParty、Project Settings、Packages、Gameplay rulesは変更なし。
+- 状態: **Production Application Passed／Ready for Phase 5A Formal Validation**。Formal Validationとtag作成は未実施。

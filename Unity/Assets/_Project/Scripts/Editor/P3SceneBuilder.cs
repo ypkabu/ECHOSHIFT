@@ -62,6 +62,7 @@ namespace EchoShift.Editor
             Phase3TextCatalog catalog = CreateCatalog();
             Phase3CameraSettings cameraSettings = CreateCameraSettings();
             Phase4VisualSettings phase4Settings = Phase4AssetBuilder.Build(catalog);
+            Phase5AIdentityPreviewBuilder.PrepareApprovedProductionAssets(phase4Settings);
             Quaternion worldLabelRotation = Quaternion.LookRotation(
                 cameraSettings.LookOffset - cameraSettings.Offset, Vector3.up);
             InputActionAsset actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(
@@ -147,6 +148,8 @@ namespace EchoShift.Editor
 
             Phase4SceneBuilder.Apply(sections, camera, hud, pauseMenu, coordinator,
                 fontApplier, phase4Settings);
+            Phase5AIdentityPreviewBuilder.ApplyApprovedRevision21ToProduction(
+                sections, global.transform, phase4Settings);
 
             StableIdValidationResult validation =
                 StableIdSceneValidator.ValidateScene(scene, out string validationError);
@@ -507,6 +510,7 @@ namespace EchoShift.Editor
             camera.fieldOfView = 48f;
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 120f;
+            obj.AddComponent<AudioListener>();
             SectionCameraController controller = obj.AddComponent<SectionCameraController>();
             controller.Configure(settings);
             return controller;

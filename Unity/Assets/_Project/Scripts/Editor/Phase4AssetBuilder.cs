@@ -446,6 +446,9 @@ namespace EchoShift.Editor
                 case Phase4AudioCue.BatteryPickup: return root + "impactMetal_001.ogg";
                 case Phase4AudioCue.Door: return root + "doorOpen_001.ogg";
                 case Phase4AudioCue.EchoSpawn: return root + "forceField_000.ogg";
+                case Phase4AudioCue.EchoSpawn2: return root + "forceField_000.ogg";
+                case Phase4AudioCue.EchoSpawn3: return root + "forceField_000.ogg";
+                case Phase4AudioCue.EchoRemove: return root + "forceField_004.ogg";
                 case Phase4AudioCue.GameComplete: return root + "forceField_004.ogg";
                 default: return string.Empty;
             }

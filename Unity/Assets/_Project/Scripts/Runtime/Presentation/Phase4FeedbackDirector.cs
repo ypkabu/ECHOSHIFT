@@ -138,7 +138,7 @@ namespace EchoShift.Presentation
                 0.20f,
                 Phase4FeedbackEvent.LoopTransition);
             audioController.Play(Phase4AudioCue.LoopEnd, 0.72f);
-            audioController.Play(Phase4AudioCue.EchoSpawn, 0.58f, 1.05f);
+            audioController.Play(SpawnCue(summary.ReplayGeneration), 0.58f);
         }
 
         private void OnEchoRemoved(Vector3 position, int generation)
@@ -149,6 +149,7 @@ namespace EchoShift.Presentation
                 0.16f,
                 0.25f,
                 Phase4FeedbackEvent.EchoRemoved);
+            audioController.Play(Phase4AudioCue.EchoRemove, 0.58f);
             EchoRemovalFeedbackCount++;
         }
 
@@ -231,6 +232,16 @@ namespace EchoShift.Presentation
         {
             color.a = alpha;
             return color;
+        }
+
+        private static Phase4AudioCue SpawnCue(int generation)
+        {
+            return generation switch
+            {
+                2 => Phase4AudioCue.EchoSpawn2,
+                3 => Phase4AudioCue.EchoSpawn3,
+                _ => Phase4AudioCue.EchoSpawn
+            };
         }
     }
 }
