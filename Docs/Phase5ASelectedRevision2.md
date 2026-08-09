@@ -2,7 +2,7 @@
 
 ## Status
 
-Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了した。2026-08-09 JSTのHuman ReviewはVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`、Overall `FAIL / REVISION REQUIRED`となった。
+Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了した。2026-08-09 JSTのHuman ReviewはVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`、Overall `FAIL / REVISION REQUIRED`となった。P1 3件を限定修正したRevision 2.1 Automationは完了し、Human Review待ちで停止している。
 
 確定状態:
 
@@ -14,7 +14,9 @@ Revision 1 Human Review Failを受けた独立Preview。Production Application�
 - Selected Revision 2 Human Visual Review: Failed / Revision required
 - Selected Revision 2 Human Audio Review: Passed with minor fixes
 - Selected Revision 2 Overall Review: Failed / Revision required
-- Revision 2.1: Recommended, not started
+- Revision 2.1 Automation: Passed
+- Revision 2.1 Human Visual／Audio Review: Pending
+- Revision 2.1 Production Application: Not started
 - Production Application: Not started
 - Phase 5A Validation: Pending
 - Windows Release Validation: Blocked
@@ -89,4 +91,16 @@ EditModeのScene Builder testが一時的に変更する既知の4ファイル�
 - Production Application allowed: **NO**。
 - Final recommendation: **CREATE REVISION 2.1**。
 
-状態: **Revision 2 Automation Passed／Human Review Failed／Revision 2.1未着手／Production Scene未変更**。
+## Revision 2.1 bounded correction
+
+- 独立Scene: `Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision21.unity`。
+- 独立Art: `Assets/_Project/Art/Phase5A/SelectedRevision21/`。
+- Actor: Chest Strip／Surface Seal／Rear Tickをbody surfaceへ下げ、Floor Segmentを薄く縮小し、低Emission materialへ分離した。
+- Goal: LockedはLime 0のままViolet／White／value contrastを増加。Unlockedは成功perimeter 3 Segment＋内部中央SegmentへLime変化面積を拡大した。
+- Logo: Screen-spaceの実寸`205 × 64 px`と4倍`820 × 256 px`を正式Captureへ分離配置した。
+- P2: Chamber Arc減光／isometric Camera、Observation monitor contrast、`section_complete`終端だけを限定修正。Decalは未変更。
+- Evidence: 1920×1080 D3D11 Capture 14枚、contact sheet 1枚、比較用WAV 3本。
+- Automation: EditMode 143/143、PlayMode 130/130、P3完走、Drift 0 m、Interaction 4/0、診断0。
+- Validation: `Docs/Phase5ARevision21Validation.md`。
+
+状態: **Revision 2.1 Automation Passed／READY FOR REVISION 2.1 HUMAN REVIEW／Production Scene未変更**。

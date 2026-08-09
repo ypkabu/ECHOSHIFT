@@ -105,3 +105,32 @@ Production Scene、Gameplay Prefab、Stable ID、Collider、Replay、Text Catalo
 - P0～P3: 基準SHA-256一致。Production Scene、Gameplay Prefab、Runtime、ThirdParty、Windows crash証跡のGit差分0。
 - Capture／Audio／Logs／TestResultsはgitignore対象、追跡ファイル0。
 - 状態: Revision 2自動工程完了。Human Visual／Audio Review待ち。本番適用とtag作成は未実施。
+
+## Selected Revision 2.1 plan
+
+Revision 2は2026-08-09 JSTのHuman ReviewでVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`となった。P0は0件、P1はActor motifのSurface統合、Locked／Unlocked GoalのGameplay距離での識別、正式Capture内の64px Logo証跡の3件である。Revision 2でPassした色階層、日本語UI、設備Identity、Decal配置方針は固定し、全面再設計を行わない。
+
+Revision 2.1は`Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision21.unity`、`Assets/_Project/Art/Phase5A/SelectedRevision21/`、`Captures/Phase5A/SelectedRevision21/`だけへ生成する。旧Revision 2 Scene、Art、Capture、Audio証跡は上書きしない。
+
+1. ActorのChest Strip／Surface Seal／Rear TickをRobot surfaceへ埋め込み、Floor Segmentを床面へ薄く寝かせる。Gameplay Prefab、Actor Transform、Robot silhouette、Cyan／Violet分類は変更しない。
+2. Locked GoalはViolet／White／value contrast／線幅だけで床模様から分離し、Limeを追加しない。Unlocked GoalはLimeを成功状態に限定したまま、perimeterと内部Segmentの変化面積を広げる。
+3. 正式Preview内に高さ64pxの実寸Logoと4倍inspectionを重ならないScreen-space領域へ配置し、RectTransform寸法とCapture解像度を自動確認する。
+4. P1と干渉しない低リスクP2として、Chamber内部Arcの発光を抑えてOuter Frameを優先し、isometric Cameraだけを調整する。Observation monitorはlocal contrastとindicator visibilityだけを上げる。
+5. Logo O spacingとDecalはP1可読性を悪化させる変更を避け、追加変更の効果が自動で保証できない場合は未修正理由を記録する。
+6. Audioは`section_complete`だけの終端へmechanical transientを追加し、`echo_spawn_03`と近接比較できるR2.1専用WAVを生成する。旧8 cueは再生成しない。
+7. D3D11／1920×1080で14枚の専用Captureを生成し、Actor、Goal、64px Evidence、Chamber、Observation、Decal、Gameplay距離を比較可能にする。
+8. EditMode／PlayMode全件、P3完走、Drift、Interaction、compiler／Missing／Unhandled、P0～P3 hash、Production Scene／Prefab／Runtime／ThirdParty／Windows crash証跡の差分0を再確認する。
+
+自動工程の完了状態は`READY FOR REVISION 2.1 HUMAN REVIEW`までとする。Production Application、Phase 5A正式Validation、tag作成へは進めず、Actor silhouette、Goalの一秒認識、64px perception、Chamber／Observation hierarchy、Audioイベント識別はHuman Review未判定として残す。
+
+## Selected Revision 2.1 execution result
+
+- Revision 2.1 Builder: Unity `6000.4.6f1`／URP `17.4.0`／D3D11、exit code 0。
+- 生成: 1920×1080 PNG 14/14、contact sheet 1/1、比較用WAV 3/3、audio evidence 1/1。
+- Audio: `echo_spawn_03` 1.050秒、`section_complete` 1.950秒、比較5.000秒。全ファイルpeak `0.8400`、clipping 0。
+- EditMode: 143/143 Pass。PlayMode: 130/130 Pass。
+- P3自動完走: Pass。最大Drift `0 m`。Interaction success 4／failure 0。
+- compiler warning／error、Missing Script／Reference、NullReferenceException、Unhandled Exception: 0。
+- P0～P3: 基準SHA-256一致。Production Scene、Gameplay Prefab、Runtime、ThirdParty、Windows crash証跡のGit差分0。
+- Capture／Audio／Logs／TestResults／Libraryはgitignore対象、追跡ファイル0。
+- 状態: **Revision 2.1 Automation Passed／READY FOR REVISION 2.1 HUMAN REVIEW**。Human Visual／Audio Review、Production Application、Phase 5A正式Validation、tag作成は未実施。
