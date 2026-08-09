@@ -93,7 +93,7 @@ The Access Violation body is confirmed inside UnityPlayer native cleanup. A game
 
 ## Phase status
 
-- Visual Human Review: Passed.
+- Manual visual review: Passed.
 - Character / Carry / Door / Wiring: Passed.
 - Critical visual issues: 0.
 - High visual issues: 0.

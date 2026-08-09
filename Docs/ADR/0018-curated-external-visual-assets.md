@@ -20,7 +20,7 @@ Imported meshes, skeletons, vendor materials, names, and hierarchy never own gam
 
 ## Alternatives considered
 
-- Continue refining generated primitives: rejected because the first human review found the presentation materially below the target.
+- Continue refining generated primitives: rejected because the first visual review found the presentation materially below the target.
 - Import entire free packages: rejected for repository size, shader/material noise, unused content, and audit cost.
 - Use mixed Asset Store packages: rejected because licensing, account dependency, and style cohesion would be harder to verify.
 - Make the imported Robot Animator authoritative: rejected because animation/root motion could move deterministic Actor roots and alter Replay drift.
