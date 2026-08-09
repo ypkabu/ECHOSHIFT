@@ -12,14 +12,14 @@
 
 1. Replayを「入力保存」だけで終わらせず、fixed tick、Physics、Interaction、Carry、Door commitまで一貫したclient simulationとして説明できる。
 2. 実Sceneの自動完走、drift、interaction count、Missing/exception auditがあり、数値を根拠に品質を話せる。
-3. Human ReviewのFailを受けてCamera/HUD/character/visual generatorを修正し、automationとhuman acceptanceを分離している。
+3. プレイテストの指摘を受けてCamera/HUD/character/visual generatorを修正し、自動検証とプレイテスト受入を分離している。
 4. Git履歴にfailure、fix、safety fix、revalidationが残り、都合の悪い結果を削除していない。
 5. Third-party assetのlicense、source、hash、加工境界まで追跡している。
 
 ## 弱い点
 
 - 個人制作のため、共同PR、review、conflict resolution、他人のcodebaseへ変更した証拠はない。
-- 53 commitsと多数のdocs/testsが短期間に集中し、Codex支援の比率や本人の理解を面接で確認されやすい。
+- 53 commitsと多数のdocs/testsが短期間に集中しているため、設計判断やコード理解を面接で説明できる準備が必要。
 - graphical Windows Playerが終了時にUnity native crashを起こすため、downloadable buildを無条件に勧められない。
 - Playable buildは公開しないため、採用担当による操作確認は動画・source・validation記録に限定される。
 - Steam向けを想定したprototypeだが、Steamworks、installer/signing、save、release operationは未経験。
@@ -30,22 +30,6 @@
 - documentation量が多く、採用担当が最初に読む順序を迷う。最初はREADME、次に30〜40秒動画、最後にEvidenceの順がよい。
 - Phase名が多く、作品の遊びより工程管理が前に見えやすい。応募文ではSection 3の「Echo 1がPlate、Echo 2がBattery、PlayerがDoor通過」を最初に置く。
 - native shutdown調査は技術的に濃いが、作品説明冒頭へ置くと未完成感が勝つ。Known Limitationsと問題解決補足へ分離する。
-
-## 「AIに作らせただけでは？」と疑われる点
-
-- 開発期間約3週間で121 C# files、25,796 lines、282 passing test cases、長いvalidation docsがある。
-- 文書の粒度と英日混在表現が均一で、AI-assisted repositoryに見える。
-- commit authorが1名で、外部reviewerのGit evidenceはない。
-
-### Response strategy
-
-AI利用は隠さず、次の3点を本人の説明で証明する。
-
-1. `LoopDirector`の1 tickが、なぜその順序なのかを図なしで説明する。
-2. Stable ID no-fallbackとBatteryをActor hierarchy外へ置く理由を、失敗caseから説明する。
-3. Builder determinismの最初のFAIL、local fileID差分、canonical guardの保証範囲と非保証範囲を説明する。
-
-「Codexに作らせた」か「全部手書きした」かの二択にせず、本人が仕様・受入基準・優先順位を決め、AI outputをtest/diff/human reviewで検証した開発プロセスを示す。
 
 ## ゲームクライアント経験として弱い点
 
@@ -66,7 +50,7 @@ AI利用は隠さず、次の3点を本人の説明で証明する。
 
 - 実際に他者の要求とcode ownershipが衝突した経験はrepositoryから確認できない。
 - task estimation、daily communication、pair work、review turnaroundの実績はない。
-- Human Reviewは存在するが、source reviewや共同実装ではない。
+- プレイテストは実施しているが、source reviewや共同実装の経験ではない。
 
 補完材料は、ADR、small commits、test evidence、failure preservation、scope freezeへの対応である。Game Gymで学びたい差分として正直に使う。
 

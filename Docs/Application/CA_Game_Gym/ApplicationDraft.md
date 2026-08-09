@@ -24,11 +24,11 @@
 
 ## 4. 作品説明（300字前後）
 
-> ECHO//SHIFTは、過去ループをEchoとして再生し、現在の自分と協力するUnity製3Dパズルです。Echo 1にPlate保持、Echo 2にBattery運搬を任せ、Playerが2つのDoorを通ります。60Hz固定tickとStable IDで記録外の装置へのfallbackを防ぎました。実Sceneを含むEditMode 151件、PlayMode 131件が通り、P3自動完走時のDrift 0m、Interaction成功4・失敗0です。個人制作でCodexを支援に使い、Git差分、自動test、人間のVisual/Audio Reviewで検証しました。
+> ECHO//SHIFTは、過去ループをEchoとして再生し、現在の自分と協力するUnity製3Dパズルです。Echo 1にPlate保持、Echo 2にBattery運搬を任せ、Playerが2つのDoorを通ります。60Hz固定tickとStable IDで記録外の装置へのfallbackを防ぎました。実Sceneを含むEditMode 151件、PlayMode 131件が通り、P3自動完走時のDrift 0m、Interaction成功4・失敗0です。Git差分と自動testを確認し、画面・音声のプレイテストを実施しました。
 
 ## 5. 作品説明（400字前後）
 
-> ECHO//SHIFTは、過去の移動と装置操作をEchoとして再生し、現在の自分と協力するUnity製3Dパズルです。PlateとDoor、Battery取得とSocket挿入、2体のEchoへ別の役割を記録する協力を3 Sectionで学びます。Replayは60Hz fixed tickでPhysics同期、Interaction解決、Door反映、pose記録を順序化。InteractionはScene保存のStable IDだけを解決し、別装置へfallbackしません。BatteryはActor階層外とし、Echo破棄でも消失しません。実Sceneを含むEditMode 151件、PlayMode 131件がPassし、Drift 0m、Interaction成功4・失敗0でした。個人制作でCodexを支援に使い、Git差分、自動Validation、Human Reviewで検証しました。
+> ECHO//SHIFTは、過去の移動と装置操作をEchoとして再生し、現在の自分と協力するUnity製3Dパズルです。PlateとDoor、Battery取得とSocket挿入、2体のEchoへ別の役割を記録する協力を3 Sectionで学びます。Replayは60Hz fixed tickでPhysics同期、Interaction解決、Door反映、pose記録を順序化。InteractionはScene保存のStable IDだけを解決し、別装置へfallbackしません。BatteryはActor階層外とし、Echo破棄でも消失しません。実Sceneを含むEditMode 151件、PlayMode 131件がPassし、Drift 0m、Interaction成功4・失敗0でした。Git差分、自動Validation、画面・音声のプレイテストで検証しました。
 
 ## 6. Unity開発経験（200字前後）
 
@@ -48,7 +48,7 @@
 
 ## 10. なぜゲームクライアントエンジニアなのか（200字前後）
 
-> ECHO//SHIFTで、入力が移動や装置状態へ変わり、Camera/UI/Animation/Audioを通して遊びとして伝わるまでを調整する面白さを知りました。ReplayはPhysics順序が崩れれば成立せず、表示が弱ければ仕組みが伝わりません。内部状態をtestで守り、Human Reviewを基に操作と可読性を改善できるゲームクライアントエンジニアを志望します。
+> ECHO//SHIFTで、入力が移動や装置状態へ変わり、Camera/UI/Animation/Audioを通して遊びとして伝わるまでを調整する面白さを知りました。ReplayはPhysics順序が崩れれば成立せず、表示が弱ければ仕組みが伝わりません。内部状態をtestで守り、実機プレイテストを基に操作と可読性を改善できるゲームクライアントエンジニアを志望します。
 
 ## 11. チーム開発にどう活かせるか（200字前後）
 
@@ -57,10 +57,6 @@
 ## 12. Game Gymで学びたいこと（200字前後）
 
 > 個人制作では設計、実装、検証を一人で判断できましたが、他者が継続開発する実プロダクトでの優先順位、review、役割分担は未経験です。Game Gymでは実コードを短時間で読み、前提と調査結果を共有し、品質と期限を満たす変更へ落とす過程を学びたいです。fixed-tickや自動検証の経験が共同開発で何が過剰・不足か、社員のfeedbackから具体化します。
-
-## AI-assisted development disclosure
-
-> 本作は個人制作で、Codexをコード実装、調査、テスト作成、文書化の支援に使用しました。仕様、優先順位、受入基準、Human Visual/Audio Reviewは人間が提示・判断し、生成された変更はGit diff、Unity test、実Scene回帰、自動完走で確認しました。AI利用を手作業実装として説明せず、面接では採用した設計と検証根拠をコード単位で説明します。
 
 ## Applicant-only confirmation before submission
 

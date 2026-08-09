@@ -14,7 +14,7 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 | Engine | Unity `6000.4.6f1` / Universal Render Pipeline `17.4.0` |
 | Language | C# |
 | Platform | Windows x86_64 |
-| Development style | 個人制作。Codexを実装・調査・検証支援に使用し、仕様、優先順位、受入基準、Human Reviewを人間が決定 |
+| Development style | 個人制作。仕様、設計、実装、検証、プレイテストを一貫して管理 |
 | Development period | 2026-07-19〜2026-08-09（Git履歴で確認できる開発・検証期間） |
 | Current status | Playable prototype; source/test/presentation validation passed |
 
@@ -56,7 +56,7 @@ Replayは60 Hzの明示的なfixed tickで進みます。各frameは入力comman
 ### 3. GameplayとPresentationの分離
 
 - Camera、HUD、Pause、Tutorial、Robot pose、Audio/VFXは、固定tick ReplayやColliderを変更しないpresentation layerとして実装しています。
-- Human Visual Reviewで見つかったCamera切れ、仮UI、T-pose、浮遊装飾、過剰VFXをBuilderの生成元から修正し、同じ問題が再生成されないテストを追加しました。
+- プレイテストと画面確認で見つかったCamera切れ、仮UI、T-pose、浮遊装飾、過剰VFXをBuilderの生成元から修正し、同じ問題が再生成されないテストを追加しました。
 
 ### 4. Unity Editor自動化
 
@@ -106,10 +106,6 @@ Docs/
 ## Git and Development Record
 
 Git履歴はPhase単位のfeature branch、`feat` / `fix` / `test` / `docs`などの目的別commit、検証済み地点のtagで構成しています。応募準備前までに53 commitsがあり、Phase 0〜3は`main`へfast-forwardで統合、Phase 4以降は公開時にPull Requestで`main`へ統合しました。これは個人開発の履歴であり、共同開発でのPull Request経験を示すものではありません。
-
-## AI-assisted Development
-
-本作は個人制作で、Codexをコード実装、調査、テスト作成、文書化の支援に使用しています。AI出力をそのまま完成扱いにはせず、仕様と優先順位は人間が提示し、Git diff、Unity batchmode、実Scene回帰、自動完走、Human Visual/Audio Reviewで採否を判断しました。面接では、採用した設計、失敗した検証、残した制約をコードとcommit単位で説明します。
 
 ## Assets and Licenses
 

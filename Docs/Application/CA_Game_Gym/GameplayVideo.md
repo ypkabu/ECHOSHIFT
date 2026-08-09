@@ -15,11 +15,11 @@
 | Time | Content | Purpose |
 | --- | --- | --- |
 | 00:00–00:04 | Phase 5A Player/Echo image + title | 作品名と「過去を再生して協力」の要点 |
-| 00:04–00:44 | Phase 4.3 normal-speed Human Review gameplay | Idle/Walk、Echo生成・再生、Plate、Battery取得・運搬・挿入、Door開放・通過 |
+| 00:04–00:44 | Phase 4.3 normal-speed gameplay check | Idle/Walk、Echo生成・再生、Plate、Battery取得・運搬・挿入、Door開放・通過 |
 | 00:44–00:48 | Phase 5A Section 3 overview | 2体のEchoと3役協調 |
 | 00:48–00:51 | Phase 5A unlocked Goal | クリア状態 |
 
-Unity Splash、設定画面、test画面、長いCompleted画面は含めていない。既存のnormal-speed Human Review素材を使用し、Gameplay/Scene/Buildを変更していない。音声trackは互換性確保用の無音AACであり、応募時は映像を主資料とする。
+Unity Splash、設定画面、test画面、長いCompleted画面は含めていない。既存のnormal-speed動作確認素材を使用し、Gameplay/Scene/Buildを変更していない。音声trackは互換性確保用の無音AACであり、応募時は映像を主資料とする。
 
 ## Public URL
 
