@@ -1,30 +1,73 @@
-# Phase 4 and Later Backlog
+# Phase 4 Visual Review and Later Backlog
 
-This document records non-blocking observations deferred after **Phase 3: Validated**. It is a backlog only; no Phase 4 implementation or scope commitment is started by this document.
+The first primitive-led Phase 4 pass failed Visual Review. Phase 4.1 integrated
+a curated CC0 external-asset subset. Phase 4.2 corrected Camera, HUD,
+Actor-identity, Pause-focus, and capture findings; its Human Visual Review
+passed those goals but found one High character-presentation issue. Phase 4.3
+implements the bounded Robot pose, Battery carry, floor-circuit, and split-Door
+corrections. **Phase 4.3: Automation Passed; Human Visual Review pending.**
+
+## Deferred from the Phase 4.1 Human Visual Review
+
+These Medium items are intentionally outside the bounded Phase 4.2 pass:
+
+- add low-contrast foundation, machinery, pipes, silhouettes, and environment
+  light outside the playable floor so the facility reads less like a platform
+  floating in a black void;
+- reduce main-route floor texture density, reserve busy panels for room edges,
+  tune metallic/smoothness, and author device-zone panels and subtle guidance;
+- conduct the broader Visual Polish / Art Direction pass requested for
+  Environment form/materials, Player/Echo production models and silhouettes,
+  device models, Lighting, VFX, HUD design, transitions, color, material, and
+  whole-screen cohesion.
+
+Phase 4.3 automation now supplies visual-child Idle/Walk/Carry/Interact/Stopped
+poses, a smaller chest-held Battery, floor-height right-angle circuits, and
+split retracting Door panels. Human review must determine whether foot sliding,
+Carry hand placement, Battery insertion, Door movement, and floor-circuit
+readability are actually resolved in motion. They are not automatically marked
+accepted here.
 
 ## Visual Polish / Art Direction
 
-### Medium: playable-greybox presentation looks too simple for a finished product
+### Addressed by automation: playable-greybox presentation looks too simple
 
 Human acceptance found the whole game visually plain and inexpensive-looking compared with a finished release. The observation does not block Phase 3 because the milestone intentionally delivers a Playable Greybox and all gameplay, comprehension, control, Japanese-display, and completion checks passed.
 
-Minimum future exploration scope:
+The corrective automated slice now includes:
 
-- improve Environment shapes, modular composition, and materials;
-- replace or refine Player and Echo models, silhouettes, and generation readability;
-- refine Door, PressurePlate, Battery, and PowerSocket modelling;
-- establish a coherent lighting direction;
-- add purposeful VFX for interaction, Echo replay, devices, Doors, and completion;
-- redesign the HUD hierarchy and finish its visual language;
-- improve Loop and Section transition presentation;
-- unify color, material response, texture quality, contrast, and the overall screen composition.
+- curated Quaternius modular facility floors, walls, columns, supports, props, Door frames, and Goal portal;
+- a static Quaternius Robot visual wrapper for Player/Echo with visor, carry pose, trail, cyclic generation color, and compact non-color generation marks;
+- dedicated Door, PressurePlate, Battery, PowerSocket, and Goal forms with emissive wiring;
+- restrained URP lighting, Bloom, Vignette, Color Adjustments, and ACES Tonemapping;
+- pooled event feedback and generated bounded Audio cues;
+- a panel/icon/progress-based HUD and packaged Japanese font;
+- automated 1920x1080 capture and measured performance gates.
 
-Replacement conditions: preserve Player/Echo/device readability, Japanese legibility, deterministic simulation boundaries, collider behavior, Stable IDs, and recorded-interaction tests while replacing greybox presentation. Art work must not move gameplay state into presentation components.
+Human review must determine whether the result is sufficiently above greybox quality for portfolio footage. A Fail does not invalidate Phase 3 gameplay, but Critical/High findings block `phase4-validated`.
 
 ## Source-blind pretest observations
 
 These were not reproduced as blocking human-acceptance issues, but remain useful polish candidates:
 
 - Medium: show delayed Echo replay progress more clearly so it is not mistaken for failed recorded Interaction.
-- Low: reduce world-label overlap when Player, Echo, Battery, and Socket cluster.
-- Low: remove the faint duplicate Pause title caused by overlapping paused-state presentation.
+- Resolved in Phase 4.1: persistent world labels were removed instead of merely reducing overlap.
+- Resolved in Phase 4.1: Pause presentation is one centered card with the gameplay HUD hidden.
+
+## Later art-production backlog
+
+- Replace or further art-direct the curated external meshes only if the Phase 4.1 human review still finds them below the intended portfolio bar; preserve collider and Stable-ID roots.
+- Add UVs, authored textures/decals, normal maps, richer material variation, and a final lightmap pass.
+- Add production character locomotion, interaction animation, Echo playback posing, and optional IK.
+- Reduce Goal-face overexposure without weakening its exit readability.
+- Continue reducing floor-pattern density where it competes with actors and devices.
+- Add final BGM, ambience, authored sound design, mixing, accessibility volume controls, and platform device testing.
+- Add production UI motion, final iconography, localization layout review, and ultrawide-specific art framing.
+- Produce trailer shots only after the Phase 4 human checklist passes and any Critical/High issue is rebuilt and retested.
+
+## Technical follow-up
+
+- Interactive Frame Debugger/Profiler capture is required because Draw Calls was unavailable and GPU Frame Time, SetPass, Triangles, and Vertices returned non-authoritative `0` values.
+- Inspect both Robot feet in motion: the vendor FBX importer removes one self-intersecting `Foot.L` polygon, although no automatic visible/Build defect was observed.
+- Recheck ordinary visible Quit on the human-review machine. Phase 4.1's nine-scenario shutdown matrix exited `0`, but the historical Phase 3/Phase 4 `UnityPlayer.dll` `0xC0000005` root cause remains unproven.
+- Judge black-void balance, external-kit cohesion, audio comfort, non-16:9 HUD/framing, and Player/Echo readability in motion rather than from still captures alone.

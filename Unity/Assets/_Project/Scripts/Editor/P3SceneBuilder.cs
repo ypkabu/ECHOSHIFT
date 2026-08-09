@@ -47,11 +47,27 @@ namespace EchoShift.Editor
         public static void BuildFromCommandLine()
         {
             BuildScene();
-            Debug.Log($"Phase 3 scene generated at {ScenePath}.");
+            Debug.Log($"Phase 3 scene validated or generated at {ScenePath}.");
         }
 
         public static void BuildScene()
         {
+            if (Phase5AIdentityPreviewBuilder.IsApprovedProductionSerializationCanonical(
+                    out string canonicalStatus, out int existingCanonicalAssets))
+            {
+                Scene active = SceneManager.GetActiveScene();
+                if (SceneManager.sceneCount != 1 || active.path != ScenePath)
+                    EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+                Debug.Log($"PHASE5A_PRODUCTION_CANONICAL_OK {canonicalStatus};writeCount=0");
+                return;
+            }
+
+            if (existingCanonicalAssets > 0)
+                throw new InvalidOperationException(
+                    $"PHASE5A_PRODUCTION_CANONICAL_MISMATCH {canonicalStatus};" +
+                    $"existingAssets={existingCanonicalAssets};writeCount=0");
+
+            Debug.Log($"PHASE5A_PRODUCTION_REBUILD_REQUIRED {canonicalStatus}");
             EnsureFolders();
             int playerLayer = RequireLayer("Player");
             int environmentLayer = RequireLayer("Environment");
@@ -61,6 +77,8 @@ namespace EchoShift.Editor
             LoopSettings settings = CreateSettings();
             Phase3TextCatalog catalog = CreateCatalog();
             Phase3CameraSettings cameraSettings = CreateCameraSettings();
+            Phase4VisualSettings phase4Settings = Phase4AssetBuilder.Build(catalog);
+            Phase5AIdentityPreviewBuilder.PrepareApprovedProductionAssets(phase4Settings);
             Quaternion worldLabelRotation = Quaternion.LookRotation(
                 cameraSettings.LookOffset - cameraSettings.Offset, Vector3.up);
             InputActionAsset actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(
@@ -79,8 +97,28 @@ namespace EchoShift.Editor
             Material powerWire = Material("PowerWire", new Color(0.8f, 0.2f, 1f, 1f), false, true);
             EchoPlayback echoPrefab = CreateEchoPrefab(
                 plateWire, echoLayer, worldLabelRotation);
+            Phase4SceneBuilder.PolishEchoPrefab(EchoPrefabPath, phase4Settings);
+            echoPrefab = AssetDatabase.LoadAssetAtPath<EchoPlayback>(EchoPrefabPath);
+            settings = AssetDatabase.LoadAssetAtPath<LoopSettings>(SettingsPath);
+            catalog = AssetDatabase.LoadAssetAtPath<Phase3TextCatalog>(TextCatalogPath);
+            cameraSettings = AssetDatabase.LoadAssetAtPath<Phase3CameraSettings>(CameraSettingsPath);
+            actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(P0SceneBuilder.InputActionsPath);
+            phase4Settings = AssetDatabase.LoadAssetAtPath<Phase4VisualSettings>(
+                Phase4AssetBuilder.SettingsPath);
+            if (settings == null || catalog == null || cameraSettings == null ||
+                actions == null || phase4Settings == null)
+                throw new InvalidOperationException("P3/P4 authored assets could not be reloaded.");
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            settings = AssetDatabase.LoadAssetAtPath<LoopSettings>(SettingsPath);
+            catalog = AssetDatabase.LoadAssetAtPath<Phase3TextCatalog>(TextCatalogPath);
+            cameraSettings = AssetDatabase.LoadAssetAtPath<Phase3CameraSettings>(CameraSettingsPath);
+            actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(P0SceneBuilder.InputActionsPath);
+            phase4Settings = AssetDatabase.LoadAssetAtPath<Phase4VisualSettings>(
+                Phase4AssetBuilder.SettingsPath);
+            if (settings == null || catalog == null || cameraSettings == null ||
+                actions == null || phase4Settings == null)
+                throw new InvalidOperationException("P3/P4 assets were unloaded while creating the scene.");
             GameObject sectionContainer = new GameObject("Puzzle Sections");
             PuzzleSectionController[] sections = new PuzzleSectionController[3];
             sections[0] = CreateSection(
@@ -111,7 +149,8 @@ namespace EchoShift.Editor
                 global.AddComponent<SectionTransitionCoordinator>();
             PauseMenuController pauseMenu = CreatePauseMenu(global.transform, coordinator, catalog);
             JapaneseFontApplier fontApplier = global.AddComponent<JapaneseFontApplier>();
-            fontApplier.Configure(catalog, new[] { sectionContainer.transform, global.transform });
+            fontApplier.Configure(catalog, new[] { sectionContainer.transform, global.transform },
+                phase4Settings.PackagedJapaneseFont, phase4Settings.PackagedJapaneseTmpFont);
             hud.SetFontApplier(fontApplier);
             coordinator.Configure(sections, camera, hud, pauseMenu, telemetry, 1.5f, 1f);
 
@@ -123,13 +162,18 @@ namespace EchoShift.Editor
                     sections[i], guide, catalog, i));
             }
 
+            Phase4SceneBuilder.Apply(sections, camera, hud, pauseMenu, coordinator,
+                fontApplier, phase4Settings);
+            Phase5AIdentityPreviewBuilder.ApplyApprovedRevision21ToProduction(
+                sections, global.transform, phase4Settings);
+
             StableIdValidationResult validation =
                 StableIdSceneValidator.ValidateScene(scene, out string validationError);
             if (!validation.IsValid) throw new InvalidOperationException(validationError);
 
             PlayerSettings.companyName = "Echo Shift Prototype";
             PlayerSettings.productName = "ECHO SHIFT";
-            PlayerSettings.bundleVersion = "0.3.0-ja-pretest";
+            PlayerSettings.bundleVersion = "0.4.0-automation";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             EditorSettings.serializationMode = SerializationMode.ForceText;
             EditorSceneManager.MarkSceneDirty(scene);
@@ -482,6 +526,7 @@ namespace EchoShift.Editor
             camera.fieldOfView = 48f;
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 120f;
+            obj.AddComponent<AudioListener>();
             SectionCameraController controller = obj.AddComponent<SectionCameraController>();
             controller.Configure(settings);
             return controller;
@@ -796,8 +841,17 @@ namespace EchoShift.Editor
             SerializedObject serialized = new SerializedObject(asset);
             serialized.FindProperty("offset").vector3Value = new Vector3(0f, 15f, -11f);
             serialized.FindProperty("lookOffset").vector3Value = new Vector3(0f, 0f, 1.25f);
-            serialized.FindProperty("smoothTime").floatValue = 0.18f;
+            serialized.FindProperty("smoothTime").floatValue = 0.24f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            asset.ConfigurePresentation(
+                2.6f, 0.2f, 1.5f,
+                48f, 52f, 54f, 0.32f,
+                new[]
+                {
+                    new SectionCameraBounds(new Vector2(-4.6f, -4.5f), new Vector2(4.6f, 4.6f)),
+                    new SectionCameraBounds(new Vector2(-4.6f, -4.5f), new Vector2(4.6f, 4.6f)),
+                    new SectionCameraBounds(new Vector2(-4.6f, -8.2f), new Vector2(4.6f, 9.2f))
+                });
             EditorUtility.SetDirty(asset);
             return asset;
         }

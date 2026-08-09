@@ -70,6 +70,10 @@ namespace EchoShift.Gameplay
             {
                 StartCoroutine(AutoQuitProbe());
             }
+            else if (HasCommandLineFlag("-phase4PauseQuitProbe"))
+            {
+                StartCoroutine(PauseQuitProbe());
+            }
         }
 
         private void Update()
@@ -134,7 +138,13 @@ namespace EchoShift.Gameplay
             _started = true;
             Debug.Log("PHASE3_STATE Playing reason=BootComplete section=1", this);
             if (waitForInteractiveStart && !Application.isBatchMode &&
-                !HasCommandLineFlag("-phase3AutoQuit"))
+                !HasCommandLineFlag("-phase3AutoQuit") &&
+                !HasCommandLineFlag("-phase4PerfProbe") &&
+                !HasCommandLineFlag("-phase4AutoCompleteProbe") &&
+                !HasCommandLineFlag("-phase4PauseQuitProbe") &&
+                !HasCommandLineFlag("-phase43PresentationProbe") &&
+                !HasCommandLineFlag("-phase43HumanReviewProbe") &&
+                !HasCommandLineFlag("-phase4Capture"))
             {
                 ArmInteractiveStartForTests();
             }
@@ -240,7 +250,7 @@ namespace EchoShift.Gameplay
             sections[0].RestartSection(false);
             sections[0].GetComponent<TutorialGuide>()?.ResetForSection();
             Subscribe(sections[0]);
-            sectionCamera.SetTarget(sections[0].Player.transform, true);
+            sectionCamera.SetSection(sections[0], true);
             telemetry.RecordRestartGame();
             telemetry.SectionStarted(1);
             _state.TryTransition(GameplayState.Playing, "RestartGameTest");
@@ -335,7 +345,7 @@ namespace EchoShift.Gameplay
             PuzzleSectionController section = sections[_activeSectionIndex];
             section.ActivateSection(false);
             Subscribe(section);
-            sectionCamera.SetTarget(section.Player.transform, _activeSectionIndex == 0);
+            sectionCamera.SetSection(section, _activeSectionIndex == 0);
             telemetry.SectionStarted(ActiveSectionNumber);
             hud.Bind(this);
             hud.SetObjective(hud.TextCatalog.GetSectionObjective(_activeSectionIndex));
@@ -524,6 +534,19 @@ namespace EchoShift.Gameplay
                       $"font={hud.JapaneseFontName};glyphs={hud.IsJapaneseReady};" +
                       $"telemetry={telemetry.SaveDirectory}", this);
             RequestQuit();
+        }
+
+        private IEnumerator PauseQuitProbe()
+        {
+            yield return null;
+            yield return null;
+            bool paused = SetPaused(true);
+            Debug.Log($"PHASE4_PAUSE_QUIT_PROBE menu={pauseMenu.IsVisible};paused={paused}", this);
+            pauseMenu.RequestQuit();
+            // Keep the automated confirmation cadence representative of two
+            // deliberate UI activations rather than dispatching both at once.
+            yield return new WaitForSecondsRealtime(0.25f);
+            pauseMenu.RequestQuit();
         }
 
         private static bool HasCommandLineFlag(string flag)

@@ -1,0 +1,32 @@
+# Phase 4 Art Direction
+
+**Phase 4.2: Automation Passed; repeat Human Visual Review pending**
+
+## Theme and mood
+
+ECHO//SHIFT takes place in an austere near-future research facility built for temporal-duplication experiments. It is clean, controlled, and readable, with a slightly unsettling black void beyond the maintained play space. A curated subset of Quaternius Modular Sci-Fi MegaKit provides the common architectural vocabulary; project-owned URP materials and wrappers keep it coherent rather than presenting unrelated asset-library props.
+
+## Composition priorities
+
+1. The walkable floor and Door openings read from the gameplay camera before decoration.
+2. Player, Echoes, and active devices hold the highest local contrast.
+3. Cyan and orange conduits explain Plate/Door and Socket/Door relationships.
+4. Neutral architecture supports silhouettes instead of competing with them.
+5. Background machine banks, columns, and framed boundaries suggest a larger facility without crossing the camera or increasing collider/gameplay density.
+
+## Shape language
+
+- Environment: external modular floor/wall panels, recessed charcoal bays, vertical columns, framed thresholds, consoles, and restrained props.
+- Player: a static external Robot mesh in a project-owned wrapper, with white/amber material treatment, clear forward visor, and visible carry state.
+- Echo: the same Robot family plus trail, cool emission, compact one/two/three-part generation marks, and stopped-state dimming; persistent floating identity text is excluded.
+- Pressure system: low cyan stepped pad, single-channel line, and single-bar Door badge.
+- Power system: keyed orange Battery, circular Socket mouth, double-channel line, and double-bar Door badge.
+- Goal: tall pale portal frame and floor beam, separated from device shapes and hazard red.
+
+## Lighting and finish
+
+One soft-shadow Directional Light defines form. Each active section uses no more than two unshadowed local lights for cool/warm path separation. Trilight ambient, restrained linear fog, mild Bloom/Vignette/Color Adjustments, and ACES Tonemapping support depth without hiding gameplay. Motion Blur, Chromatic Aberration, gameplay Depth of Field, dense particles, and extreme exposure are excluded.
+
+## Acceptance boundary
+
+Automation confirms source/license hashes, curated imports, asset/reference integrity, safe parameter ranges, captures, Builds, shutdown paths, and performance. Only a human review can decide whether greybox character has decreased enough, external-kit cohesion and black levels are appropriate, silhouettes/Robot feet read in motion, sound is comfortable, and the eight frames are suitable for portfolio or store-page exploration. Record that decision in `Phase4VisualAcceptance.md`.

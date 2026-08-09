@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef0473eb66ea994cae674da1ee23afa, type: 3}
+  m_Name: Phase4AudioCueSet
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4AudioCueSet
+  clips:
+  - {fileID: 8300000, guid: 876323a238db4d140b202bd33e21e946, type: 3}
+  - {fileID: 8300000, guid: 256f708cbdd03cd45beba52bd2bc09cd, type: 3}
+  - {fileID: 8300000, guid: 0796dc8b0df04444d9b7ca1bdf539c4f, type: 3}
+  - {fileID: 8300000, guid: 858d523cc5f594c48958e6e3a601b51d, type: 3}
+  - {fileID: 8300000, guid: 5e1c83b1c9d38884db04bbcfec640b0c, type: 3}
+  - {fileID: 8300000, guid: 9239e2c12350c6543b2443d29275c064, type: 3}
+  - {fileID: 8300000, guid: 5373308d407b81c48bdc84c58725485e, type: 3}
+  - {fileID: 8300000, guid: 84aa50f68d57085428624ad760f6586c, type: 3}
+  - {fileID: 8300000, guid: 84aa50f68d57085428624ad760f6586c, type: 3}
+  - {fileID: 8300000, guid: 84aa50f68d57085428624ad760f6586c, type: 3}
+  - {fileID: 8300000, guid: dc30d11ef697c34459c0661ef595e1d4, type: 3}
+  - {fileID: 8300000, guid: adbac70a95652fd478b2957cad563d83, type: 3}
+  - {fileID: 8300000, guid: dc30d11ef697c34459c0661ef595e1d4, type: 3}
+  - {fileID: 8300000, guid: b750b227d1f4609468e8949acfe8218a, type: 3}
+  - {fileID: 8300000, guid: ce18cf4d8b92b4e4d8e6e349d735fbdd, type: 3}
+  - {fileID: 8300000, guid: 685051c186420604fbe8454eba6daeee, type: 3}

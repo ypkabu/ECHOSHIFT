@@ -22,9 +22,24 @@ namespace EchoShift.Presentation
         [SerializeField] private Text carryText;
         [SerializeField] private Text stateText;
         [SerializeField] private Text failureText;
+        [SerializeField, Min(1f)] private float sectionIntroDuration = 4.5f;
+        [SerializeField, Min(1f)] private float tutorialNoticeDuration = 6f;
 
         private SectionTransitionCoordinator _coordinator;
         private float _failureUntil;
+        private InputSystemInputSource _inputSource;
+        private Interactor _interactor;
+        private InteractionSensor _sensor;
+        private string[] _timeTextCache = System.Array.Empty<string>();
+        private int _lastSectionNumber = -1;
+        private int _lastLoopNumber = -1;
+        private int _lastEchoCount = -1;
+        private int _lastMaximumEchoes = -1;
+        private int _lastRemainingTenths = -1;
+        private int _cachedMaximumTenths = -1;
+        private bool _lastCarrying;
+        private float _sectionIntroUntil;
+        private float _tutorialUntil;
 
         public Phase3TextCatalog TextCatalog => textCatalog;
         public bool IsJapaneseReady => textCatalog != null &&
@@ -37,6 +52,10 @@ namespace EchoShift.Presentation
         public string CurrentTutorial { get; private set; } = string.Empty;
         public string CurrentStateMessage { get; private set; } = string.Empty;
         public string LastFailureText { get; private set; } = string.Empty;
+        public float SectionIntroDuration => sectionIntroDuration;
+        public bool IsSectionIntroVisible { get; private set; }
+        public bool IsTutorialVisible { get; private set; }
+        public bool IsCarrying { get; private set; }
         public bool HasValidReferences => textCatalog != null && fontApplier != null && sectionText != null &&
             objectiveText != null && tutorialText != null &&
             loopText != null && timerText != null && echoText != null &&
@@ -67,6 +86,12 @@ namespace EchoShift.Presentation
         public void Bind(SectionTransitionCoordinator coordinator)
         {
             _coordinator = coordinator;
+            _lastSectionNumber = -1;
+            _lastLoopNumber = -1;
+            _lastEchoCount = -1;
+            _lastMaximumEchoes = -1;
+            _lastRemainingTenths = -1;
+            _cachedMaximumTenths = -1;
             RefreshNow();
         }
 
@@ -78,6 +103,7 @@ namespace EchoShift.Presentation
         private void Update()
         {
             RefreshNow();
+            RefreshTransientPresentation(Time.unscaledTime);
             if (_failureUntil > 0f && Time.unscaledTime >= _failureUntil)
             {
                 failureText.text = string.Empty;
@@ -91,38 +117,97 @@ namespace EchoShift.Presentation
                 !HasValidReferences) return;
             PuzzleSectionController section = _coordinator.ActiveSection;
             Core.LoopDirector director = section.Director;
-            sectionText.text = textCatalog.GetSectionName(_coordinator.ActiveSectionNumber - 1);
-            SetObjective(textCatalog.GetSectionObjective(_coordinator.ActiveSectionNumber - 1));
-            loopText.text = textCatalog.FormatLoop(director.LoopNumber);
-            float remaining = Mathf.Max(0f,
-                (director.MaxTicks - director.CurrentTick) / (float)Mathf.Max(1, director.TickRate));
-            timerText.text = textCatalog.FormatTime(remaining);
-            echoText.text = textCatalog.FormatEchoCount(director.EchoCount, director.MaxEchoes);
-            InputSystemInputSource source = section.Player.GetComponent<InputSystemInputSource>();
-            Interactor interactor = section.Player.Interactor;
-            InteractionSensor sensor = interactor?.Sensor;
-            bool hasCandidate = sensor?.CurrentTarget != null;
-            if (hasCandidate && !sensor.CurrentCanInteract)
+            int sectionNumber = _coordinator.ActiveSectionNumber;
+            if (sectionNumber != _lastSectionNumber)
             {
-                CurrentPrompt = textCatalog.GetFailureText(sensor.CurrentFailureReason);
+                _lastSectionNumber = sectionNumber;
+                sectionText.text = textCatalog.GetSectionName(sectionNumber - 1);
+                SetObjective(textCatalog.GetSectionObjective(sectionNumber - 1));
+                _inputSource = section.Player.GetComponent<InputSystemInputSource>();
+                _interactor = section.Player.Interactor;
+                _sensor = _interactor?.Sensor;
+                _sectionIntroUntil = Time.unscaledTime + sectionIntroDuration;
+                _lastCarrying = !(_interactor?.CarriedBattery != null);
+                _lastLoopNumber = -1;
+                _lastEchoCount = -1;
+                _lastMaximumEchoes = -1;
+                _lastRemainingTenths = -1;
+                endLoopText.text = textCatalog.EndLoop;
+                pausePromptText.text = textCatalog.PausePrompt;
+            }
+
+            if (director.LoopNumber != _lastLoopNumber)
+            {
+                _lastLoopNumber = director.LoopNumber;
+                loopText.text = textCatalog.FormatLoop(_lastLoopNumber);
+            }
+
+            int tickRate = Mathf.Max(1, director.TickRate);
+            int maximumTenths = Mathf.CeilToInt(director.MaxTicks * 10f / tickRate);
+            if (_cachedMaximumTenths != maximumTenths)
+                BuildTimeTextCache(maximumTenths);
+            int remainingTenths = Mathf.Clamp(
+                Mathf.RoundToInt((director.MaxTicks - director.CurrentTick) * 10f / tickRate),
+                0, maximumTenths);
+            if (remainingTenths != _lastRemainingTenths)
+            {
+                _lastRemainingTenths = remainingTenths;
+                timerText.text = _timeTextCache[remainingTenths];
+            }
+
+            if (director.EchoCount != _lastEchoCount || director.MaxEchoes != _lastMaximumEchoes)
+            {
+                _lastEchoCount = director.EchoCount;
+                _lastMaximumEchoes = director.MaxEchoes;
+                echoText.text = textCatalog.FormatEchoCount(_lastEchoCount, _lastMaximumEchoes);
+            }
+
+            bool hasCandidate = _sensor?.CurrentTarget != null;
+            bool carrying = _interactor?.CarriedBattery != null;
+            string resolvedPrompt;
+            if (hasCandidate && !_sensor.CurrentCanInteract)
+            {
+                resolvedPrompt = textCatalog.GetFailureText(_sensor.CurrentFailureReason);
             }
             else
             {
                 InteractionKind promptKind = hasCandidate
-                    ? sensor.CurrentKind
-                    : interactor?.CarriedBattery != null
+                    ? _sensor.CurrentKind
+                    : carrying
                         ? InteractionKind.DropBattery
                         : InteractionKind.None;
-                CurrentPrompt = ResolvePrompt(
-                    source != null ? source.LastPromptDevice : InputPromptDevice.Keyboard,
-                    promptKind,
-                    promptKind != InteractionKind.None);
+                bool showMovementOnboarding = promptKind == InteractionKind.None &&
+                    Time.unscaledTime < _sectionIntroUntil;
+                resolvedPrompt = promptKind != InteractionKind.None || showMovementOnboarding
+                    ? ResolvePrompt(
+                        _inputSource != null
+                            ? _inputSource.LastPromptDevice
+                            : InputPromptDevice.Keyboard,
+                        promptKind,
+                        promptKind != InteractionKind.None)
+                    : string.Empty;
             }
-            promptText.text = CurrentPrompt;
-            endLoopText.text = textCatalog.EndLoop;
-            pausePromptText.text = textCatalog.PausePrompt;
-            carryText.text = section.Player.Interactor?.CarriedBattery != null
-                ? textCatalog.BatteryCarried : string.Empty;
+            if (CurrentPrompt != resolvedPrompt)
+            {
+                CurrentPrompt = resolvedPrompt;
+                promptText.text = CurrentPrompt;
+            }
+
+            IsCarrying = carrying;
+            if (carrying != _lastCarrying)
+            {
+                _lastCarrying = carrying;
+                carryText.text = carrying ? textCatalog.BatteryCarried : string.Empty;
+            }
+        }
+
+        private void BuildTimeTextCache(int maximumTenths)
+        {
+            _cachedMaximumTenths = Mathf.Max(0, maximumTenths);
+            _timeTextCache = new string[_cachedMaximumTenths + 1];
+            for (int i = 0; i < _timeTextCache.Length; i++)
+                _timeTextCache[i] = textCatalog.FormatTime(i * 0.1f);
+            _lastRemainingTenths = -1;
         }
 
         public void SetStateMessage(string message)
@@ -141,6 +226,21 @@ namespace EchoShift.Presentation
         {
             CurrentTutorial = message ?? string.Empty;
             if (tutorialText != null) tutorialText.text = CurrentTutorial;
+            _tutorialUntil = string.IsNullOrEmpty(CurrentTutorial)
+                ? 0f
+                : Time.unscaledTime + tutorialNoticeDuration;
+        }
+
+        public void RefreshTransientPresentationForTests(float unscaledTime)
+        {
+            RefreshTransientPresentation(unscaledTime);
+        }
+
+        public void ExpireTransientPresentationForTests()
+        {
+            _sectionIntroUntil = float.NegativeInfinity;
+            _tutorialUntil = float.NegativeInfinity;
+            RefreshTransientPresentation(Time.unscaledTime);
         }
 
         public void ShowInteractionFailure(InteractionFailureReason reason)
@@ -169,6 +269,19 @@ namespace EchoShift.Presentation
             return hasCandidate
                 ? textCatalog.GetInteractionPrompt(interactionKind, false)
                 : textCatalog.MoveKeyboard;
+        }
+
+        private void RefreshTransientPresentation(float unscaledTime)
+        {
+            IsSectionIntroVisible = unscaledTime < _sectionIntroUntil;
+            IsTutorialVisible = !string.IsNullOrEmpty(CurrentTutorial) &&
+                unscaledTime < _tutorialUntil;
+            if (sectionText != null && sectionText.gameObject.activeSelf != IsSectionIntroVisible)
+                sectionText.gameObject.SetActive(IsSectionIntroVisible);
+            if (objectiveText != null && objectiveText.gameObject.activeSelf != IsSectionIntroVisible)
+                objectiveText.gameObject.SetActive(IsSectionIntroVisible);
+            if (tutorialText != null && tutorialText.gameObject.activeSelf != IsTutorialVisible)
+                tutorialText.gameObject.SetActive(IsTutorialVisible);
         }
     }
 }

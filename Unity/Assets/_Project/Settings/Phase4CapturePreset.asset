@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7415234510807145a2678b75e5dd945, type: 3}
+  m_Name: Phase4CapturePreset
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4CapturePreset
+  shots:
+  - fileName: 01_section1_plate_door_overview.png
+    moment: 0
+    sectionNumber: 1
+    localFocus: {x: 0, y: 0, z: -0.6}
+    cameraOffset: {x: 0, y: 16.5, z: -12.5}
+    fieldOfView: 52
+    showGameplayHud: 0
+  - fileName: 02_player_echo1_identity.png
+    moment: 1
+    sectionNumber: 1
+    localFocus: {x: -0.4, y: 0, z: -5.2}
+    cameraOffset: {x: -2.4, y: 10.5, z: -7.2}
+    fieldOfView: 43
+    showGameplayHud: 0
+  - fileName: 03_echo_plate_player_door.png
+    moment: 2
+    sectionNumber: 1
+    localFocus: {x: -0.4, y: 0, z: -1.5}
+    cameraOffset: {x: 2.2, y: 12.5, z: -8.8}
+    fieldOfView: 46
+    showGameplayHud: 0
+  - fileName: 04_battery_held_close.png
+    moment: 3
+    sectionNumber: 2
+    localFocus: {x: 0.6, y: 0.4, z: -2.5}
+    cameraOffset: {x: -3.2, y: 8.5, z: -5.8}
+    fieldOfView: 40
+    showGameplayHud: 0
+  - fileName: 05_recorded_insert_door_open.png
+    moment: 4
+    sectionNumber: 2
+    localFocus: {x: 0.4, y: 0, z: 0.2}
+    cameraOffset: {x: 2.8, y: 11.5, z: -7.5}
+    fieldOfView: 44
+    showGameplayHud: 0
+  - fileName: 06_echo1_echo2_roles.png
+    moment: 5
+    sectionNumber: 3
+    localFocus: {x: -0.3, y: 0, z: -2}
+    cameraOffset: {x: -1, y: 14.5, z: -10.5}
+    fieldOfView: 49
+    showGameplayHud: 0
+  - fileName: 07_player_goal_arrival.png
+    moment: 6
+    sectionNumber: 3
+    localFocus: {x: 0, y: 0.5, z: 9.2}
+    cameraOffset: {x: 2.4, y: 9.2, z: -6.2}
+    fieldOfView: 42
+    showGameplayHud: 0
+  - fileName: 08_compact_gameplay_hud.png
+    moment: 7
+    sectionNumber: 3
+    localFocus: {x: 0, y: 0, z: -0.5}
+    cameraOffset: {x: 0, y: 15.2, z: -11.2}
+    fieldOfView: 50
+    showGameplayHud: 1

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 756e9bd8493a3614ca02cdead6e61d21, type: 3}
+  m_Name: Phase4ExternalAssetCatalog
+  m_EditorClassIdentifier: EchoShift.Runtime::EchoShift.Presentation.Phase4ExternalAssetCatalog
+  floorModules:
+  - {fileID: 4802439604243896655, guid: 4706ba908ac6823488e873913984ccf5, type: 3}
+  - {fileID: 3360161017278468841, guid: 973da3afa838d184b8062792f20748cf, type: 3}
+  - {fileID: 765051909785525141, guid: a4ec6f417dadd414eae2b56e7f0cf082, type: 3}
+  - {fileID: 2677082615774616024, guid: e66019462627404459873d47ed772e9e, type: 3}
+  wallModules:
+  - {fileID: 3376399271019580550, guid: ace7d8e2f59a3374ab3e7b662c4a0360, type: 3}
+  - {fileID: 4392144716588706661, guid: 4b0c48e36295be845ae44da4bcbdfa8f, type: 3}
+  - {fileID: 4052592767435346277, guid: bc1367491ebb84643b665636375a6ee9, type: 3}
+  - {fileID: 4544284423344167534, guid: 682bf992e1090ab40b475d900c89cc15, type: 3}
+  - {fileID: 669855736084768411, guid: fbfce1c22675e304f9a5d6fd4ba4c939, type: 3}
+  - {fileID: 4962649676839201474, guid: 3ee7e2d20e2b472498148198f8d143a5, type: 3}
+  columnModules:
+  - {fileID: 7955791128043563869, guid: e0eb042a987a9934da0c437199b6766e, type: 3}
+  - {fileID: 114899562062328420, guid: 052098ce89dd9da4686d6966037a1a79, type: 3}
+  - {fileID: 6088760135638643943, guid: 044dc50794cacf2409f03ede193b9dff, type: 3}
+  propModules:
+  - {fileID: 8009575563383624526, guid: 0569cab806c43b54ba915e2a4c07ccb5, type: 3}
+  - {fileID: 4541236886687796536, guid: b465b7216d7fa5e4c803f45458c3feda, type: 3}
+  - {fileID: 6674535231300697547, guid: 27b66b0e4aafe3d498cb82e76512c997, type: 3}
+  - {fileID: 1606237765912516842, guid: 3d922c74ab86a9444a38a826f6438422, type: 3}
+  - {fileID: 1301240157014380741, guid: d83d6056a531dfe43b9cc72fd38d9f2b, type: 3}
+  - {fileID: 76147710677514776, guid: e3e223571fcedc34c89b7c78ba4e7ec7, type: 3}
+  - {fileID: 6086056975090597941, guid: ff33c18bc06dbec4cad1fe80496d91f7, type: 3}
+  doorFrame: {fileID: 1291270410587922723, guid: 7e529d1e6cd1a8446bf5f52a90934961, type: 3}
+  doorPanel: {fileID: 939773371654515664, guid: de1c83457d775fd43a57b309935d2c36, type: 3}
+  robotVisual: {fileID: 8961327178397487877, guid: 2d7a1ccbfeb3c5a43a9d968a9d204872, type: 3}
+  floorMaterial: {fileID: 2100000, guid: 88695b250d43b40409cff244fc34e2c8, type: 2}
+  wallMaterial: {fileID: 2100000, guid: 0c673aea6a688b34b8ecfa665a2afa3e, type: 2}
+  darkMaterial: {fileID: 2100000, guid: b459336fafea0e541b9a25d078f01a60, type: 2}
+  trimMaterial: {fileID: 2100000, guid: 975998f85524dda45bb4e5189ace702b, type: 2}

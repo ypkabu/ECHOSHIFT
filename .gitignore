@@ -13,6 +13,9 @@
 /Unity/[Bb]uilds/
 /TestResults/
 /Logs/
+/Captures/
+/ExternalDownloads/
+/*.unitypackage
 /Playtest/Phase3-JA-BlackBox/Runtime/
 /Playtest/Phase3-JA-BlackBox/Logs/
 

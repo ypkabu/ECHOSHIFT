@@ -13,6 +13,7 @@ namespace EchoShift.Core
     {
         public event Action<LoopHistorySummary> LoopCompleted;
         public event Action<InteractionExecution, LoopActor> InteractionResolved;
+        public event Action<Vector3, int> EchoRemoved;
 
         [SerializeField] private LoopSettings settings;
         [SerializeField] private PlayerSimulation playerSimulation;
@@ -571,6 +572,7 @@ namespace EchoShift.Core
                 _echoes.RemoveAt(0);
                 History.MarkEvicted(oldest.ReplayGeneration);
                 oldest.ReleaseCarriedForReset();
+                EchoRemoved?.Invoke(oldest.transform.position, oldest.ReplayGeneration);
                 oldest.gameObject.SetActive(false);
                 Destroy(oldest.gameObject);
             }
@@ -625,6 +627,7 @@ namespace EchoShift.Core
                 }
 
                 echo.ReleaseCarriedForReset();
+                EchoRemoved?.Invoke(echo.transform.position, echo.ReplayGeneration);
                 echo.gameObject.SetActive(false);
                 Destroy(echo.gameObject);
             }

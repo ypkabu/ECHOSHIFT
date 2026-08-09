@@ -4,7 +4,7 @@
 
 ECHO//SHIFT is a Unity 6 URP game built around recording and replaying the player's previous actions as physical Echo actors.
 
-Phase 3 is formally validated. It packages P0-P2 mechanics into one three-section playable greybox with Japanese player-facing UI, explicit game states, in-place section lifecycle, runtime UI/camera feedback, local telemetry, and a natural Standalone quit path. Final automation, a source-blind Codex retest, and human acceptance pass with Critical 0 and High 0. The accepted Medium visual-simplicity issue and non-blocking presentation observations are recorded in `Docs/Phase4Backlog.md`; Phase 4 implementation has not started.
+Phase 3 is formally validated. After the first Phase 4 primitive-led presentation failed human Visual Review, Phase 4.1 integrated a curated CC0 subset of Quaternius modular sci-fi/robot assets and Kenney audio without changing P0-P3 mechanics, Stable IDs, or colliders. Phase 4.2 corrected camera composition, persistent HUD, Actor identity, Pause focus, and capture framing. Its Human Visual Review passed those bounded goals but found a remaining High character-presentation issue. Phase 4.3 adds visual-child-only procedural Robot poses, a smaller chest-held Battery, floor-bound circuit meshes, and split retracting Door visuals. **Phase 4.3: Automation Passed; Human Visual Review pending.** Do not call Phase 4 validated until `Docs/Phase4VisualAcceptance.md` is completed against the Phase 4.3 Build and any remaining Critical/High finding is fixed and revalidated.
 
 ## Required workflow
 
@@ -23,7 +23,7 @@ After changing files:
 3. Review the diff.
 4. Report changed files, tests, manual verification steps, and unresolved risks.
 
-Do not commit, tag, push, create branches, or rewrite Git history unless the active user request explicitly authorizes the specific operation. Never push or rewrite history for Phase 3. Do not create `phase3-validated` until every required manual acceptance item is recorded and accepted.
+Do not commit, tag, push, create branches, or rewrite Git history unless the active user request explicitly authorizes the specific operation. Never push or rewrite history for Phase 4. Do not create `phase4-validated` until every required visual acceptance item is recorded and accepted.
 
 ## Architecture rules
 
@@ -72,11 +72,11 @@ At minimum, maintain tests for:
 
 Tests must not depend on Asset Store content.
 
-## Scope restrictions after Phase 3
+## Scope restrictions after Phase 4 automation
 
-Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final art, audio, or VFX. The Phase 3 pause/HUD flow is allowed; do not expand it into a production front end without a later plan.
+Do not implement enemy AI, combat, inventory, dialogue, save data, Steamworks, achievements, online features, procedural generation, arbitrary timeline scrubbing, full physics rewinding, final character/environment art, production BGM, or advanced animation. The bounded Phase 4 VFX/audio/HUD flow is allowed; do not expand it into a production front end or content pipeline without a later plan.
 
-Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Use Unity primitives and temporary materials until an art milestone explicitly replaces them.
+Do not expand the validated Phase 1 interaction model into a general inventory, arbitrary physics rewind, cross-scene persistence, or production content system without a later milestone plan and ADR. Curated third-party originals stay isolated under `Assets/_Project/ThirdParty`; project-owned wrappers/materials stay under `Assets/_Project/Art`. Gameplay roots, Stable IDs, colliders, and replay behavior must not be delegated to imported assets.
 
 ## Documentation
 

@@ -3,7 +3,13 @@
   "rootNamespace": "EchoShift.Tests",
   "references": [
     "EchoShift.Runtime",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+    ,"UnityEngine.AudioModule"
+    ,"UnityEngine.ParticleSystemModule"
+    ,"UnityEngine.AnimationModule"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

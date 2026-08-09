@@ -10,6 +10,8 @@ namespace EchoShift.Presentation
         [SerializeField] private TrailRenderer trail;
         [SerializeField] private Renderer identityRing;
         [SerializeField] private TextMesh identityLabel;
+        [SerializeField] private Phase4ActorVisual phase4Visual;
+        private MaterialPropertyBlock _identityProperties;
         private Vector3 _baseScale;
         private int _lastSuccess;
         private int _lastFailure;
@@ -29,6 +31,8 @@ namespace EchoShift.Presentation
         {
             playback ??= GetComponent<EchoPlayback>();
             trail ??= GetComponent<TrailRenderer>();
+            phase4Visual ??= GetComponent<Phase4ActorVisual>();
+            _identityProperties = new MaterialPropertyBlock();
             if (identityRing == null)
             {
                 Transform ring = transform.Find("Echo Identity Ring");
@@ -59,11 +63,13 @@ namespace EchoShift.Presentation
             {
                 _lastSuccess = playback.InteractionSuccessCount;
                 _pulse = 1f;
+                phase4Visual?.PulseInteraction(true);
             }
             if (playback.InteractionFailureCount != _lastFailure)
             {
                 _lastFailure = playback.InteractionFailureCount;
                 _pulse = -1f;
+                phase4Visual?.PulseInteraction(false);
             }
             _pulse = Mathf.MoveTowards(_pulse, 0f, Time.unscaledDeltaTime * 4f);
             float scale = IsStopped ? 0.92f : 1f + Mathf.Abs(_pulse) * 0.18f;
@@ -81,11 +87,11 @@ namespace EchoShift.Presentation
                 identityLabel.color = new Color(color.r, color.g, color.b, 1f);
             }
             if (identityRing == null) return;
-            MaterialPropertyBlock properties = new MaterialPropertyBlock();
-            identityRing.GetPropertyBlock(properties);
-            properties.SetColor("_BaseColor", new Color(color.r, color.g, color.b, 1f));
-            properties.SetColor("_EmissionColor", color * 1.6f);
-            identityRing.SetPropertyBlock(properties);
+            _identityProperties ??= new MaterialPropertyBlock();
+            identityRing.GetPropertyBlock(_identityProperties);
+            _identityProperties.SetColor("_BaseColor", new Color(color.r, color.g, color.b, 1f));
+            _identityProperties.SetColor("_EmissionColor", color * 1.6f);
+            identityRing.SetPropertyBlock(_identityProperties);
         }
     }
 }
