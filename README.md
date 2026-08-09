@@ -107,10 +107,6 @@ Docs/
 2. `ECHO SHIFT/Build Phase 3 Scene`で`P3_PlayableGreybox.unity`を生成・確認します。
 3. BatchModeのScene Builder、EditMode、PlayMode、Buildコマンドは[Docs/TestPlan.md](Docs/TestPlan.md)に記録しています。
 
-## AI Tools
-
-実装方針の整理、コードのたたき台、調査、テスト観点、文書整理にAIツールを使用しました。仕様判断、提案の採否、Unityへの統合、動作確認、修正は自分で行っています。
-
 ## Assets and Licenses
 
 - Quaternius Modular Sci-Fi MegaKit / Animated Robot Pack: CC0 1.0
