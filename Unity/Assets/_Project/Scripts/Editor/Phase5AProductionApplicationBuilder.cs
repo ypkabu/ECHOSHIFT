@@ -62,18 +62,42 @@ namespace EchoShift.Editor
 
         public static bool IsApprovedProductionSerializationCanonical(out string status)
         {
-            for (int i = 0; i < ApprovedProductionSerializationHashes.Length; i++)
+            return IsApprovedProductionSerializationCanonical(out status, out _);
+        }
+
+        public static bool IsApprovedProductionSerializationCanonical(
+            out string status, out int existingAssetCount)
+        {
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            return ValidateCanonicalSerializationHashes(
+                ApprovedProductionSerializationHashes, projectRoot,
+                out status, out existingAssetCount);
+        }
+
+        public static bool ValidateCanonicalSerializationHashes(
+            IReadOnlyList<KeyValuePair<string, string>> expectedAssets,
+            string rootDirectory, out string status, out int existingAssetCount)
+        {
+            if (expectedAssets == null)
+                throw new ArgumentNullException(nameof(expectedAssets));
+            if (string.IsNullOrEmpty(rootDirectory))
+                throw new ArgumentException("A canonical hash root is required.",
+                    nameof(rootDirectory));
+
+            existingAssetCount = 0;
+            string firstMissing = null;
+            string firstMismatch = null;
+            for (int i = 0; i < expectedAssets.Count; i++)
             {
-                KeyValuePair<string, string> expected =
-                    ApprovedProductionSerializationHashes[i];
-                string absolute = Path.GetFullPath(Path.Combine(
-                    Application.dataPath, "..", expected.Key));
+                KeyValuePair<string, string> expected = expectedAssets[i];
+                string absolute = Path.GetFullPath(Path.Combine(rootDirectory, expected.Key));
                 if (!File.Exists(absolute))
                 {
-                    status = $"missing={expected.Key}";
-                    return false;
+                    if (firstMissing == null) firstMissing = $"missing={expected.Key}";
+                    continue;
                 }
 
+                existingAssetCount++;
                 string actual;
                 using (SHA256 sha = SHA256.Create())
                 {
@@ -84,12 +108,24 @@ namespace EchoShift.Editor
                 if (!string.Equals(actual, expected.Value,
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    status = $"mismatch={expected.Key};expected={expected.Value};actual={actual}";
-                    return false;
+                    if (firstMismatch == null)
+                        firstMismatch = $"mismatch={expected.Key};" +
+                            $"expected={expected.Value};actual={actual}";
                 }
             }
 
-            status = $"assets={ApprovedProductionSerializationHashes.Length}";
+            if (firstMismatch != null)
+            {
+                status = firstMismatch;
+                return false;
+            }
+            if (firstMissing != null)
+            {
+                status = firstMissing;
+                return false;
+            }
+
+            status = $"assets={expectedAssets.Count}";
             return true;
         }
 

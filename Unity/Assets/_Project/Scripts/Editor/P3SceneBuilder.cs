@@ -53,7 +53,7 @@ namespace EchoShift.Editor
         public static void BuildScene()
         {
             if (Phase5AIdentityPreviewBuilder.IsApprovedProductionSerializationCanonical(
-                    out string canonicalStatus))
+                    out string canonicalStatus, out int existingCanonicalAssets))
             {
                 Scene active = SceneManager.GetActiveScene();
                 if (SceneManager.sceneCount != 1 || active.path != ScenePath)
@@ -61,6 +61,11 @@ namespace EchoShift.Editor
                 Debug.Log($"PHASE5A_PRODUCTION_CANONICAL_OK {canonicalStatus};writeCount=0");
                 return;
             }
+
+            if (existingCanonicalAssets > 0)
+                throw new InvalidOperationException(
+                    $"PHASE5A_PRODUCTION_CANONICAL_MISMATCH {canonicalStatus};" +
+                    $"existingAssets={existingCanonicalAssets};writeCount=0");
 
             Debug.Log($"PHASE5A_PRODUCTION_REBUILD_REQUIRED {canonicalStatus}");
             EnsureFolders();

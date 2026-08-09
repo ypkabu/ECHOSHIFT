@@ -60,7 +60,7 @@
 `P3SceneBuilder.BuildScene`のwrite pathへ入る前に、承認済み4 assetのexact SHA-256を比較するEditor-only canonical guardを追加した。
 
 - 4件がすべてbyte-identicalなら、既存P3 Sceneを必要時だけread-onlyで開き、Phase 4 asset build、Volume override再作成、Prefab save、Scene再生成、`SaveAssets`を実行しない。
-- 1件でもmissing／mismatchなら、pathとexpected／actual hashをログへ記録し、従来bootstrap pathへ進む。dirty flagだけを抑える処理、実行後のcheckout／restore、`.gitignore`による隠蔽は行わない。
+- 1件でもmismatch、または一部assetだけmissingなら、pathとexpected／actual hashを含む`PHASE5A_PRODUCTION_CANONICAL_MISMATCH`でwrite開始前にfail-closedする。4件すべてが存在しない初期bootstrapだけは従来pathを許可する。dirty flagだけを抑える処理、実行後のcheckout／restore、`.gitignore`による隠蔽は行わない。
 - `BuildScene()`を直接呼ぶ既存Editor testにも同じ境界を適用したため、test suite内の再実行もProductionをdirtyにしない。
 - canonical hit時の明示markerは`PHASE5A_PRODUCTION_CANONICAL_OK assets=4;writeCount=0`。
 - Visual、Audio、Runtime Gameplay、ThirdParty、Packages、Project Settingsは変更していない。
@@ -77,6 +77,8 @@
 4. 各Run後にcanonical guardが引き続き成立することを確認する。
 
 Targeted result: `1/1 Pass`、failed `0`、skipped `0`。Full EditModeにも含まれる。
+
+Formal Revalidation前のGate 4監査で、最初のguard実装はmismatch検出後にlegacy rebuildへ進むことが判明した。Production fileを破壊せずに検証するisolated temporary fixtureを追加し、誤ったexpected hashがactual hashとともに報告されること、fixture bytesとexpected baselineが更新されないことを確認した。Production assetが1件以上存在するmismatch／partial-missing状態は`writeCount=0`で例外終了するよう修正した。
 
 ## Post-fix proof
 
@@ -143,7 +145,7 @@ Unity／UnityCrashHandler residual process `0`から開始し、同じLibrary、
 ## Remaining risks and replacement condition
 
 - Exact canonical hashesはApproved Revision 2.1 Productionに意図的に固定している。将来、Human承認済みProduction assetを正当に変更するmilestoneでは、新しい正式状態を検証したうえで4 hashを同じchange set内で更新する必要がある。
-- missing／mismatch時のlegacy bootstrap pathは空Project生成用として残るが、その生成YAML自体のcross-session canonicalizationは本修正の保証対象外である。承認済みProductionからの再実行はexact mismatchを黙って無視しない。
+- 4 canonical assetがすべて存在しない場合だけlegacy bootstrap pathを残すが、その生成YAML自体のcross-session canonicalizationは本修正の保証対象外である。承認済みProductionまたはpartial stateからの再実行はexact mismatchを黙って無視せず、破壊的write前に停止する。
 - Phase 5A Formal Validationは過去結果を流用せず、次工程で全Gateを最初から再実行する必要がある。
 
 ## Git

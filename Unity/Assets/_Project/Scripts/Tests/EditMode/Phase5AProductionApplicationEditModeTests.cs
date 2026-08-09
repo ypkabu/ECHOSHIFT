@@ -199,6 +199,49 @@ namespace EchoShift.Tests
             }
         }
 
+        [Test]
+        public void CanonicalGuardRejectsIsolatedMismatchWithoutChangingFileOrBaseline()
+        {
+            string root = Path.Combine(Path.GetTempPath(),
+                $"EchoShift-Phase5A-Canonical-{Guid.NewGuid():N}");
+            Directory.CreateDirectory(root);
+            const string relativePath = "isolated-production-copy.asset";
+            string absolute = Path.Combine(root, relativePath);
+            byte[] original =
+            {
+                0x45, 0x43, 0x48, 0x4f, 0x2f, 0x2f,
+                0x53, 0x48, 0x49, 0x46, 0x54
+            };
+            File.WriteAllBytes(absolute, original);
+            string actual = HashAbsolute(absolute);
+            const string rejectedExpected =
+                "0000000000000000000000000000000000000000000000000000000000000000";
+            KeyValuePair<string, string>[] fixture =
+            {
+                new KeyValuePair<string, string>(relativePath, rejectedExpected)
+            };
+
+            try
+            {
+                bool accepted = Phase5AIdentityPreviewBuilder
+                    .ValidateCanonicalSerializationHashes(
+                        fixture, root, out string status, out int existingAssetCount);
+
+                Assert.That(accepted, Is.False);
+                Assert.That(existingAssetCount, Is.EqualTo(1));
+                Assert.That(status, Does.Contain($"mismatch={relativePath}"));
+                Assert.That(status, Does.Contain($"expected={rejectedExpected}"));
+                Assert.That(status, Does.Contain($"actual={actual}"));
+                Assert.That(HashAbsolute(absolute), Is.EqualTo(actual));
+                Assert.That(fixture[0].Value, Is.EqualTo(rejectedExpected));
+            }
+            finally
+            {
+                if (File.Exists(absolute)) File.Delete(absolute);
+                if (Directory.Exists(root)) Directory.Delete(root);
+            }
+        }
+
         private static void AssertApprovedMotif(Transform model)
         {
             Assert.That(model, Is.Not.Null);
@@ -256,6 +299,11 @@ namespace EchoShift.Tests
         private static string Hash(string assetPath)
         {
             string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", assetPath));
+            return HashAbsolute(absolute);
+        }
+
+        private static string HashAbsolute(string absolute)
+        {
             using SHA256 sha = SHA256.Create();
             return BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(absolute)))
                 .Replace("-", string.Empty);
