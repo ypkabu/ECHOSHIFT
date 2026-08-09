@@ -33,7 +33,7 @@ Phase 5A Human-selected direction。Selected Revision 1はAutomation Passed／Hu
 - 横長版、正方形Icon版、単色版を持つ。
 - Echo Chamberや背景Assetなしで成立させる。
 - 小型表示では細線を減らし、欠け位置と3 Tickを残す。
-- 既存Fontだけを使い、新規外部素材、画像生成AI、既存作品の模倣を禁止する。
+- 既存Fontだけを使い、新規外部素材の追加と既存作品の模倣を禁止する。
 
 ## Echo Chamber
 

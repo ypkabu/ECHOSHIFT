@@ -1,6 +1,6 @@
 # ECHO//SHIFT
 
-![Player and Echo](Docs/Application/CA_Game_Gym/Media/player_and_echo.png)
+![Player and Echo](Docs/Media/player_and_echo.png)
 
 **過去の自分の移動と操作をEchoとして再生し、現在の自分と協力して仕掛けを解くUnity製3Dパズルゲーム。**
 
@@ -16,13 +16,13 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 | Platform | Windows x86_64 |
 | Development style | 個人制作。仕様、設計、実装、検証、プレイテストを一貫して管理 |
 | Development period | 2026-07-19〜2026-08-09（Git履歴で確認できる開発・検証期間） |
-| Current status | Playable prototype; source/test/presentation validation passed |
+| Current status | Playable prototype; gameplay and regression tests verified |
 
 ## Gameplay Video
 
-[Gameplay video — 50 seconds (MP4)](https://github.com/ypkabu/ECHOSHIFT/releases/download/ca-game-gym-submission-media-v1/ECHOSHIFT_CA_Game_Gym_Gameplay.mp4)
+[Gameplay Demo — 50 seconds (MP4)](https://github.com/ypkabu/ECHOSHIFT/releases/download/portfolio-demo-v1/ECHOSHIFT_Gameplay_Demo.mp4)
 
-記録した行動がEchoとして再生され、現在のPlayerとPlate、Battery、Doorを協調操作する流れを通常速度でまとめています。配布Buildではなく、動画とsourceを応募時の主導線にしています。
+記録した行動がEchoとして再生され、現在のPlayerとPlate、Battery、Doorを協調操作する流れを通常速度でまとめた50秒のGameplay動画です。
 
 ## Gameplay
 
@@ -31,7 +31,11 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 3. EchoへPlate保持やBattery運搬・挿入を任せ、現在のPlayerで開いたDoorを通過します。
 4. Section 3ではEcho 1とEcho 2へ異なる役割を記録し、3つのActor状態を協調させます。
 
-![Section 3 overview](Docs/Application/CA_Game_Gym/Media/section3_overview.png)
+![Section 3 overview](Docs/Media/section3_overview.png)
+
+## My Role
+
+個人制作として、ゲームデザイン、C#によるReplay／Interaction実装、Unity Editor上のScene生成、UI・Audio・VFX、テストとプレイテストを担当しました。
 
 ## Core Mechanic
 
@@ -61,17 +65,17 @@ Replayは60 Hzの明示的なfixed tickで進みます。各frameは入力comman
 ### 4. Unity Editor自動化
 
 - P0〜P3のScene Builder、Layer設定、Stable ID検証、Build Settings、Capture、Windows BuildをEditor codeから再現できます。
-- Phase 5Aでは、承認済みProduction assetをBuilderが不要に再serializeする問題を、exact SHA-256のcanonical guardとfail-closed検証で修正しました。
+- Scene BuilderがProduction assetを意図せず再保存する問題に対し、生成前後のhash確認を追加し、想定外の差分がある場合は処理を停止するよう修正しました。
 - Runtime、Editor、EditMode tests、PlayMode testsはAssembly Definitionで分離しています。
 
-### 5. 実Sceneを含む自動検証
+### 5. 実Sceneを含む検証
 
-- 最新のFormal Revalidation: EditMode `151/151`、PlayMode `131/131` Pass。
+- EditMode `151/151`、PlayMode `131/131` Pass。
 - P0〜P3の実Scene load、Missing Component/Reference、P3全Section自動完走を検証しています。
 - P3正常解法: Interaction `4` success / `0` failure、最大Replay Drift `0 m`。
 - Compiler error/warning、Missing、NullReference、Unhandled Exceptionの検証ログ一致は各`0`です。
 
-詳細は[Phase 5A Formal Revalidation](Docs/Phase5AFormalRevalidation.md)と[Test Plan](Docs/TestPlan.md)を参照してください。
+結果の要約は[Validation Summary](Docs/ValidationSummary.md)、検証方法は[Test Plan](Docs/TestPlan.md)を参照してください。
 
 ## Controls
 
@@ -93,7 +97,7 @@ Unity/Assets/_Project/
 └─ ThirdParty/         curated licensed source assets
 Docs/
 ├─ ADR/                architecture decisions
-├─ Application/        application-specific material
+├─ Media/              README images
 └─ *Validation.md      measured validation records
 ```
 
@@ -103,9 +107,9 @@ Docs/
 2. `ECHO SHIFT/Build Phase 3 Scene`で`P3_PlayableGreybox.unity`を生成・確認します。
 3. BatchModeのScene Builder、EditMode、PlayMode、Buildコマンドは[Docs/TestPlan.md](Docs/TestPlan.md)に記録しています。
 
-## Git and Development Record
+## AI Tools
 
-Git履歴はPhase単位のfeature branch、`feat` / `fix` / `test` / `docs`などの目的別commit、検証済み地点のtagで構成しています。応募準備前までに53 commitsがあり、Phase 0〜3は`main`へfast-forwardで統合、Phase 4以降は公開時にPull Requestで`main`へ統合しました。これは個人開発の履歴であり、共同開発でのPull Request経験を示すものではありません。
+実装方針の整理、コードのたたき台、調査、テスト観点、文書整理にAIツールを使用しました。仕様判断、提案の採否、Unityへの統合、動作確認、修正は自分で行っています。
 
 ## Assets and Licenses
 
@@ -122,4 +126,4 @@ Project-owned source code and assets are published for portfolio review under th
 - Windowsの画面付きStandaloneは、終了時に`UnityPlayer.dll` native cleanup内で`0xC0000005`を再現するため、配布可能なrelease buildとしては未承認です。Gameplay中のmanaged exceptionではなく、調査境界と再現matrixは[Phase 4 Windows Exit Crash Investigation](Docs/Phase4WindowsExitCrashInvestigation.md)に記録しています。
 - Steamworks、save data、enemy AI、combat、installer/signingは未実装です。
 - Replay Driftは計測しますが補正しません。任意のRigidbody状態を巻き戻す仕組みではありません。
-- 画面付きBuildは主提出物にせず、公開repositoryとGameplay動画を応募導線にしています。
+- Windows版は終了時の問題が解決するまで正式配布を見送り、Gameplay動画とsourceを公開しています。

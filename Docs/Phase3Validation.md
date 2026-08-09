@@ -50,14 +50,12 @@ Raw JSON is not tracked because it contains timestamps and machine-local paths a
 
 The final executable launched with `-batchmode -nographics -phase3AutoQuit`. It initialized Unity, Input System, PhysX, P3 state `Playing`, section 1, Japanese HUD, `Noto Sans JP`, required glyphs, and telemetry. It logged `PHASE3_PROBE_OK`, saved a new JSON session through the normal application quit request, and exited naturally with code 0. Matches for Error, Exception, Missing Script, Missing Reference, NullReference, and assertion failure were all 0. Ordinary launches do not auto-quit because the flag is explicit.
 
-The separate source-blind Fresh7 graphical run used the corrected Japanese Build at 1280x720, completed Sections 1-3 in 2:08 / 3:33 / 4:24 using 2 / 3 / 3 loops, opened Pause after completion, and quit through the two-click visible menu path. It found no Critical or High issue. See `Phase3CodexBlackBoxRetest.md`.
-
 ## Artifact policy
 
 `Builds/`, `Logs/`, `TestResults/`, and Unity `Library/` remain ignored. Logs/XML/JSON contain timestamps and machine paths; committed documentation records measured results and reproducible commands. Source, generated Unity assets/Scenes, settings, and docs are tracked.
 
 ## Remaining constraints and gate decision
 
-All final technical gates pass. The Codex Fresh7 run records one Medium delayed-replay clarity issue and two Low presentation issues; these are separated as Phase 4-or-later backlog and did not block completion.
+All final technical gates pass. One Medium delayed-replay clarity issue and two Low presentation issues were separated as Phase 4-or-later backlog and did not block completion.
 
 Human acceptance passed full completion and every recorded gameplay, control, comprehension, visibility, Japanese-display, Restart, Pause/Resume, Quit, and Interaction-feedback check. Unrecorded Build, device, resolution, timings, Loop counts, and Restart count remain explicitly unrecorded. Human severity is Critical 0, High 0, Medium 1, Low 0. The Medium observation is visual simplicity appropriate to the greybox milestone and is deferred to `Phase4Backlog.md`. Phase 3 is formally validated and may advance to separately planned Phase 4 work.

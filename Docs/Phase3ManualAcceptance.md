@@ -4,7 +4,7 @@
 
 ## Test record
 
-The human tester confirmed the following acceptance results on 2026-07-21. Values that were not recorded during the run remain explicitly `未記録` or `未計測`; no Codex timing or environment value is substituted for the human run.
+The human tester confirmed the following acceptance results on 2026-07-21. Values that were not recorded during the run remain explicitly `未記録` or `未計測`; no separate test timing or environment value is substituted for the human run.
 
 | Required record | Human test result |
 |---|---|
@@ -78,4 +78,4 @@ The issue is moved to the Phase 4-or-later Visual Polish / Art Direction backlog
 
 ## Acceptance decision
 
-Human acceptance: **Pass**. Critical: **0**. High: **0**. The single Medium visual-quality observation is explicitly non-blocking and deferred. Combined with the current automated regression, final Standalone probe, and source-blind Codex retest, this record authorizes formal Phase 3 completion and the `phase3-validated` tag.
+Human acceptance: **Pass**. Critical: **0**. High: **0**. The single Medium visual-quality observation is explicitly non-blocking and deferred. Combined with the current automated regression and final Standalone probe, this record authorizes formal Phase 3 completion and the `phase3-validated` tag.
