@@ -97,7 +97,7 @@ EditModeのScene Builder testが一時的に変更する既知の4ファイル�
 - 独立Art: `Assets/_Project/Art/Phase5A/SelectedRevision21/`。
 - Actor: Chest Strip／Surface Seal／Rear Tickをbody surfaceへ下げ、Floor Segmentを薄く縮小し、低Emission materialへ分離した。
 - Goal: LockedはLime 0のままViolet／White／value contrastを増加。Unlockedは成功perimeter 3 Segment＋内部中央SegmentへLime変化面積を拡大した。
-- Logo: Screen-spaceの実寸`205 × 64 px`と4倍`820 × 256 px`を正式Captureへ分離配置した。
+- Logo: Screen-spaceの実寸`64 × 64 px` Icon、`205 × 64 px` wordmark、4倍`820 × 256 px` wordmarkを正式Captureへ分離配置した。
 - P2: Chamber Arc減光／isometric Camera、Observation monitor contrast、`section_complete`終端だけを限定修正。Decalは未変更。
 - Evidence: 1920×1080 D3D11 Capture 14枚、contact sheet 1枚、比較用WAV 3本。
 - Automation: EditMode 143/143、PlayMode 130/130、P3完走、Drift 0 m、Interaction 4/0、診断0。

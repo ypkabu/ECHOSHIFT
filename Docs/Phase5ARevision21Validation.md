@@ -46,11 +46,12 @@ Automationは生成再現性、構造、寸法、色用途、回帰、安全境�
 
 ### P1-03 64px Logo Evidence
 
-- `Actual 64 Pixel Sample`: Screen-space `RectTransform`を`205 × 64 px`へ固定した。
+- `Actual 64 Square Icon Sample`: Screen-space `RectTransform`を実寸`64 × 64 px`へ固定した。
+- `Actual 64 Pixel Sample`: 横長wordmarkのScreen-space `RectTransform`を`205 × 64 px`へ固定した。
 - `Enlarged 64 Pixel Inspection`: 同じ構成を厳密に4倍の`820 × 256 px`へ固定した。
 - 2 sampleはY方向に342px離し、`ACTUAL 64 PX`／`4X INSPECTION`の別labelを付けた。
 - LogoはScreen-space Canvas、reference resolution `1920 × 1080`で描画し、Captureも同一解像度で生成した。
-- Automated check: 実寸／拡大RectTransformの厳密寸法、300px超の分離、label、Capture解像度を検証した。
+- Automated check: 64×64 Icon、64px高wordmark、4倍wordmarkの厳密寸法、300px超の分離、label、Capture解像度を検証した。
 - Evidence: `03_logo_actual_64px_comparison.png`。
 - Automation status: **Passed**。
 - O／Sealの知覚可読性: **Pending Human Review**。
@@ -122,8 +123,8 @@ Comparisonでは`echo_spawn_03`を0.35秒、`section_complete`を2.25秒から�
 ## Automated Tests
 
 - Builder: exit code `0`。`PHASE5A_SELECTED_REVISION21_OK captures=14;audio=3;graphics=Direct3D11`。
-- EditMode: **143/143 Pass**、failed 0、skipped 0、52.905秒。
-- PlayMode: **130/130 Pass**、failed 0、skipped 0、42.223秒。
+- EditMode: **143/143 Pass**、failed 0、skipped 0、52.613秒。
+- PlayMode: **130/130 Pass**、failed 0、skipped 0、41.798秒。
 - P3 full section completion: **Pass**。Section 3 completionを含む正規自動完走。
 - Maximum Replay Drift: `0 m`。
 - Interaction: success `4`／failure `0`。

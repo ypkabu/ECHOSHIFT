@@ -136,15 +136,20 @@ namespace EchoShift.Tests
                 GameObject root = FindRoot(scene, "Phase5A Selected Revision 2.1 Preview");
                 RectTransform actual = FindNamed(root.transform,
                     "Actual 64 Pixel Sample") as RectTransform;
+                RectTransform actualIcon = FindNamed(root.transform,
+                    "Actual 64 Square Icon Sample") as RectTransform;
                 RectTransform enlarged = FindNamed(root.transform,
                     "Enlarged 64 Pixel Inspection") as RectTransform;
                 Assert.That(actual, Is.Not.Null);
+                Assert.That(actualIcon, Is.Not.Null);
                 Assert.That(enlarged, Is.Not.Null);
                 Assert.That(actual.sizeDelta, Is.EqualTo(new Vector2(205f, 64f)));
+                Assert.That(actualIcon.sizeDelta, Is.EqualTo(new Vector2(64f, 64f)));
                 Assert.That(enlarged.sizeDelta, Is.EqualTo(new Vector2(820f, 256f)));
                 Assert.That(Mathf.Abs(actual.anchoredPosition.y - enlarged.anchoredPosition.y),
                     Is.GreaterThan(300f));
                 Assert.That(FindNamed(root.transform, "Actual 64 Pixel Label"), Is.Not.Null);
+                Assert.That(FindNamed(root.transform, "Actual 64 Square Icon Label"), Is.Not.Null);
             }
             finally
             {

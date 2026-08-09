@@ -369,14 +369,19 @@ namespace EchoShift.Editor
 
             RectTransform actual = LogoEvidencePanel("Logo Actual 64 Pixel Evidence",
                 canvas.transform, dark);
+            BuildRevision21ScreenIcon(actual, "Actual 64 Square Icon Sample",
+                new Vector2(-300f, 302f), 1f, font, white, violet);
             RectTransform actualImage = BuildRevision21ScreenWordmark(actual,
-                "Actual 64 Pixel Sample", new Vector2(0f, 302f), 1f, font, white,
+                "Actual 64 Pixel Sample", new Vector2(120f, 302f), 1f, font, white,
                 violet, cyan, false);
             RectTransform enlarged = BuildRevision21ScreenWordmark(actual,
                 "Enlarged 64 Pixel Inspection", new Vector2(0f, -40f), 4f, font,
                 white, violet, cyan, false);
-            UiText("Actual 64 Pixel Label", actual, "ACTUAL 64 PX",
-                new Vector2(0f, 235f), new Vector2(480f, 42f), new Vector2(0.5f, 0.5f),
+            UiText("Actual 64 Square Icon Label", actual, "ACTUAL 64 X 64 ICON",
+                new Vector2(-300f, 235f), new Vector2(360f, 42f), new Vector2(0.5f, 0.5f),
+                22f, violet, font, TextAnchor.MiddleCenter);
+            UiText("Actual 64 Pixel Label", actual, "ACTUAL 64 PX HEIGHT",
+                new Vector2(120f, 235f), new Vector2(480f, 42f), new Vector2(0.5f, 0.5f),
                 24f, cyan, font, TextAnchor.MiddleCenter);
             UiText("Enlarged Inspection Label", actual, "4X INSPECTION",
                 new Vector2(0f, -220f), new Vector2(480f, 42f), new Vector2(0.5f, 0.5f),
@@ -449,8 +454,8 @@ namespace EchoShift.Editor
                 violet, 5);
             for (int i = 0; i < 3; i++)
                 Revision21UiBar($"Icon Phase Tick {i + 1}", rect,
-                    new Vector2(29f * scale, (-8f + i * 8f) * scale),
-                    new Vector2(8f * scale, 2f * scale), violet, 0f);
+                    new Vector2(27f * scale, (-8f + i * 8f) * scale),
+                    new Vector2(6f * scale, 2f * scale), violet, 0f);
             return rect;
         }
 

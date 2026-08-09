@@ -114,7 +114,7 @@ Revision 2.1は`Assets/_Project/Scenes/Preview/Phase5A_SelectedRevision21.unity`
 
 1. ActorのChest Strip／Surface Seal／Rear TickをRobot surfaceへ埋め込み、Floor Segmentを床面へ薄く寝かせる。Gameplay Prefab、Actor Transform、Robot silhouette、Cyan／Violet分類は変更しない。
 2. Locked GoalはViolet／White／value contrast／線幅だけで床模様から分離し、Limeを追加しない。Unlocked GoalはLimeを成功状態に限定したまま、perimeterと内部Segmentの変化面積を広げる。
-3. 正式Preview内に高さ64pxの実寸Logoと4倍inspectionを重ならないScreen-space領域へ配置し、RectTransform寸法とCapture解像度を自動確認する。
+3. 正式Preview内に64×64の実寸Icon、64px高の実寸wordmark、4倍inspectionを重ならないScreen-space領域へ配置し、RectTransform寸法とCapture解像度を自動確認する。
 4. P1と干渉しない低リスクP2として、Chamber内部Arcの発光を抑えてOuter Frameを優先し、isometric Cameraだけを調整する。Observation monitorはlocal contrastとindicator visibilityだけを上げる。
 5. Logo O spacingとDecalはP1可読性を悪化させる変更を避け、追加変更の効果が自動で保証できない場合は未修正理由を記録する。
 6. Audioは`section_complete`だけの終端へmechanical transientを追加し、`echo_spawn_03`と近接比較できるR2.1専用WAVを生成する。旧8 cueは再生成しない。
