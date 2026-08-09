@@ -2,7 +2,7 @@
 
 ## Status
 
-Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了したが、見た目と音のHuman Reviewは未判定である。
+Revision 1 Human Review Failを受けた独立Preview。Production Applicationは開始しない。Color Hierarchyと日本語UI CopyはPassとして固定する。Revision 2の自動生成と回帰は完了した。2026-08-09 JSTのHuman ReviewはVisual `FAIL / REVISION REQUIRED`、Audio `PASS WITH MINOR FIXES`、Overall `FAIL / REVISION REQUIRED`となった。
 
 確定状態:
 
@@ -11,7 +11,10 @@ Revision 1 Human Review Failを受けた独立Preview。Production Application�
 - Selected Revision 1 High Visual Issues: 4
 - Selected Revision 1 Medium Issues: 3
 - Selected Revision 2 Automation: Passed
-- Selected Revision 2 Human Visual／Audio Review: Pending
+- Selected Revision 2 Human Visual Review: Failed / Revision required
+- Selected Revision 2 Human Audio Review: Passed with minor fixes
+- Selected Revision 2 Overall Review: Failed / Revision required
+- Revision 2.1: Recommended, not started
 - Production Application: Not started
 - Phase 5A Validation: Pending
 - Windows Release Validation: Blocked
@@ -60,9 +63,9 @@ Revision 1 Human Review Failを受けた独立Preview。Production Application�
 
 EditModeのScene Builder testが一時的に変更する既知の4ファイルは、結果取得後に基準HEADへ復元してからProduction hashとPlayModeを確認した。
 
-## Human Review pending
+## Human Review criteria
 
-以下は自動Passにしない。
+以下は自動Passにせず、2026-08-09 JSTのReviewで個別判定した。
 
 - Logoが一読で`ECHO//SHIFT`と読める。
 - Chamberが浮遊Primitiveに見えず、物理部品が接続されている。
@@ -73,4 +76,17 @@ EditModeのScene Builder testが一時的に変更する既知の4ファイル�
 - 無料Asset＋自動配置感が減っている。
 - Audio cueが用途ごとに識別できる。
 
-状態: **Revision 2 Automation Passed／Human Visual・Audio Review Pending／Production Scene未変更**。
+判定結果は次節と`Docs/Phase5ARevision2HumanReview.md`へ記録する。
+
+## Human Review result
+
+詳細は`Docs/Phase5ARevision2HumanReview.md`を参照。
+
+- P0: 0件。
+- P1: 3件。Actor motifの突出／浮遊、Goalの通常状態とGameplay距離での認識不足、64px Capture証跡欠落。
+- P2: Logo spacing、Chamber密度、Observation主役の弱さ、Decalの馴染み、Capture angle、Audio cue差別化。
+- Lime rule: 成功／接続／解錠状態だけに使用され、装飾使用は確認されなかった。
+- Production Application allowed: **NO**。
+- Final recommendation: **CREATE REVISION 2.1**。
+
+状態: **Revision 2 Automation Passed／Human Review Failed／Revision 2.1未着手／Production Scene未変更**。
