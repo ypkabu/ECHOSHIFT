@@ -16,7 +16,7 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 | Platform | Windows x86_64 |
 | Development style | 個人制作。Codexを実装・調査・検証支援に使用し、仕様、優先順位、受入基準、Human Reviewを人間が決定 |
 | Development period | 2026-07-19〜2026-08-09（Git履歴で確認できる開発・検証期間） |
-| Current status | Phase 5A source/test/presentation validation passed; Windows graphical shutdown issue remains |
+| Current status | Playable prototype; source/test/presentation validation passed |
 
 ## Gameplay Video
 
@@ -106,8 +106,6 @@ Docs/
 ## Git and Development Record
 
 Git履歴はPhase単位のfeature branch、`feat` / `fix` / `test` / `docs`などの目的別commit、検証済み地点のtagで構成しています。応募準備前までに53 commitsがあり、Phase 0〜3は`main`へfast-forwardで統合、Phase 4以降は公開時にPull Requestで`main`へ統合しました。これは個人開発の履歴であり、共同開発でのPull Request経験を示すものではありません。
-
-応募向けの詳細は[Git Experience](Docs/Application/CA_Game_Gym/GitExperience.md)と[Evidence](Docs/Application/CA_Game_Gym/Evidence.md)に整理しています。
 
 ## AI-assisted Development
 
