@@ -20,7 +20,7 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 
 ## Gameplay Video
 
-[Gameplay video — 50 seconds (MP4)](https://github.com/ypkabu/ECHOSHIFT/releases/download/ca-game-gym-submission-media-v1/ECHOSHIFT_CA_Game_Gym_Gameplay.mp4)
+[Gameplay Demo — 50 seconds (MP4)](https://github.com/ypkabu/ECHOSHIFT/releases/download/portfolio-demo-v1/ECHOSHIFT_Gameplay_Demo.mp4)
 
 記録した行動がEchoとして再生され、現在のPlayerとPlate、Battery、Doorを協調操作する流れを通常速度でまとめた50秒のGameplay動画です。
 
@@ -32,6 +32,10 @@ ECHO//SHIFTは、PressurePlate、Battery、PowerSocket、Doorを複数ループ�
 4. Section 3ではEcho 1とEcho 2へ異なる役割を記録し、3つのActor状態を協調させます。
 
 ![Section 3 overview](Docs/Media/section3_overview.png)
+
+## My Role
+
+個人制作として、ゲームデザイン、C#によるReplay／Interaction実装、Unity Editor上のScene生成、UI・Audio・VFX、テストとプレイテストを担当しました。
 
 ## Core Mechanic
 
@@ -103,9 +107,9 @@ Docs/
 2. `ECHO SHIFT/Build Phase 3 Scene`で`P3_PlayableGreybox.unity`を生成・確認します。
 3. BatchModeのScene Builder、EditMode、PlayMode、Buildコマンドは[Docs/TestPlan.md](Docs/TestPlan.md)に記録しています。
 
-## Git and Development Record
+## AI Tools
 
-Git履歴はPhase単位のfeature branch、`feat` / `fix` / `test` / `docs`などの目的別commit、検証済み地点のtagで構成しています。応募準備前までに53 commitsがあり、Phase 0〜3は`main`へfast-forwardで統合、Phase 4以降は公開時にPull Requestで`main`へ統合しました。これは個人開発の履歴であり、共同開発でのPull Request経験を示すものではありません。
+実装方針の整理、コードのたたき台、調査、テスト観点、文書整理にAIツールを使用しました。仕様判断、提案の採否、Unityへの統合、動作確認、修正は自分で行っています。
 
 ## Assets and Licenses
 
