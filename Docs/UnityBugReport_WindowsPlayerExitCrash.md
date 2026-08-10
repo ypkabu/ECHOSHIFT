@@ -1,51 +1,51 @@
-# Windows Player crashes with access violation in UnityPlayer.dll during graphical shutdown
+# Windows Player終了時にUnityPlayer.dll内で発生するAccess Violation
 
-## Summary
+## 概要
 
-A Windows Standalone Player intermittently crashes during graphical shutdown with exception `0xC0000005`. Symbolicated full dumps from the product and an earlier simple minimal project fault on a null-derived read in `UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`, called while Unity destroys `PlatformAccessibilityManager` in `RuntimeCleanup`.
+画面表示を伴うWindows Standalone Playerの終了時に、`0xC0000005`が発生します。製品版と以前の小さいProjectから取得したSymbol付きFull Dumpでは、`RuntimeCleanup`で`PlatformAccessibilityManager`を破棄する際に呼ばれた`UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`が、Null Pointerを基準に読み取っています。
 
-The issue reproduces on Unity 6000.4.6f1, 6000.4.8f1, and 6000.4.12f1. It is not limited to Development Builds, a hardware GPU, one GPU vendor, or one quit route. `-batchmode -nographics` does not reproduce.
+Unity 6000.4.6f1、6000.4.8f1、6000.4.12f1で再現しました。Development Build、Hardware GPU、特定GPU Vendor、特定の終了方法だけに限定されません。`-batchmode -nographics`では再現しません。
 
-## Reproduction rate
+## 再現率
 
-Product and earlier-minimal results:
+製品版と以前の小さいProjectでの結果：
 
-- 6000.4.6f1 product Development automatic quit: 3/3 crashes.
-- 6000.4.8f1 earlier simple minimal Player: 9/10 crashes.
-- 6000.4.12f1 earlier simple minimal Player: 9/10 crashes.
-- 6000.4.12f1 product Development: automatic quit 7/10, Pause Quit 8/10, Window Close 2/10.
-- 6000.4.12f1 product Non-Development automatic quit: 9/10. Two runs reached the external timeout before normal completion, but still faulted during cleanup.
-- 6000.4.12f1 D3D11 device matrix: NVIDIA 4/5, Intel 5/5, WARP 5/5.
-- 6000.4.12f1 `-batchmode -nographics`: 0/5.
+- 6000.4.6f1 製品版Development、自動終了：3/3
+- 6000.4.8f1 以前の小さいPlayer：9/10
+- 6000.4.12f1 以前の小さいPlayer：9/10
+- 6000.4.12f1 製品版Development：自動終了7/10、Pause Quit 8/10、Window Close 2/10
+- 6000.4.12f1 製品版Non-Development、自動終了：9/10。2回は通常完了前に外部Timeoutへ到達しましたが、Cleanup中に発生しました。
+- 6000.4.12f1 D3D11 Device：NVIDIA 4/5、Intel 5/5、WARP 5/5
+- 6000.4.12f1 `-batchmode -nographics`：0/5
 
-Submitted staged-project result:
+比較用Projectでの結果：
 
-- Stage A, empty Scene + Camera: 0/5 Window Close.
-- Stage B, adding URP 17.4.0 and pipeline assets: 1/5 Window Close.
-- Stages C-I: 0/5 each.
-- Same Stage B binary under ProcDump: 0/20, no dump.
-- Same Stage B binary with user-level WER LocalDumps: 0/30, no dump.
+- A：空のScene＋Camera：0/5
+- B：A＋URP 17.4.0とPipeline Asset：1/5
+- C〜I：各0/5
+- 同じ構成BをProcDump付きで実行：0/20、Dumpなし
+- 同じ構成BをUser Level WER LocalDumps付きで実行：0/30、Dumpなし
 
-Stage B reproduces intermittently and is the smallest staged configuration in which an access violation was observed. It is not a stable minimal reproduction. Because later cumulative stages did not increase monotonically, URP is not identified as the direct cause. Timing, monitoring, serialization, or build layout may affect the rate.
+構成Bは、比較用ProjectでAccess Violationを観測した最小候補ですが、安定した最小再現ではありません。後続構成で発生率が増えていないため、URPを直接原因とは判断できません。監視、Timing、Serialization、Build Layoutが発生率へ影響する可能性があります。
 
-## Tested Unity versions
+## 確認したUnityバージョン
 
-| Version | Changeset | Result |
+| Version | Changeset | 結果 |
 | --- | --- | --- |
-| 6000.4.6f1 | `0b051c2e5d54` | Reproduces; product full dumps |
-| 6000.4.8f1 | `f8b72d3d7343` | Reproduces in earlier minimal Player |
-| 6000.4.12f1 | `3ca267ce8005` | Reproduces in product and earlier minimal Player; staged project included |
+| 6000.4.6f1 | `0b051c2e5d54` | 製品版Full Dumpで再現 |
+| 6000.4.8f1 | `f8b72d3d7343` | 以前の小さいPlayerで再現 |
+| 6000.4.12f1 | `3ca267ce8005` | 製品版と以前の小さいPlayerで再現。比較用Projectも作成 |
 
-No first regressed or fixed Unity version has been established.
+最初に問題が発生したUnity Versionと、修正済みVersionは特定できていません。
 
-## Exception and symbolicated stack
+## 例外とSymbol付きCall Stack
 
-- Exception code: `0xC0000005`.
-- Access type: read.
-- Invalid address: `0x0000000000000138`.
-- Faulting register: `RAX = 0`.
-- Faulting function: `UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`.
-- Shutdown subsystem: native runtime static cleanup for `PlatformAccessibilityManager`.
+- 例外コード：`0xC0000005`
+- 操作：読み取り
+- 不正なAddress：`0x0000000000000138`
+- Register：`RAX = 0`
+- 障害関数：`UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`
+- 終了処理：`PlatformAccessibilityManager`のNative Runtime Static Cleanup
 
 ```text
 UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9
@@ -59,54 +59,54 @@ kernel32!BaseThreadInitThunk+0x17
 ntdll!RtlUserThreadStart+0x2c
 ```
 
-The three analyzed Unity versions have different binary offsets (`0x1d2f39`, `0x1d3e49`, `0x1d4a89`) but the same normalized Unity function sequence. The first non-Unity module is the generated Player EXE CRT entry below `UnityMain`. No user DLL, native plugin, GPU driver, or managed callback is on the fault stack.
+確認した3つのUnity VersionはBinary Offset（`0x1d2f39`、`0x1d3e49`、`0x1d4a89`）が異なりますが、正規化したUnity関数順は同じです。`UnityMain`より下にある最初のUnity以外のModuleは、生成済みPlayer EXEのCRT Entryです。障害時のCall StackにUser DLL、Native Plugin、GPU Driver、managed Callbackはありません。
 
-Normalized stack SHA-256: `2D128D9A9C6B4956572BA97A01E6C2E5B03F8DBE6EEB93632AB6DC3B03E34C98`.
+正規化したCall StackのSHA-256：`2D128D9A9C6B4956572BA97A01E6C2E5B03F8DBE6EEB93632AB6DC3B03E34C98`
 
-Important limitation: no dump was captured from the staged Stage B failure. Stage B's one AV has not been proven to have this stack and must not be treated as the same defect solely from its exit code.
+構成Bの失敗時はDumpを取得できていません。構成Bの1件を、終了コードだけで製品版と同じCall Stackの障害として扱うことはできません。
 
-## Minimal reproduction steps
+## 最小構成の再現手順
 
-1. Open `BugReports/UnityWindowsExitCrash/MinimalRepro` in Unity 6000.4.12f1.
-2. The checked-in `Packages/manifest.json` and `packages-lock.json` select Stage B (URP 17.4.0).
-3. Run `Automation/BuildStage.ps1 -Stage B -UnityEditor <Unity.exe path>` once.
-4. Record the build hash; do not rebuild between runs.
-5. Launch `Builds/B/MinimalExitCrash.exe -force-d3d11 -screen-fullscreen 0`.
-6. Wait for the window to finish loading, then close the window normally.
-7. Repeat. The submitted Stage B build reproduced once in its initial five-run set; later monitored/unmonitored follow-ups did not reproduce.
+1. `BugReports/UnityWindowsExitCrash/MinimalRepro`をUnity 6000.4.12f1で開きます。
+2. Git管理している`Packages/manifest.json`と`packages-lock.json`は構成B（URP 17.4.0）です。
+3. `Automation/BuildStage.ps1 -Stage B -UnityEditor <Unity.exe path>`を1回実行します。
+4. Build Hashを記録し、繰り返し実行の間は再ビルドしません。
+5. `Builds/B/MinimalExitCrash.exe -force-d3d11 -screen-fullscreen 0`を起動します。
+6. Windowの読み込み完了後、通常操作で閉じます。
+7. 同じBuildで繰り返します。最初の5回では1回再現しましたが、後続確認では再現しませんでした。
 
-The included A-I manifests allow the same cumulative comparison. Stage B should be described as “reproduces intermittently,” not as a deterministic reproducer.
+A〜IのManifestで同じ累積比較を行えます。構成Bは「低頻度で再現」と記載し、決定的な再現構成とはしません。
 
-## Expected result
+## 期待する結果
 
-The graphical Windows Player completes shutdown and returns exit code `0`.
+画面表示を伴うWindows Playerが終了処理を完了し、終了コード`0`で終了します。
 
-## Actual result
+## 実際の結果
 
-Affected runs terminate with `0xC0000005` during `UnityPlayer.dll` native cleanup. In confirmed product runs, gameplay and synchronous telemetry complete first, with no managed unhandled exception, Missing Script/Reference, or NullReference in the Player log.
+影響を受ける実行は、`UnityPlayer.dll`のNative Cleanup中に`0xC0000005`で終了します。製品版ではゲームと同期テレメトリー保存が先に完了し、Player Logにmanaged側の未処理例外、Missing Script／Reference、NullReferenceはありません。
 
-## Development, GPU, and route independence
+## Development設定・GPU・終了方法との関係
 
-- Development and Non-Development builds reproduce.
-- NVIDIA, Intel, and D3D11 WARP reproduce.
-- Pause Menu Quit, automated `Application.Quit(0)`, and normal Window Close reproduce in product builds.
-- Graphical Players reproduce; `-batchmode -nographics` does not.
-- The issue occurs without Recorder initialization and without recording.
+- Development BuildとNon-Development Buildで再現します。
+- NVIDIA、Intel、D3D11 WARPで再現します。
+- ポーズ画面からの終了、`Application.Quit(0)`、Window Closeで再現します。
+- 画面付きPlayerで再現し、`-batchmode -nographics`では再現しません。
+- Recorder初期化と録画の有無に依存しません。
 
-## Regression status
+## Regressionの確認状況
 
-Unknown. The same symbolicated function sequence occurs in the tested 6000.4.6f1, 6000.4.8f1, and 6000.4.12f1 evidence. The investigation did not test a pre-6000.4 editor.
+不明です。確認した6000.4.6f1、6000.4.8f1、6000.4.12f1では同じUnity関数順を確認しました。6000.4より前のEditorは未検証です。
 
-## Workaround status
+## 回避策の確認状況
 
-No safe graphical workaround is known. `-batchmode -nographics` avoids the affected path but cannot be used for a normal graphical game release. Upgrading within the tested 6000.4 patches does not resolve it. Force-killing the process, replacing `Application.Quit`, sleeping during shutdown, or rewriting the exit code were not used and are not acceptable workarounds.
+画面付きPlayerで安全に使える回避策は見つかっていません。`-batchmode -nographics`は問題の経路を通りませんが、通常のゲーム配布には使えません。確認した6000.4系Patchへの更新でも解消しません。Processの強制終了、`Application.Quit`の置き換え、終了時のSleep、終了コードの書き換えは使用していません。
 
-## Attachments
+## 添付内容
 
-- Staged source-only minimal project with A-I manifests and Stage B lock.
-- Reproduction steps and complete staged result matrix.
-- Unity version/build/GPU matrices.
-- Full dump SHA-256 list; dump binaries supplied separately if requested.
-- Symbolicated stack and normalized stack hash.
-- Curated Player log ordering and system information.
-- Package manifest/lock and Project Settings comparison.
+- A〜IのManifestと構成BのLock Fileを含むソースコードだけの比較Project
+- 再現手順と全比較結果
+- Unity Version／Build／GPU表
+- Full DumpのSHA-256一覧。Dump File自体は必要に応じて別途提供
+- Symbol付きCall Stackと正規化したHash
+- Player Logの終了順とSystem情報
+- Package Manifest／Lock FileとProject Settingsの比較

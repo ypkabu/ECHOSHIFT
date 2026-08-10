@@ -1,27 +1,27 @@
-# ADR 0010: Puzzle Section Lifecycle
+# ADR 0010：パズルセクションの進行管理
 
-## Status
+## 状態
 
-Accepted for Phase 3 automation; subject to manual acceptance.
+採用済み。
 
-## Decision
+## 採用した方法
 
-One generated Scene contains three independently owned section roots. `PuzzleSectionController` owns each section's spawn, Player, LoopDirector, Goal, and reset boundary. `SectionTransitionCoordinator` deactivates the outgoing root after shutting down its Director, releasing carried objects, clearing Echoes, and restoring registered state; it then activates and initializes the next root. Normal loop and section transitions never reload the Scene.
+1つのシーン内に、所有関係を分けた3つのセクションルートを配置します。`PuzzleSectionController`は各セクションの開始位置、プレイヤー、`LoopDirector`、ゴール、リセット範囲を管理します。`SectionTransitionCoordinator`は現在の`LoopDirector`を停止し、保持物を解放し、Echoを削除し、登録済みの状態を復元してから現在のルートを無効化し、次のルートを有効化・初期化します。通常のループとセクション切り替えではシーンを再読み込みしません。
 
-## Reasons
+## 理由
 
-This preserves deterministic Phase 0-2 reset behavior, makes stale Echo/reference cleanup explicit, and allows a continuous playable flow without cross-scene persistence.
+ループごとの状態復元を保ちながら古いEchoや参照の解放を明示し、シーンをまたぐ永続化を追加せずに連続したゲーム進行を作れます。
 
-## Alternatives considered
+## 検討した別案
 
-- One Scene per section: rejected because reload and persistence would obscure lifecycle ownership.
-- One global Director for every section: rejected because reset/history boundaries would be ambiguous.
-- Destroy and recreate the full section: rejected because authored reset state is already deterministic and tested.
+- セクションごとに別シーン：再読み込みと永続化により、所有関係と処理順が分かりにくくなります。
+- 全セクション共通の`LoopDirector`：リセット範囲と履歴の境界が曖昧になります。
+- セクション全体の破棄・再生成：編集時の状態へ戻す既存処理で再現性を確保できています。
 
-## Current constraints
+## 現在の制約
 
-Only three authored sections are supported. All section-owned mutable gameplay objects must be registered explicitly.
+対応するのは編集済みの3セクションです。セクション内で変化するゲームオブジェクトは明示的に登録する必要があります。
 
-## Replacement conditions
+## 見直す条件
 
-Replace with additive scenes or content streaming only when production-sized levels require it and persistence semantics have their own ADR.
+規模の大きいLevelで必要になり、永続化の仕様も設計できた場合にAdditive SceneやContent Streamingへ移行します。

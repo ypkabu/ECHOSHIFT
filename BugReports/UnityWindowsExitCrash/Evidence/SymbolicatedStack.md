@@ -1,19 +1,19 @@
-# Symbolicated stack evidence
+# symbol付きstack trace
 
-## Confirmed dump facts
+## dumpから確認できた事実
 
-- Exception: `0xC0000005` access violation.
-- Operation: read (`Parameter[0] = 0`).
-- Invalid address: `0x0000000000000138` (`Parameter[1]`).
-- Register state: `RAX = 0`; faulting instruction reads `[RAX+0x138]`.
-- Fault function: `UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`.
-- Thread: Unity main thread.
-- Shutdown subsystem: runtime static cleanup of `PlatformAccessibilityManager`, inside `RegisterRuntimeInitializeAndCleanup::ExecuteCleanup` / `RuntimeCleanup`.
-- No user DLL, native plugin, GPU driver DLL, or managed callback appears on the fault stack.
+- 例外：`0xC0000005` Access Violation
+- 操作：読み取り（`Parameter[0] = 0`）
+- 不正なAddress：`0x0000000000000138`（`Parameter[1]`）
+- Register：`RAX = 0`。障害命令は`[RAX+0x138]`を読み取り
+- 障害関数：`UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9`
+- Thread：Unity Main Thread
+- 終了処理：`RegisterRuntimeInitializeAndCleanup::ExecuteCleanup`／`RuntimeCleanup`内の`PlatformAccessibilityManager`を破棄する処理
+- 障害時のCall StackにUser DLL、Native Plugin、GPU Driver DLL、managed Callbackなし
 
-## Available stack
+## 取得できたstack trace
 
-The native stack terminates after eight frames, so there are not thirty frames to report:
+Native Call Stackは8つの呼び出しを遡った後に終了しており、30フレーム分は存在しません。
 
 ```text
 UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9
@@ -27,19 +27,19 @@ kernel32!BaseThreadInitThunk+0x17
 ntdll!RtlUserThreadStart+0x2c
 ```
 
-The first non-Unity module is the generated Player EXE CRT entry (`__scrt_common_main_seh`), below `UnityMain`; no third-party module intervenes.
+最初のUnity以外のModuleは、`UnityMain`より下にある生成済みPlayer EXEのCRT Entry（`__scrt_common_main_seh`）です。間に第三者Moduleはありません。
 
-Normalized six-Unity-frame SHA-256, excluding version-specific offsets:
+Version固有のOffsetを除外し、Unity内の6関数を正規化したSHA-256：
 
 `2D128D9A9C6B4956572BA97A01E6C2E5B03F8DBE6EEB93632AB6DC3B03E34C98`
 
-## Version offset comparison
+## バージョンごとのoffset比較
 
-| Unity | Source | UnityPlayer offset | Normalized stack |
+| Unity | 取得元 | UnityPlayer Offset | 正規化したCall Stack |
 | --- | --- | --- | --- |
-| 6000.4.6f1 | Product, three dumps | `+0x1d2f39` | Same hash |
-| 6000.4.8f1 | Earlier minimal Player | `+0x1d3e49` | Same hash |
-| 6000.4.12f1 | Earlier minimal Player | `+0x1d4a89` | Same hash |
-| 6000.4.12f1 | Staged Stage B | **Unconfirmed** | **No dump** |
+| 6000.4.6f1 | 製品版、Dump 3件 | `+0x1d2f39` | 同じHash |
+| 6000.4.8f1 | 以前の小さいPlayer | `+0x1d3e49` | 同じHash |
+| 6000.4.12f1 | 以前の小さいPlayer | `+0x1d4a89` | 同じHash |
+| 6000.4.12f1 | 構成B | **未確認** | **Dumpなし** |
 
-The three tested Unity versions resolve to the same function sequence even though their binary offsets differ. This supports a recurring Unity native cleanup defect for the confirmed dumps. It does not prove that Stage B's single exit-code AV was the same defect.
+確認した3つのUnity VersionはBinary Offsetが異なりますが、同じ関数順です。確認済みDumpではUnityのNative Cleanup内で同じ問題が繰り返されたことを示しますが、構成Bの1件が同じ障害であることは証明できません。

@@ -1,34 +1,34 @@
-# ADR 0005: Separate Interaction Event Replay
+# ADR 0005：インタラクションイベントの分離記録
 
-## Status
+## 状態
 
-Accepted for Phase 1.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Keep movement frames and successful interaction commands as separate immutable columns in one `ReplayRecording`.
+1つの`ReplayRecording`内で、移動フレームと成功したインタラクションを別々の領域へ保存します。
 
-Each `InteractionCommand` stores its simulation tick, operation kind, target Stable ID, and the actor position used for validation Gizmos. `ReplayRecorder` accepts an interaction only after the matching movement frame exists, enforces increasing tick order, and copies the populated event prefix during finalization.
+`InteractionCommand`はtick、操作種別、対象のStable ID、Gizmoで確認するキャラクター位置を保持します。`ReplayRecorder`は対応する移動フレームが存在した後だけ操作を受け付け、tickの昇順を検証し、確定時には使用した範囲だけをコピーします。
 
-Echo playback advances a separate interaction cursor after simulating movement for that tick. It resolves the recorded Stable ID and attempts the recorded operation once. Failure is counted with a reason and never causes spatial correction, target reselection, or repeated per-tick logging.
+Echoはそのtickの移動を処理した後、別の読み取り位置からインタラクションを進めます。記録したStable IDを解決して操作を1回だけ試し、失敗時は理由を記録します。位置補正、対象の選び直し、毎tickの重複ログは行いません。
 
-## Reasons
+## 理由
 
-- Most movement ticks contain no interaction, so a sparse column avoids empty per-frame payloads.
-- The Phase 0 `ReplayFrame` contract remains intact.
-- Event counts, next-event ticks, success, and failure are directly observable.
-- A separate cursor naturally stops at the finalized short-recording boundary.
+- 多くの移動tickには操作がないため、操作だけを疎に保存できます。
+- `ReplayFrame`の移動用Contractを維持できます。
+- イベント数、次のtick、成功・失敗を直接確認できます。
+- 記録が短い場合も、確定済みの終端で自然に停止します。
 
-## Alternatives considered
+## 検討した別案
 
-- Embed an optional interaction in every ReplayFrame: simple indexing but increases the core frame payload and couples two concerns.
-- Record raw Interact input: would replay failed attempts and could choose a different target.
-- Record target transforms: bypasses gameplay rules and does not validate interaction replay.
+- 全`ReplayFrame`へ任意の操作を埋め込む：参照は簡単ですが、基本フレームが大きくなり、別の責務が結合します。
+- Interact入力をそのまま記録：失敗した試行も再生され、別の対象を選ぶ可能性があります。
+- 対象のTransformを記録：ゲーム上の操作規則を通らず、リプレイの検証になりません。
 
-## Current limitations
+## 現在の制約
 
-Phase 1 records at most one successful interaction per simulation tick. Commands are in-memory only, and there is no schema migration or persistence format.
+1 tickにつき成功した操作を最大1件記録します。メモリ上だけの形式で、永続化やSchema Migrationはありません。
 
-## Replacement conditions
+## 見直す条件
 
-Replace or version the format when simultaneous interactions, save persistence, network transfer, deterministic rollback, or interaction payload evolution becomes required.
+同時操作、セーブ、ネットワーク転送、Rollback、操作内容の形式変更が必要になった場合にVersion付き形式へ移行します。

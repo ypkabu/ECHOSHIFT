@@ -15,7 +15,7 @@ ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複
 | 開発言語 | C# |
 | 対応環境 | Windows x86_64 |
 | 開発形態 | 個人制作。仕様、設計、実装、検証、プレイテストを一貫して管理 |
-| 開発期間 | 2026-07-19〜2026-08-09（Git履歴で確認できる開発・検証期間） |
+| 開発期間 | 2026-07-19〜2026-08-09 |
 | 現在の状態 | プレイ可能なプロトタイプ。ゲームプレイと回帰テストを検証済み |
 
 ## プレイ動画
@@ -64,15 +64,15 @@ ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複
 
 ### 4. Unity Editorによる自動化
 
-- P0〜P3のシーン生成、レイヤー設定、Stable ID検証、Build Settings、キャプチャ、WindowsビルドをEditorコードから再現できます。
+- シーン生成、レイヤー設定、Stable ID検証、Build Settings、キャプチャ、WindowsビルドをEditorコードから再現できます。
 - シーン生成処理が本番アセットを意図せず再保存する問題に対し、生成前後のハッシュ確認を追加し、想定外の差分がある場合は処理を停止するよう修正しました。
 - Runtime、Editor、EditModeテスト、PlayModeテストはAssembly Definitionで分離しています。
 
 ### 5. 実際のシーンを含む検証
 
 - EditMode `151/151`、PlayMode `131/131`が成功。
-- P0〜P3の実シーン読み込み、Missing Component/Reference、P3全セクションの自動完走を検証しています。
-- P3の正常解法：インタラクション `4`回成功 / `0`回失敗、最大Replay Drift `0 m`。
+- プロジェクト内の全シーン読み込み、Missing Component/Reference、全3セクションの自動完走を検証しています。
+- 正常解法ではインタラクション `4`回成功 / `0`回失敗、最大Replay Drift `0 m`を確認しています。
 - コンパイラーのエラー／警告、Missing、NullReference、Unhandled Exceptionに一致する検証ログは各`0`です。
 
 結果の要約は[検証結果の要約](Docs/ValidationSummary.md)、検証方法は[テスト計画](Docs/TestPlan.md)を参照してください。
@@ -92,7 +92,7 @@ Unity/Assets/_Project/
 ├─ Scripts/Runtime/    fixed tick、リプレイ、インタラクション、UI・音響
 ├─ Scripts/Editor/     シーン生成、検証、キャプチャ・ビルド処理
 ├─ Scripts/Tests/      EditMode・PlayModeテスト
-├─ Scenes/             生成済みのP0〜P3シーン
+├─ Scenes/             生成済みの検証用・プレイ用シーン
 ├─ Art/                本プロジェクトのマテリアル・表示用アセット
 └─ ThirdParty/         ライセンスを確認した外部アセット
 Docs/

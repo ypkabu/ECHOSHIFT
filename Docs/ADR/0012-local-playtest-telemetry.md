@@ -1,27 +1,27 @@
-# ADR 0012: Local Playtest Telemetry
+# ADR 0012：ローカルプレイテスト計測
 
-## Status
+## 状態
 
-Accepted for Phase 3 automation; subject to manual acceptance.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Write schema-versioned JSON to `Application.persistentDataPath/EchoShiftPlaytests` on quit and completion. Store build/Unity versions, duration, per-section time and loop counts, end reasons, restart counts, interaction result aggregates, maximum drift, final section, and outcome. Snapshots clone arrays. Replay frames, commands, positions, Stable IDs, object references, personal data, upload, and cross-session mutation are excluded.
+終了時と完走時に、Schema Version付きJSONを`Application.persistentDataPath/EchoShiftPlaytests`へ保存します。ビルド／Unityバージョン、プレイ時間、セクションごとの時間とループ回数、終了理由、再開回数、インタラクション結果、最大Replay Drift、最終セクション、完走結果を記録します。配列は複製して保存します。リプレイフレーム、入力、位置、Stable ID、Unityオブジェクト参照、個人情報、外部送信、セッションをまたぐ可変状態は含めません。
 
-## Reasons
+## 理由
 
-Small local aggregates are enough to evaluate greybox friction while minimizing privacy, payload, coupling, and replay lifetime risk. Schema version 1 makes later migration explicit.
+小さな集計値だけでプロトタイプの詰まりを確認でき、個人情報、保存量、依存関係、リプレイの寿命を最小限にできます。Schema Version 1により将来の変更も区別できます。
 
-## Alternatives considered
+## 検討した別案
 
-- Full replay capture: rejected for scope, size, and privacy.
-- Remote analytics SDK: rejected because networking and consent are outside Phase 3.
-- PlayerPrefs: rejected because structured session artifacts are easier to inspect and archive.
+- リプレイ全体の保存：範囲、容量、プライバシーの面で不要です。
+- 外部Analytics SDK：通信と同意の設計は対象外です。
+- PlayerPrefs：構造化したセッション結果の方が確認・保存しやすくなります。
 
-## Current constraints
+## 現在の制約
 
-Writes are best effort and log one clear error on failure. There is no retention policy, upload, dashboard, or schema migration yet.
+保存は可能な範囲で実行し、失敗時は明確なエラーを1件記録します。保存期間、外部送信、Dashboard、Schema Migrationはありません。
 
-## Replacement conditions
+## 見直す条件
 
-Replace when an approved analytics/privacy design requires consent, remote transport, retention, or version migration.
+同意、外部送信、保存期間、Version Migrationを含む分析・プライバシー設計が承認された場合に置き換えます。

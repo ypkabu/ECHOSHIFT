@@ -1,32 +1,32 @@
-# ADR 0019: Separate door gameplay authority from retracting visuals
+# ADR 0019：ドアのゲーム処理と表示の分離
 
-## Status
+## 状態
 
-Accepted for Phase 4.3.
+採用済み。
 
-## Context
+## 背景
 
-`DoorController` moves the authoritative door root and Collider according to a coordinated one-tick rule. A single imported panel under that root reads as a large board when open and cannot provide a controlled presentation transition without changing gameplay timing.
+`DoorController`は、明示した1 tick単位の規則でゲーム用ドアルートとColliderを動かします。そのルートに1枚の外部Panelを置くと、開いた位置で大きな板のように見え、ゲームの時間処理を変えずに自然な開閉を表現できませんでした。
 
-## Decision
+## 採用した方法
 
-Keep `DoorController`, its open sources, root motion, Collider, and one-tick state unchanged. Place a project-owned visual assembly at the closed doorway position as a sibling presentation object. Two visual half-panels wait through a short seam-light preparation, then retract into the left and right frame over a bounded unscaled-time transition. Closing reverses the presentation.
+`DoorController`、開放条件、ゲーム用ルート、Collider、1 tick単位の状態は変更しません。閉じたドア位置に、プロジェクト所有の表示用Assemblyを別オブジェクトとして置きます。左右のPanelは短い予告Lightingの後、時間尺度に影響されない一定時間で左右のFrame内へ格納します。閉じる場合は逆向きに動かします。
 
-`DoorVisualFeedback` reads the existing committed door state and drives only the visual assembly, panel renderers, and frame emission. Plate and Socket doors retain distinct circuit symbols. Presentation meshes have no Colliders and do not participate in raycasts or Stable ID resolution.
+`DoorVisualFeedback`は確定済みのドア状態を読み、表示用Assembly、Panel Renderer、FrameのEmissionだけを変更します。感圧板とソケットで開くドアは異なる回路記号を使います。表示用MeshにColliderはなく、RaycastとStable ID解決にも参加しません。
 
-## Reasons
+## 理由
 
-- Gameplay timing and collision remain independently testable and unchanged.
-- Split panels no longer follow the authoritative Collider into a visibly oversized open position.
-- The visual transition can be polished without adding a new door gameplay state.
-- Scene Builder regeneration is deterministic.
+- ゲームの時間処理と衝突判定を独立してテストできます。
+- 分割Panelは、ゲーム用Colliderの開いた位置まで付いていきません。
+- 表示用の開閉を調整しても、新しいゲーム状態を追加せずに済みます。
+- Scene Builderから同じ構成を再生成できます。
 
-## Alternatives
+## 検討した別案
 
-- Change `DoorController` to animate panels: rejected because it mixes presentation and simulation authority.
-- Animate the Collider gradually: rejected because it changes the validated one-tick puzzle rule.
-- Hide the old panel instantly: rejected because it removes the artifact but does not communicate a mechanical opening.
+- `DoorController`でPanelもAnimation：表示とシミュレーションの責務が混ざります。
+- Colliderを徐々に動かす：検証済みの1 tick単位のパズル規則が変わります。
+- 古いPanelを即座に隠す：見た目の問題は消えますが、開いたことが伝わりません。
 
-## Limitations and replacement conditions
+## 制約と見直す条件
 
-The panels use a short transform animation without production VFX, sound redesign, or mechanical rigging. Replace the assembly when final Door art supplies authored retracting parts, provided the visual remains downstream of the existing one-tick gameplay state.
+短いTransform Animationで、最終的なVFX、音響、機械Rigではありません。最終ドア素材に開閉Partsが含まれる場合も、既存の1 tick単位のゲーム状態を表示側が読む境界を保ちます。

@@ -1,25 +1,17 @@
-# Staged configuration
+# 検証構成
 
-The manifests are cumulative. `Packages/manifest.json` and `packages-lock.json`
-are checked in at Stage B, the smallest observed candidate. To select another
-stage, use `Automation/BuildStage.ps1`; it copies the manifest and lets Unity
-resolve a fresh lock before invoking the build method.
+ManifestはAからIへ順に要素を追加します。`Packages/manifest.json`と`packages-lock.json`は、Access Violationを観測した中で最小の構成Bに合わせています。別の構成を選ぶ場合は`Automation/BuildStage.ps1`を使います。ScriptがManifestをコピーし、Unityで新しいLock Fileを解決してからBuild Methodを呼びます。
 
-| Stage | Delta from the previous stage | Exit route used for the five-run matrix |
+| 構成 | 前の構成から追加する内容 | 5回確認時の終了方法 |
 | --- | --- | --- |
-| A | Empty Scene, one Camera, D3D11 | External `WM_CLOSE` |
-| B | URP 17.4.0 and a URP asset | External `WM_CLOSE` |
-| C | Input System 1.19.0 and `PlayerInput` | External `WM_CLOSE` |
-| D | uGUI 2.0.0, Canvas, CanvasScaler, TMP label | External `WM_CLOSE` |
-| E | Global Volume component | External `WM_CLOSE` |
-| F | Audio module and AudioSource | External `WM_CLOSE` |
-| G | ECHO//SHIFT window and Player settings | External `WM_CLOSE` |
-| H | Guarded synchronous save, log, `Application.Quit(0)` | Automatic project-style quit |
-| I | One URP-lit cube and Collider | Automatic project-style quit |
+| A | 空のScene、Camera 1台、D3D11 | 外部からの`WM_CLOSE` |
+| B | URP 17.4.0とURP Asset | 外部からの`WM_CLOSE` |
+| C | Input System 1.19.0と`PlayerInput` | 外部からの`WM_CLOSE` |
+| D | uGUI 2.0.0、Canvas、CanvasScaler、TMP Label | 外部からの`WM_CLOSE` |
+| E | Global Volume Component | 外部からの`WM_CLOSE` |
+| F | Audio ModuleとAudioSource | 外部からの`WM_CLOSE` |
+| G | ECHO//SHIFTと同じWindow／Player Settings | 外部からの`WM_CLOSE` |
+| H | 重複防止付きの同期保存、Log、`Application.Quit(0)` | Projectと同じ自動終了 |
+| I | URP/LitのCube 1個とCollider | Projectと同じ自動終了 |
 
-Stages A-G intentionally use the same external close route. Stages H-I exercise
-the added project-style quit path. Stage B was the only initial A-I stage to
-produce an access violation (`1/5`), but it did not reproduce in later Stage B
-follow-up runs and no Stage B dump was captured. Treat it as an intermittent
-candidate, not a stable reproduction and not evidence that URP is the direct
-cause.
+A〜Gは同じWindow Close経路を使い、H〜Iは追加した自動終了処理を使います。最初のA〜I確認でAccess Violationが出たのは構成Bだけ（`1/5`）でしたが、追加確認では再現せず、構成BのDumpも取得できませんでした。安定した再現構成やURPが直接原因である根拠としては扱いません。

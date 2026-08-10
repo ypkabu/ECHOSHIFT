@@ -1,31 +1,31 @@
-# ADR 0017: Restrained URP Lighting and Post-processing
+# ADR 0017：URPライティングとPost-processing
 
-## Status
+## 状態
 
-Accepted for Phase 4 automation; visual judgment pending.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Use one soft-shadow Directional Light, no more than two unshadowed local lights per active section, Trilight ambient/fog separation, and one global URP Volume. The Volume contains ACES Tonemapping, mild Color Adjustments, thresholded Bloom, and subtle Vignette. Motion Blur, Chromatic Aberration, and gameplay Depth of Field are absent.
+Soft Shadowを使うDirectional Lightを1灯、各セクションにShadowなしのLocal Lightを最大2灯、Trilight AmbientとFog、全体用のURP Volumeを1つ使用します。VolumeにはACES Tonemapping、弱いColor Adjustments、しきい値付きBloom、弱いVignetteを設定します。Motion Blur、Chromatic Aberration、ゲームプレイ中のDepth of Fieldは使用しません。
 
-## Reasons
+## 理由
 
-- Actor/device contrast needs real lighting; emission alone does not illuminate or define form.
-- A fixed light budget prevents modular detail from multiplying realtime-light cost.
-- Mild post-processing unifies the palette while retaining Echo generation and Japanese HUD readability.
-- Scene Builder ownership makes settings repeatable and testable.
+- キャラクターと装置の形状はEmissionだけでなく実際のLightで示します。
+- Light数を固定し、Module追加による実時間Lightの増加を防ぎます。
+- 弱いPost-processingで全体の色を整えながら、Echoの世代と日本語HUDを読み取れる状態に保ちます。
+- Scene Builderから同じ設定を再生成できます。
 
-## Alternatives considered
+## 検討した別案
 
-- Fully emissive/unlit presentation: rejected for flat depth and weak silhouettes.
-- Many realtime point/spot lights: rejected for GPU and shadow cost.
-- Heavy cinematic Bloom, DOF, Motion Blur, or aberration: rejected because they obscure puzzle targets and UI.
-- Full baked-lighting pipeline: deferred because the generated slice changes frequently and does not need a production lightmap yet.
+- Emissive／Unlitだけの表示：奥行きとSilhouetteが弱くなります。
+- 多数のPoint／Spot Light：GPUとShadowの負担が増えます。
+- 強いBloom、DOF、Motion Blur、Chromatic Aberration：Puzzle TargetとUIが見にくくなります。
+- 全面Bake：頻繁に再生成する現在のシーンには不要です。
 
-## Current limitations
+## 現在の制約
 
-Automated screenshots and safe-range tests cannot judge subjective exposure, black crush, glare, or monitor variation. Runtime Draw Calls were unavailable and SetPass returned zero on the automated recorder.
+自動キャプチャと設定値テストだけでは、主観的な露出、黒つぶれ、眩しさ、画面差を判断できません。この環境ではDraw Callsを取得できず、SetPassは`0`を返したため有効な計測値として扱っていません。
 
-## Replacement conditions
+## 見直す条件
 
-Manual visual review or target-hardware profiling may tune values within the documented language. Any new Volume override, shadowed light, lightmap, or renderer feature requires three-resolution screenshots, performance capture, and P0-P3 regression.
+実画面確認または対象PCでの計測により調整します。Volume設定、Shadow付きLight、Lightmap、Renderer Featureを追加する場合は、3解像度の画像、性能、全回帰テストを確認します。

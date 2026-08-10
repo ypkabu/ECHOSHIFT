@@ -1,40 +1,38 @@
-# Phase 4 Visual Language
+# 表示・演出のルール
 
-**Phase 4.2: Automation Passed; repeat Human Visual Review pending**
+## 色の使い分け
 
-## Color channels
-
-| Meaning | Primary color | Non-color reinforcement |
+| 対象 | 主な色 | 色以外の見分け方 |
 |---|---|---|
-| Environment | warm white / charcoal / black | external panel scale, recess, column, frame |
-| Player | white body / amber core | visor direction, circular foot ring, Robot silhouette |
-| Echo slot 1 | cyan | one compact head/chest mark, trail |
-| Echo slot 2 | violet | two compact marks, trail |
-| Echo slot 3 | blue-green | three compact marks, trail |
-| PressurePlate circuit | cyan | stepped pad, single conduit/badge |
-| Battery circuit | orange | directional fins, keyed Socket, double conduit/badge |
-| Goal / success | pale green-white | tall portal, beam, expanding pulse |
-| Failure / blocked | red | cross/flash pulse and failure sound |
+| 環境 | 暖色寄りの白／Charcoal／黒 | Panelの縮尺、くぼみ、柱、枠 |
+| プレイヤー | 白いBody／AmberのCore | Visorの向き、円形の足元Ring、RobotのSilhouette |
+| Echo 1 | 水色 | 頭と胸の記号1個、軌跡 |
+| Echo 2 | 紫 | 記号2個、軌跡 |
+| Echo 3 | 青緑 | 記号3個、軌跡 |
+| 感圧板の回路 | 水色 | 段差のある板、1本の回路／記号 |
+| Batteryの回路 | 橙色 | 向きを示す突起、形を合わせたSocket、2本の回路／記号 |
+| ゴール／成功 | 淡い緑白 | 背の高いPortal、光の柱、広がるPulse |
+| 失敗／通行不可 | 赤 | 十字のPulse、短いFlash、失敗音 |
 
-After the oldest Replay is evicted, generation IDs continue increasing for deterministic history, while visual slots cycle modulo three. The maximum three visible Echoes therefore retain distinct color/material/mark combinations without changing gameplay generation identity.
+最も古いEchoを削除した後も、ゲーム上の世代番号は履歴のため増え続けます。一方、表示用の3種類は順番に再利用します。これにより、同時に見える最大3体のEchoを色、Material、記号の組み合わせで区別しながら、ゲーム上の世代番号を変更しません。
 
-## State communication
+## 状態の伝え方
 
-- Echo playback: trail emits and cool core stays bright; stopped playback removes trail, reduces scale slightly, and dims the core.
-- Plate: the pad moves down and emission changes; wiring retains its cyan identity.
-- Door: the external framed moving panel changes position and badge/emission; Plate and Socket variants also use different channel marks.
-- Battery: the core pulses on the floor, the carry pose lifts it at the visible arm socket, and insertion aligns it to the keyed Socket.
-- Socket: empty orange ring becomes a bright powered ring; the orange conduit leads to its Door.
-- Goal: external portal silhouette, glow, and contextual `出口ゲート` text remain visible; completion uses a bounded pale pulse and cue.
-- Interaction: success is a short white/cyan pulse; failure is red plus a separate sound and HUD reason.
+- Echo再生中：軌跡を出し、寒色のCoreを明るくします。再生終了時は軌跡を止め、少し縮小してCoreを暗くします。
+- 感圧板：板を下げてEmissionを変え、水色の回路は維持します。
+- ドア：枠付きの表示用Panelを動かし、記号とEmissionを変えます。感圧板用とSocket用は異なる線数で示します。
+- Battery：床ではCoreを点滅させ、保持中は腕の見える位置へ持ち上げ、挿入時はSocketの形へ合わせます。
+- Socket：空の橙色Ringを通電時に明るくし、橙色の回路を対応するドアへつなぎます。
+- ゴール：外部素材のPortal、発光、`出口ゲート`の案内を表示し、完了時は上限付きの淡色Pulseと音を出します。
+- インタラクション：成功は短い白／水色のPulse、失敗は赤いPulse、専用音、HUDの理由表示で伝えます。
 
-## UI language
+## UIの表現
 
-The HUD uses dark translucent panels, compact reusable icons, stable screen-edge padding, a restrained progress strip, and high-contrast Japanese text. Persistent object-name labels are excluded. Pause uses a full-screen dimmer, centered card, explicit focus arrow, and separated two-step Quit while the gameplay HUD is hidden. The center and walkable route stay uncovered. Layout validation covers 1280x720, 1920x1080, and 2560x1440; non-16:9 usability remains part of manual acceptance.
+HUDは暗い半透明Panel、再利用する小さなIcon、一定の画面端余白、控えめな進行表示、日本語の高Contrast文字で構成します。オブジェクト名の常時表示は行いません。一時停止画面では全画面を暗くし、中央のCard、選択位置を示す矢印、2段階の終了確認を表示してHUDを隠します。画面中央と歩行経路は覆いません。1280x720、1920x1080、2560x1440でLayoutを確認し、16:9以外は実画面で確認します。
 
-## Resource limits
+## 負荷の上限
 
-- Shared URP/Lit materials and `MaterialPropertyBlock`; no runtime material instances.
-- Fixed feedback pool of 12 ParticleSystems and eight reusable AudioSources.
-- One shadowed Directional Light and at most two unshadowed local lights per active section.
-- Static packaged TMP atlas for the current Japanese catalog; no OS font lookup or runtime atlas growth.
+- 共通のURP/Lit Materialと`MaterialPropertyBlock`を使い、実行中にMaterialを複製しません。
+- ParticleSystemは12個、再利用するAudioSourceは8個に固定します。
+- Shadow付きDirectional Lightは1灯、ShadowなしのLocal Lightはセクションごとに最大2灯です。
+- 現在の日本語文字一覧を収録した固定TMP Atlasを使い、OSフォント検索と実行中のAtlas拡張は行いません。

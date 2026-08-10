@@ -1,33 +1,33 @@
-# ADR 0018: Visual-only procedural character animation
+# ADR 0018：表示専用のProcedural Animation
 
-## Status
+## 状態
 
-Accepted for Phase 4.3.
+採用済み。
 
-## Context
+## 背景
 
-The curated Quaternius Robot improves the actor silhouette but appears in a T-pose. Its imported FBX has no named Idle, Walk, Carry, Interact, or Stopped clips; animation import is disabled and there is no Avatar. Gameplay roots are already authoritative for fixed-tick movement and replay drift.
+Quaternius Robotでキャラクターの形は改善しましたが、読み込んだFBXには名前付きのIdle、Walk、Carry、Interact、Stopped ClipとAvatarがなく、T-poseのままでした。ゲーム上の移動とReplay Driftはfixed tickで動くルートが既に担当しています。
 
-## Decision
+## 採用した方法
 
-Drive the existing project-owned robot wrapper bones with a `Phase4RobotPoseController` placed below the gameplay root. The controller reads root displacement, existing carry state, existing interaction-success counters, and Echo playback completion. It blends six presentation states without writing to gameplay state.
+ゲーム処理を持つルートより下に`Phase4RobotPoseController`を置き、プロジェクト所有のRobot Wrapper Boneを動かします。ルートの移動量、保持状態、インタラクション成功数、Echoの再生終了を読み、ゲーム状態を書き換えずに6種類の表示用姿勢を補間します。
 
-An Animator and project-owned controller remain on the visual child only, with Root Motion disabled and empty semantic states matching the six pose states. The procedural component performs the actual bone offsets after Animator update. No Animation Events or gameplay Transform curves are permitted.
+Animatorとプロジェクト所有のControllerも表示用の子だけに置き、Root Motionを無効にします。Animatorには6姿勢と同名の空Stateを用意し、実際のBone OffsetはAnimator更新後にProcedural Componentが反映します。Animation Eventとゲーム用Transform Curveは使用しません。
 
-## Reasons
+## 理由
 
-- It leaves the third-party FBX and importer metadata unchanged.
-- It avoids inventing clip boundaries from an unnamed source take.
-- It keeps replay and collision authority on the fixed-tick gameplay root.
-- It provides deterministic, builder-authored state names and testable references.
+- 第三者製FBXとImporter Metadataを変更しません。
+- 意図と境界が不明なSource TakeからClipを推測しません。
+- fixed tickのキャラクタールートがリプレイと衝突判定を担当し続けます。
+- 状態名と参照をScene Builderから再生成し、テストできます。
 
-## Alternatives
+## 検討した別案
 
-- Enable and split the FBX take: rejected because source clip intent and boundaries are not defined.
-- Root Motion: rejected because it would compete with CharacterMotor and replay poses.
-- Animation Rigging package: rejected because Phase 4.3 does not justify another framework or package.
-- Leave the robot static: rejected by Human Visual Review.
+- FBXのTakeを分割：元のClipの意図と境界が定義されていません。
+- Root Motion：`CharacterMotor`と記録済みの位置・姿勢へ干渉します。
+- Animation Rigging Package：現在の簡易表示には依存が大きすぎます。
+- T-poseのまま使用：動作中の読みやすさを損ないます。
 
-## Limitations and replacement conditions
+## 制約と見直す条件
 
-The procedural motion is intentionally simple and does not provide production-quality foot placement or IK. Replace it only when final character art includes authored clips with known licenses, named state coverage, and a validated visual-only import pipeline. Gameplay roots must remain authoritative after replacement.
+簡易的な動きで、最終品質の接地やIKは行いません。最終Character Artにライセンスを確認した名前付きClipが揃った場合に置き換えます。置き換え後もゲーム処理を持つルートを移動させないことを検証します。

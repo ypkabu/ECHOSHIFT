@@ -1,27 +1,27 @@
-# ADR 0001: Explicit Fixed-Tick Simulation
+# ADR 0001：明示的なfixed tick
 
-## Status
+## 状態
 
-Accepted for Phase 0.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Use a plain `SimulationClock` accumulator at 60 Hz, advanced from a scene-owned coordinator with unscaled frame delta time. The coordinator executes zero or more explicit ticks per rendered frame.
+`SimulationClock`を60 Hzの積算式時計として実装し、シーン単位の管理処理から時間尺度の影響を受けない経過時間を渡します。描画1フレームにつき、必要な回数だけtickを明示的に実行します。
 
-## Reasons
+## 理由
 
-Recording and replay require a stable tick index and duration independent of render rate. A plain clock is directly unit-testable and makes loop boundaries explicit.
+入力記録と再生には、描画速度に左右されないtick番号と時間幅が必要です。通常のC#クラスとして実装することで単体テストがしやすくなり、ループの境界も明確になります。
 
-## Alternatives considered
+## 検討した別案
 
-- Unity `FixedUpdate`: simple, but the ordering of multiple components is implicit and harder to test as a single transaction.
-- Frame-based recording: produces different recordings at different render rates.
-- DOTS fixed-step groups: excessive infrastructure for this prototype.
+- Unityの`FixedUpdate`：単純ですが、複数Componentの実行順が暗黙的になり、一連の処理としてテストしにくくなります。
+- 描画フレーム単位の記録：描画速度によって記録内容が変わります。
+- DOTSのfixed-step group：このプロトタイプには構成が大きすぎます。
 
-## Current limitations
+## 現在の制約
 
-Long stalls can exceed the catch-up budget and leave simulation time temporarily behind real time.
+長時間停止すると追いつき処理の上限を超え、シミュレーション時刻が一時的に実時間より遅れる場合があります。
 
-## Replacement conditions
+## 見直す条件
 
-Replace or integrate the clock when production physics, networking, pause semantics, or platform timing measurements prove that the Phase 0 accumulator is insufficient.
+物理演算、ネットワーク、一時停止の仕様、対象環境での時間計測により現在の方式が不足すると判明した場合に、時計の置き換えまたは統合を検討します。

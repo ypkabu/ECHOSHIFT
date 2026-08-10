@@ -1,6 +1,6 @@
-# Curated Player log evidence
+# Playerログの抜粋
 
-Raw generated logs remain under ignored local `Logs` directories and are not committed. The relevant confirmed ordering from the product Player is:
+生成した未整理のLogはGit管理外の`Logs`に保存し、Commitしません。製品版Playerで確認できた終了前後の順序は次のとおりです。
 
 ```text
 PHASE3_GAME_COMPLETED
@@ -14,6 +14,6 @@ Cleanup mono
 CodeReloadManager destroyed
 ```
 
-The access violation occurs after normal gameplay completion and after managed/engine shutdown messages. The saved logs contain no compiler error, Missing Script/Reference, `NullReferenceException`, managed unhandled exception, or failed recorded interaction before the native fault.
+Access Violationはゲームの正常完了後、managed側とEngine側の終了Messageより後に発生します。保存したLogでは、Native障害より前にCompiler Error、Missing Script／Reference、`NullReferenceException`、managed側の未処理例外、記録済みインタラクションの失敗はありません。
 
-For the earlier 6000.4.12f1 minimal dump, initialization completes, the minimal quit request is logged, and the dump records the AV in native cleanup. For staged Stage B run 4, the Player log exists locally but no dump was created; the log and signed exit code alone do not establish its fault function.
+以前の小さい6000.4.12f1 Projectでは、初期化と終了要求のLogが完了した後、Native Cleanup内のAccess ViolationをDumpで確認できました。構成Bの4回目はPlayer Logだけが端末に残り、Dumpは作成されませんでした。Logと終了コードだけでは、障害関数を特定できません。

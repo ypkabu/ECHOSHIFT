@@ -1,29 +1,29 @@
-# ADR 0008: Interaction Conflict Resolution
+# ADR 0008：インタラクション競合の解決
 
-## Status
+## 状態
 
-Accepted for Phase 2.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Each Actor emits at most one immutable request per tick. Requests sort by tick, Actor priority and Replay generation, ordinal target Stable ID, then Interaction kind. Actor priority is oldest Echo, successively newer Echoes, then current Player.
+各キャラクターが1 tickにつき最大1件の確定後に変更しない要求を出します。要求はtick、キャラクターの優先順位とリプレイ世代、対象のStable ID、操作種別で整列します。優先順位は古いEchoから新しいEchoへ進み、現在のプレイヤーを最後にします。
 
-The first request for an exclusive Stable ID reserves that target for the tick, even if execution fails. A later same-target request returns `TargetBusy`. It does not select another nearby target and is not carried into the next tick. Instance IDs, physics result order, and unordered collection enumeration never determine the result.
+排他的なStable IDへの最初の要求は、実行結果にかかわらずそのtick中の対象を予約します。同じ対象への後続要求は`TargetBusy`となり、近くの別の対象を選ばず、次のtickへ持ち越しません。Instance ID、物理演算の戻り順、順序を保証しないCollectionの列挙結果は判定に使いません。
 
-## Reasons
+## 理由
 
-Prior recordings must remain stable when the current Player attempts the same action. Reserving the target for the entire tick produces one observable result and prevents a failed earlier request from making later execution dependent on target-specific failure behavior.
+現在のプレイヤーが同じ操作を行っても、過去に記録した動作を安定して再生する必要があります。tick全体で対象を予約することで結果を1つに定め、最初の失敗理由によって後続動作が変わることも防ぎます。
 
-## Alternatives considered
+## 検討した別案
 
-- Current Player first: rejected because it can invalidate an already recorded solution.
-- Last writer wins: rejected because it cannot preserve exclusive ownership.
-- Retry or nearest-target fallback: rejected because it changes recorded intent.
+- 現在のプレイヤーを優先：記録済みの解法を崩す可能性があります。
+- 最後の要求を採用：排他的な所有状態を保てません。
+- 再試行または最寄り対象での代用：記録時の意図が変わります。
 
-## Current constraints
+## 現在の制約
 
-The resolver has a fixed four-request buffer: three Echoes and one Player. A target is exclusive at Stable-ID granularity for one tick. Phase 2 has no multi-target atomic transaction.
+要求領域は3体のEchoとプレイヤー1体に合わせて4件です。Stable ID単位で1 tickだけ排他的に扱い、複数対象をまとめて確定する処理はありません。
 
-## Replacement conditions
+## 見直す条件
 
-Replace or extend the policy only if a later design introduces cooperative non-exclusive actions, more than three Echoes, or explicitly atomic multi-object commands.
+排他的でない協力操作、4体以上のEcho、複数オブジェクトをまとめて確定する操作を導入する場合に拡張します。

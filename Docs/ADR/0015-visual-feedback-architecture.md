@@ -1,31 +1,31 @@
-# ADR 0015: Bounded Visual and Audio Feedback Architecture
+# ADR 0015：視覚・音響による案内の構成
 
-## Status
+## 状態
 
-Accepted.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Use scene-owned presentation adapters and one `Phase4FeedbackDirector`. Adapters observe authoritative gameplay components and modify only child transforms and `MaterialPropertyBlock` state. The director subscribes once to Loop, Interaction, Echo removal, and Goal notifications; it observes a fixed serialized Door array. Effects use a preallocated 12-system Particle pool and eight reusable AudioSources with duplicate-cue throttling.
+シーン単位の表示アダプターと1つの`Phase4FeedbackDirector`を使用します。アダプターはゲーム処理を持つComponentの状態を読み、表示用の子Transformと`MaterialPropertyBlock`だけを変更します。Directorはループ、インタラクション、Echo削除、ゴールの通知を1回購読し、Inspectorで指定した固定数のドアを監視します。演出には12個を事前生成したParticleSystemと8個の再利用可能なAudioSourceを使い、同じ音の短時間重複を抑制します。
 
-## Reasons
+## 理由
 
-- Keeps gameplay simulation independent of art, sound, and camera timing.
-- Avoids runtime material instances, unbounded GameObject/AudioSource creation, and repeated hierarchy search.
-- Central ownership makes section/restart subscription cleanup and one-shot completion behavior testable.
-- `LoopDirector.EchoRemoved` exposes an event without changing Replay generation, eviction, or reset behavior.
+- ゲームのシミュレーションをアート、音、カメラの時間処理から分離できます。
+- 実行中のMaterial複製、上限のないGameObject／AudioSource生成、階層の繰り返し検索を避けられます。
+- 所有元をまとめることで、セクション再開時の購読解除と完了演出の重複防止をテストできます。
+- `LoopDirector.EchoRemoved`はリプレイの生成、削除、リセットを変えずに表示へ通知できます。
 
-## Alternatives considered
+## 検討した別案
 
-- One manager polling the entire Scene by tag/name: rejected by architecture and allocation rules.
-- Device components owning gameplay and presentation together: rejected because art replacement would risk deterministic state.
-- Instantiate/destroy every effect and sound: rejected for GC and overlap risk.
-- Third-party VFX/audio framework: rejected as unnecessary scope.
+- Tag／名前でシーン全体を監視：毎フレームの検索と依存が増えます。
+- 装置Componentへゲーム処理と表示をまとめる：見た目の差し替えが再現性へ影響します。
+- 演出ごとの生成・破棄：GCと重複再生の負担が増えます。
+- 第三者製VFX／音響Framework：現在の規模には不要です。
 
-## Current limitations
+## 現在の制約
 
-Phase 4.1 replaces six bounded cues with curated Kenney CC0 clips, but this remains prototype sound design rather than a final mix. Door observation is a small per-frame fixed-array read. VFX share one generic pulse shape with event-specific color/scale/duration.
+6種類の音はKenneyのCC0素材を加工したもので、最終的な音響設計ではありません。ドア状態は毎フレーム固定配列から読みます。VFXは1種類のPulse形状を色、Scale、Durationで使い分けます。
 
-## Replacement conditions
+## 見直す条件
 
-Replace cues or VFX when new assets remain licensed, pooled/bounded, gameplay-independent, duplicate-safe, and covered by lifecycle and performance tests.
+新しい素材でも、ライセンス、上限付きの再利用、ゲーム処理からの分離、重複防止、ライフサイクルと性能のテストを保てる場合に差し替えます。

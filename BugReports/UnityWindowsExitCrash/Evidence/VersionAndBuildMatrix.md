@@ -1,44 +1,44 @@
-# Version and build matrix
+# バージョン・ビルド別の結果
 
-## Unity versions and exit behavior
+## Unityバージョン別の終了動作
 
-These are saved investigation results from separate, non-destructive project copies.
+元Projectを変更しない別Copyで確認した結果です。
 
-| Unity | Build / route | Crashes / runs | Notes |
+| Unity | Build／終了方法 | Crash／回数 | 備考 |
 | --- | --- | ---: | --- |
-| 6000.4.6f1 | Product Development, automatic quit | 3/3 | Three full dumps; same stack |
-| 6000.4.6f1 | Earlier simple minimal project | 2/3 | Graphical Player |
-| 6000.4.8f1 | Product copy, automatic quit | 0/10 | Temporary non-reproduction did not hold for minimal Player |
-| 6000.4.8f1 | Product copy, Pause Quit | 0/10 | Temporary non-reproduction |
-| 6000.4.8f1 | Product copy, Window Close | 0/10 | Temporary non-reproduction |
-| 6000.4.8f1 | Earlier simple minimal project | 9/10 | Dump stack matches normalized product stack |
-| 6000.4.12f1 | Product Development, automatic quit | 7/10 | Normal gameplay completed before shutdown |
-| 6000.4.12f1 | Product Development, Pause Quit | 8/10 | Same native shutdown class |
-| 6000.4.12f1 | Product Development, Window Close | 2/10 | Same graphical Player family |
-| 6000.4.12f1 | Product Non-Development, automatic quit | 9/10 | Two runs reached the external timeout before normal completion; crash still occurred during cleanup |
-| 6000.4.12f1 | Earlier simple minimal project | 9/10 | Full dump and symbols available |
-| 6000.4.12f1 | Staged Stage B, initial Window Close | 1/5 | No dump; stack identity unconfirmed |
-| 6000.4.12f1 | Stage B under ProcDump | 0/20 | No dump |
-| 6000.4.12f1 | Stage B with WER LocalDumps | 0/30 | No dump; all code 0 |
+| 6000.4.6f1 | 製品版Development、自動終了 | 3/3 | Full Dump 3件、同じCall Stack |
+| 6000.4.6f1 | 以前の小さいProject | 2/3 | 画面付きPlayer |
+| 6000.4.8f1 | 製品版Copy、自動終了 | 0/10 | 一時的に再現せず。小さいPlayerでは再現 |
+| 6000.4.8f1 | 製品版Copy、Pause Quit | 0/10 | 一時的に再現せず |
+| 6000.4.8f1 | 製品版Copy、Window Close | 0/10 | 一時的に再現せず |
+| 6000.4.8f1 | 以前の小さいProject | 9/10 | DumpのCall Stackが製品版と一致 |
+| 6000.4.12f1 | 製品版Development、自動終了 | 7/10 | 終了前にゲームは正常完了 |
+| 6000.4.12f1 | 製品版Development、Pause Quit | 8/10 | 同じNative Shutdown内 |
+| 6000.4.12f1 | 製品版Development、Window Close | 2/10 | 同じ画面付きPlayer |
+| 6000.4.12f1 | 製品版Non-Development、自動終了 | 9/10 | 2回は通常完了前に外部Timeoutへ到達したがCleanup中にCrash |
+| 6000.4.12f1 | 以前の小さいProject | 9/10 | Full DumpとSymbolあり |
+| 6000.4.12f1 | 構成B、最初のWindow Close | 1/5 | Dumpなし、Call Stack未確認 |
+| 6000.4.12f1 | 構成B、ProcDump使用 | 0/20 | Dumpなし |
+| 6000.4.12f1 | 構成B、WER LocalDumps使用 | 0/30 | Dumpなし、全て終了コード0 |
 
-No tested 6000.4 patch eliminated the defect. This matrix does not establish the first regressed Unity version.
+確認した6000.4系のPatchでは問題を解消できませんでした。この表から最初に問題が発生したUnity Versionは特定できません。
 
-## Graphics and headless matrix
+## Graphics・headless別の結果
 
-| Condition | Crashes / runs | Result |
+| 条件 | Crash／回数 | 結果 |
 | --- | ---: | --- |
-| NVIDIA device 0, D3D11 | 4/5 | Reproduced |
-| Intel device 1, D3D11 | 5/5 | Reproduced |
-| WARP, D3D11 | 5/5 | Reproduced |
-| `-batchmode -nographics` | 0/5 | Did not reproduce |
+| NVIDIA Device 0、D3D11 | 4/5 | 再現 |
+| Intel Device 1、D3D11 | 5/5 | 再現 |
+| WARP、D3D11 | 5/5 | 再現 |
+| `-batchmode -nographics` | 0/5 | 再現せず |
 
-WARP reproducing while `-nographics` does not makes a vendor GPU driver explanation unlikely and isolates the difference to the graphical Player shutdown path. It does not identify which Unity subsystem owns the invalid lifetime.
+WARPで再現し、`-nographics`では再現しないため、特定GPU VendorのDriverだけが原因である可能性は低く、画面付きPlayerの終了処理に差があります。ただし、Unity内部のどのSubsystemが不正なLifetimeを持つかは特定できません。
 
-## A-I build hashes
+## A〜Iビルドのハッシュ
 
-Whole-build hashes are SHA-256 over the UTF-8 sequence of sorted `relative/path file-sha256` lines. The EXE and `UnityPlayer.dll` are identical across A-I; serialized Data differs.
+Build全体のHashは、`relative/path file-sha256`を並べ替えたUTF-8文字列に対するSHA-256です。A〜IでEXEと`UnityPlayer.dll`は同一で、Serialized Dataだけが異なります。
 
-| Stage | Whole-build SHA-256 | Files | Bytes |
+| 構成 | Build全体のSHA-256 | File数 | Bytes |
 | --- | --- | ---: | ---: |
 | A | `3EBFAFD22336A552891D36A7837E7D3EAC27731998891612B4E0F839E319D749` | 229 | 147579021 |
 | B | `229597DCD872E3F09E46FFB35AF0814745F06B4311E1F385861B10DFFC3D8B69` | 280 | 160444896 |
@@ -50,12 +50,12 @@ Whole-build hashes are SHA-256 over the UTF-8 sequence of sorted `relative/path 
 | H | `A42659D75F87DE1D82E3CD92C45D4494FDEF424B72D7068A8A773E3A1DFCDC47` | 284 | 162437740 |
 | I | `5AE75C16F6BCE2454DAD8643AF57066A168567995B98EAB13BFE2AC4BDBF0FD4` | 284 | 162470571 |
 
-Common EXE SHA-256: `C2F1EC702A37D272F5AA869DB417D533BC59EB7ABB9CE16898C0471454DF8850` (`667648` bytes).
+共通EXEのSHA-256：`C2F1EC702A37D272F5AA869DB417D533BC59EB7ABB9CE16898C0471454DF8850`（`667648` bytes）
 
-Common `UnityPlayer.dll` SHA-256: `4D693D0453F540155E0498F75C94687B250970568A1C9C1CE96B12067EA7F5F6` (`85499304` bytes).
+共通`UnityPlayer.dll`のSHA-256：`4D693D0453F540155E0498F75C94687B250970568A1C9C1CE96B12067EA7F5F6`（`85499304` bytes）
 
-## Backend and other-machine status
+## backend・別PCでの確認状況
 
-- Mono: tested; reproduces.
-- IL2CPP: not tested because the Windows IL2CPP module is not installed. No large module was installed for this investigation.
-- Second Windows PC: not available; untested.
+- Mono：確認済み、再現
+- IL2CPP：Windows IL2CPP Module未導入のため未検証。確認のための追加導入は実施していません。
+- 2台目のWindows PC：利用できず未検証
