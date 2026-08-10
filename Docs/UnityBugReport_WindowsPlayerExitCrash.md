@@ -1,4 +1,4 @@
-# Windows Player終了時にUnityPlayer.dll内で発生するAccess Violation
+# Windows版終了時にUnityPlayer.dll内で発生するAccess Violation
 
 ## 概要
 
@@ -85,7 +85,7 @@ A〜IのManifestで同じ累積比較を行えます。構成Bは「低頻度で
 
 影響を受ける実行は、`UnityPlayer.dll`のNative Cleanup中に`0xC0000005`で終了します。製品版ではゲームと同期テレメトリー保存が先に完了し、Player Logにmanaged側の未処理例外、Missing Script／Reference、NullReferenceはありません。
 
-## Development設定・GPU・終了方法との関係
+## ビルド設定・GPU・終了方法との関係
 
 - Development BuildとNon-Development Buildで再現します。
 - NVIDIA、Intel、D3D11 WARPで再現します。
@@ -93,7 +93,7 @@ A〜IのManifestで同じ累積比較を行えます。構成Bは「低頻度で
 - 画面付きPlayerで再現し、`-batchmode -nographics`では再現しません。
 - Recorder初期化と録画の有無に依存しません。
 
-## Regressionの確認状況
+## 発生開始バージョンの確認状況
 
 不明です。確認した6000.4.6f1、6000.4.8f1、6000.4.12f1では同じUnity関数順を確認しました。6000.4より前のEditorは未検証です。
 

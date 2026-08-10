@@ -23,7 +23,7 @@
 
 確認した6000.4系のPatchでは問題を解消できませんでした。この表から最初に問題が発生したUnity Versionは特定できません。
 
-## Graphics・headless別の結果
+## 描画あり・描画なしの結果
 
 | 条件 | Crash／回数 | 結果 |
 | --- | ---: | --- |
@@ -54,7 +54,7 @@ Build全体のHashは、`relative/path file-sha256`を並べ替えたUTF-8文字
 
 共通`UnityPlayer.dll`のSHA-256：`4D693D0453F540155E0498F75C94687B250970568A1C9C1CE96B12067EA7F5F6`（`85499304` bytes）
 
-## backend・別PCでの確認状況
+## バックエンド・別PCでの確認状況
 
 - Mono：確認済み、再現
 - IL2CPP：Windows IL2CPP Module未導入のため未検証。確認のための追加導入は実施していません。
