@@ -1,27 +1,27 @@
-# ADR 0013: Runtime UI and Visual Feedback
+# ADR 0013：実行時UIと視覚・音響による案内
 
-## Status
+## 状態
 
-Accepted for Phase 3 automation; subject to manual acceptance.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Use built-in uGUI, a centralized `Phase3TextCatalog`, configurable position-damped camera follow with fixed rotation, temporary URP materials, line renderers, Echo trails, world-space identity labels/rings, and MaterialPropertyBlocks. HUD shows section, objective, loop/timer/Echo count, interaction-kind-specific input prompt, carry state, transition, and reason-specific interaction failure. F3 hides the diagnostic overlay. No Cinemachine or third-party presentation package is added.
+標準のuGUI、`Phase3TextCatalog`にまとめた文字列、回転を固定して位置だけを減衰追従するカメラ、URP Material、LineRenderer、Echoの軌跡、キャラクター識別用の表示、MaterialPropertyBlockを使用します。HUDにはセクション、目的、ループ／残り時間／Echo数、操作別の入力案内、保持状態、切り替え状態、インタラクションの失敗理由を表示します。F3で診断表示を隠せます。Cinemachineや第三者製の表示Frameworkは追加しません。
 
-## Reasons
+## 理由
 
-This gives the greybox a readable, replaceable presentation layer without changing deterministic gameplay or allocating cloned materials during feedback updates.
+fixed tickのゲーム処理を変更せず、差し替えやすい表示・演出を追加できます。Materialの複製による割り当ても避けられます。
 
-## Alternatives considered
+## 検討した別案
 
-- Cinemachine: not installed and unnecessary for one top-down follow camera.
-- UI Toolkit runtime conversion: rejected to avoid an unrelated migration.
-- Hard-coded strings in components: rejected because audit and future localization would be fragmented.
+- Cinemachine：見下ろし追従カメラ1台には不要です。
+- UI Toolkitへの移行：無関係な移行作業が増えます。
+- 各Componentへの文字列直書き：確認と将来の多言語化が分散します。
 
-## Current constraints
+## 現在の制約
 
-Visual clarity, camera comfort, control feel, monitor scaling, and tutorial comprehension remain human acceptance items. Audio, final VFX, accessibility settings, the Unity Localization package, multilingual runtime switching, and production localization workflow are outside scope. The Phase 3 Japanese pretest uses a centralized serialized `ja-JP` catalog and an installed OS Japanese font without adding those systems.
+見やすさ、カメラの快適さ、操作感、画面倍率、チュートリアル理解には実画面での確認が必要です。最終的な音響・VFX、Accessibility設定、Unity Localization Package、実行中の言語切り替えは対象外です。現在の日本語表示は、シーンへ保存した`ja-JP`の文字列一覧と同梱フォントを使用します。
 
-## Replacement conditions
+## 見直す条件
 
-Replace temporary assets and layout when an art/UI milestone supplies production style, accessibility, multilingual localization, or camera requirements.
+最終的なアート／UI、Accessibility、多言語対応、カメラ要件が決まった場合に表示用素材とLayoutを置き換えます。

@@ -1,29 +1,29 @@
-# ADR 0009: Bounded Loop History Summary
+# ADR 0009：上限付きループ履歴
 
-## Status
+## 状態
 
-Accepted for Phase 2.
+採用済み。
 
-## Decision
+## 採用した方法
 
-`LoopHistory` stores at most 16 immutable value summaries. Each contains Loop number, recorded ticks, interaction-event count, Replay generation, maximum drift, interaction successes/failures, Active or Evicted state, and Timer, Manual, Goal, or Test end reason.
+`LoopHistory`は確定後に変更しない値の要約を最大16件保存します。各要約には、ループ番号、記録tick数、インタラクション数、リプレイ世代、最大Replay Drift、操作の成功・失敗数、`Active`／`Evicted`状態、`Timer`／`Manual`／`Goal`／`Test`の終了理由を含めます。
 
-When full, adding a summary drops the oldest summary. Eviction changes only the summary state. No `ReplayRecording`, Echo, Interactor, Unity object, or other runtime reference is retained.
+上限を超える場合は最も古い要約を削除します。Echoを削除しても要約の状態が変わるだけで、`ReplayRecording`、Echo、Interactor、Unityオブジェクトなどの実行時参照は保持しません。
 
-## Reasons
+## 理由
 
-Sixteen entries exceed a typical debugging session and the three active Replay limit while bounding memory and overlay work. Storing aggregates avoids duplicating up to 900 Replay frames per loop.
+16件あれば最大3体のEchoを使う通常の確認には十分で、長時間のEditor実行でもメモリと表示処理を制限できます。集計値だけを保存し、1ループ最大900件のフレームを複製しません。
 
-## Alternatives considered
+## 検討した別案
 
-- Unbounded history: rejected because long Editor sessions would grow indefinitely.
-- Duplicate complete Replay data: rejected because active playback already owns it.
-- Disk persistence: outside the Phase 2 in-memory validation scope.
+- 上限なしの履歴：長いEditor実行で増え続けます。
+- リプレイ全体の複製：実際の再生側が既に保持しています。
+- ディスク保存：現在の実行中検証には不要です。
 
-## Current constraints
+## 現在の制約
 
-Once a summary ages out, it cannot be recovered. Runtime metrics update when a loop transitions; the current in-progress loop is shown through live Actor data instead.
+上限から外れた要約は復元できません。進行中のループは履歴ではなく、現在のキャラクター情報として表示します。
 
-## Replacement conditions
+## 見直す条件
 
-Replace with a persistent telemetry format if long-session analysis, save data, or automated external profiling requires it.
+長時間分析、セーブデータ、外部の自動計測が必要になった場合は永続化できる計測形式へ置き換えます。

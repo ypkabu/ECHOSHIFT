@@ -1,29 +1,29 @@
-# ADR 0007: Deterministic Tick Pipeline
+# ADR 0007：決定的なtick処理順
 
-## Status
+## 状態
 
-Accepted for Phase 2.
+採用済み。
 
-## Decision
+## 採用した方法
 
-`LoopDirector` explicitly sequences each tick: apply previously committed Door state; acquire Echo frames and Player command; simulate oldest Echo through newest Echo then Player; call `Physics.SyncTransforms`; refresh PressurePlate and live Interaction sensors; collect requests; resolve requests; commit Door sources; record Replay poses and drift; refresh Goal and evaluate loop termination.
+`LoopDirector`が各tickを明示的に並べます。前のtickで確定したドア状態を反映し、Echoの記録とプレイヤー入力を取得し、古いEchoから新しいEcho、最後にプレイヤーを移動させます。その後に`Physics.SyncTransforms`、感圧板とインタラクションセンサーの更新、要求の収集・解決、ドア条件の確定、位置・姿勢とReplay Driftの記録、ゴールとループ終了の判定を行います。
 
-Door source changes committed at tick N become collision-visible at the beginning of tick N+1. PressurePlate and Goal retain Unity trigger callbacks for ordinary use, while coordinated Scenes also use bounded `OverlapBoxNonAlloc` refreshes at the declared sensor stage.
+tick Nで確定したドア条件は、tick N+1の冒頭で衝突判定へ反映します。感圧板とゴールは通常利用向けのTrigger Callbackを残し、統合シーンでは決められた段階で上限付きの`OverlapBoxNonAlloc`による更新も行います。
 
-## Reasons
+## 理由
 
-MonoBehaviour `Update`, trigger callback, registration, and GameObject creation order do not define a stable multi-Actor transaction. A Scene-owned coordinator makes the boundary testable while leaving movement, interaction, devices, and replay logic in focused components.
+MonoBehaviourの`Update`、Trigger Callback、登録順、GameObject生成順だけでは、複数キャラクターを含む一連の処理順を保証できません。シーン単位の管理処理で順番を明示しつつ、移動、操作、装置、リプレイの責務は分離します。
 
-## Alternatives considered
+## 検討した別案
 
-- Script Execution Order: rejected because it spreads an implicit order across component metadata.
-- One large simulation manager containing gameplay rules: rejected because it centralizes unrelated behavior.
-- A separate Unity Physics simulation Scene: disproportionate for this kinematic prototype.
+- Script Execution Order：順番がComponentの設定へ分散し、追いにくくなります。
+- 全ゲーム規則を持つ巨大なSimulation Manager：無関係な処理まで集中します。
+- 別のUnity Physics Scene：kinematic主体の現在のプロトタイプには過剰です。
 
-## Current constraints
+## 現在の制約
 
-Transform-based capsule casts and explicit physics synchronization are deterministic for this Scene and platform, but this is not a cross-platform deterministic physics engine. Carry visuals still update in `LateUpdate`; ownership and insertion do not depend on that visual update.
+Transformを使うCapsuleCastと明示的な物理同期は、このシーンと環境で再現性がありますが、環境をまたいでbit単位に一致する物理エンジンではありません。運搬中の見た目は`LateUpdate`で更新しますが、所有や挿入の状態はその表示更新に依存しません。
 
-## Replacement conditions
+## 見直す条件
 
-Replace this pipeline if free-Rigidbody replay, network lockstep, cross-platform bitwise determinism, or additive simulation Scenes become required.
+自由なRigidbodyのリプレイ、Network Lockstep、環境をまたぐbit単位の一致、Additive Sceneでのシミュレーションが必要になった場合に置き換えます。

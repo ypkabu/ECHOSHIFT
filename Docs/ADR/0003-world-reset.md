@@ -1,27 +1,27 @@
-# ADR 0003: Explicit Registered World Reset
+# ADR 0003：登録式のワールド状態リセット
 
-## Status
+## 状態
 
-Accepted for Phase 0.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Resettable components implement `IResettable`. A scene-owned `ResetRegistry` receives a serialized component list, captures initial state once, and restores that list in a defined order during loop transitions.
+リセット対象は`IResettable`を実装します。シーン単位の`ResetRegistry`がInspectorで指定したComponent一覧を受け取り、初期状態を1回保存し、ループ切り替え時に決められた順で復元します。
 
-## Reasons
+## 理由
 
-Explicit registration avoids scene reloads, repeated searches, hidden lifecycle ordering, and accidental inclusion of unrelated objects.
+明示的に登録することで、シーン再読み込み、毎回の検索、見えにくいライフサイクル順、無関係なオブジェクトの混入を避けられます。
 
-## Alternatives considered
+## 検討した別案
 
-- Reloading the scene: resets state but destroys replay continuity and obscures transition ordering.
-- Searching for interfaces every loop: avoidable cost and easy to misuse at runtime.
-- General serialized snapshots: unnecessary abstraction for the small Phase 0 state set.
+- シーン再読み込み：状態は戻りますが、リプレイの連続性が失われ、切り替え順も分かりにくくなります。
+- ループごとにInterfaceを検索：実行時の不要な処理が増え、登録漏れにも気づきにくくなります。
+- 汎用のSerialized Snapshot：現在の小さな状態集合には過剰です。
 
-## Current limitations
+## 現在の制約
 
-Unregistered components are not reset. Phase 0 captures only component-specific state, not arbitrary Rigidbody state or instantiated object graphs.
+登録していないComponentは復元されません。任意のRigidbody状態や、実行時に生成したオブジェクト階層全体は対象外です。
 
-## Replacement conditions
+## 見直す条件
 
-Introduce typed snapshot storage and validation when levels contain dynamic spawn/despawn, cross-object restore dependencies, or many resettable object types.
+動的な生成・破棄、オブジェクト間の復元順依存、多数のリセット対象が必要になった場合は、型付きSnapshotと検証処理を導入します。

@@ -1,29 +1,29 @@
-# ADR 0011: Gameplay State Management
+# ADR 0011：ゲーム状態の管理
 
-## Status
+## 状態
 
-Accepted for Phase 3 automation; subject to manual acceptance.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Use a plain `GameplayStateController` with explicit `Booting`, `Playing`, `LoopTransition`, `SectionTransition`, `Paused`, and `Completed` states. A closed transition table rejects duplicates and illegal edges. The Scene coordinator applies state changes to Director pause/resume and UI; simulation code does not infer state from panels, time scale, or active GameObjects.
+通常のC#クラス`GameplayStateController`に、`Booting`、`Playing`、`LoopTransition`、`SectionTransition`、`Paused`、`Completed`を明示します。許可した遷移だけを表にまとめ、重複や不正な遷移を拒否します。シーン側の管理処理が状態に合わせて`LoopDirector`の停止・再開とUIを更新し、シミュレーション側はPanel、Time Scale、有効なGameObjectから状態を推測しません。
 
-`Completed` remains terminal for simulation and section progression, but it may transition to `Paused` for the player-facing completion menu. The coordinator remembers whether Pause originated from `Playing` or `Completed`; Resume returns to that origin, and returning to `Completed` keeps the final Director shut down. Restart Section is disabled in the completion menu because the final section root has already completed its shutdown lifecycle. Restart From Beginning and Quit remain available.
+`Completed`ではシミュレーションとセクション進行を終了しますが、完了画面を表示するため`Paused`へ移れます。一時停止元が`Playing`か`Completed`かを記録し、再開時は元の状態へ戻します。完了後は最終セクションを再開せず、最初から再開と2段階の終了確認を利用できます。
 
-## Reasons
+## 理由
 
-An explicit graph makes double transitions, post-completion replay creation, pause timing, and restart behavior directly testable without introducing a framework or global singleton.
+明示的な状態遷移により、二重遷移、完了後のEcho生成、一時停止の時間処理、再開動作をFrameworkやGlobal Singletonなしでテストできます。
 
-## Alternatives considered
+## 検討した別案
 
-- Boolean flags: rejected because combinations allow contradictory states.
-- Animator-driven flow: rejected because presentation would own simulation lifecycle.
-- General state-machine package: rejected as unnecessary Phase 3 scope.
+- Boolean Flagの組み合わせ：矛盾する状態を作れます。
+- Animatorによる進行：表示側がシミュレーションのライフサイクルを持つことになります。
+- 汎用State Machine Package：現在の規模には不要です。
 
-## Current constraints
+## 現在の制約
 
-Pause is Scene-local and does not persist. The completion menu is not a new frontend state and does not reactivate gameplay. There is no boot/loading screen or save-state restoration.
+一時停止はシーン内だけの状態で永続化しません。完了画面は別のFrontend状態ではなく、ゲーム処理を再開しません。Loading画面とセーブ状態の復元はありません。
 
-## Replacement conditions
+## 見直す条件
 
-Replace only when asynchronous loading or persistent frontend states need hierarchical or concurrent state regions.
+非同期読み込みや永続化するFrontend状態に階層的・並行な状態が必要になった場合に置き換えます。

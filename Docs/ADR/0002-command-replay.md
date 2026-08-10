@@ -1,27 +1,27 @@
-# ADR 0002: Command Replay With Pose Validation
+# ADR 0002：入力記録と位置・姿勢の検証
 
-## Status
+## 状態
 
-Accepted for Phase 0.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Record an immutable input command and post-tick expected pose for every tick. Echoes replay commands through the player's motor and measure pose drift after each tick. Phase 0 does not correct drift.
+各tickについて、確定後に変更しない入力と、tick後に期待する位置・姿勢を記録します。Echoはプレイヤーと同じ移動処理へ記録済みの入力を渡し、各tick後に位置・姿勢のずれを計測します。ずれの自動補正は行いません。
 
-## Reasons
+## 理由
 
-Command replay keeps Echoes as gameplay actors instead of transform animations. Expected poses expose nondeterminism without hiding it through teleportation.
+入力を再生することで、Echoを単なるTransform Animationではなくゲーム上のキャラクターとして扱えます。期待位置を併記すると、Teleportでずれを隠さず、再現性の崩れを数値で確認できます。
 
-## Alternatives considered
+## 検討した別案
 
-- Direct transform playback: deterministic visually but does not validate gameplay simulation.
-- Rigidbody snapshots: broad physics rewind is outside Phase 0.
-- Input-only recording: cannot quantify replay divergence.
+- Transformの直接再生：見た目は一致しますが、ゲーム処理の再現性を確認できません。
+- Rigidbody Snapshot：物理状態全体の巻き戻しは対象外です。
+- 入力だけを記録：再生時のずれを数値化できません。
 
-## Current limitations
+## 現在の制約
 
-Collisions with a world state different from the recording can produce legitimate drift. Recordings are in-memory only.
+記録時と異なるワールド状態へ衝突すると、正当なずれが発生する場合があります。記録はメモリ上だけに保持します。
 
-## Replacement conditions
+## 見直す条件
 
-Add sparse correction checkpoints only if measured production scenarios cannot stay within tolerance after the source of divergence has been addressed.
+ずれの原因を修正した後も実際の場面で許容値を保てない場合に限り、間隔を空けた補正地点の追加を検討します。

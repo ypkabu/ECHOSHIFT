@@ -1,38 +1,37 @@
-# ADR 0018: Curated External Visual Asset Boundary
+# ADR 0018：外部ビジュアル素材の採用範囲
 
-## Status
+## 状態
 
-Accepted for Phase 4.1 automation; human visual acceptance pending. Supersedes ADR 0014 for the current acceptance candidate without altering its historical baseline.
+採用済み。[ADR 0014](0014-phase4-art-direction.md)の基本形状中心の案を置き換えます。
 
-## Decision
+## 採用した方法
 
-Use a small manifest-controlled CC0 subset of Quaternius Modular Sci-Fi MegaKit, Quaternius Animated Robot, and Kenney Sci-Fi Sounds. Store untouched selected originals under `Assets/_Project/ThirdParty` with source/license/hash records. Generate project-owned URP Materials and wrapper Prefabs under `Assets/_Project/Art`; only these wrappers may be composed into P3 presentation children.
+Quaternius Modular Sci-Fi MegaKit、Quaternius Animated Robot、Kenney Sci-Fi Soundsから、Manifestで指定した少数のCC0素材だけを使用します。未変更の原本は`Assets/_Project/ThirdParty`へ保存し、配布元、ライセンス、ハッシュを記録します。プロジェクト所有のURP Materialと表示用Prefabを`Assets/_Project/Art`へ生成し、ゲーム処理を持つルートにはそのPrefabだけを組み合わせます。
 
-Imported meshes, skeletons, vendor materials, names, and hierarchy never own gameplay. Stable IDs, colliders, layers, Motor, carry/reset state, Replay behavior, and section solutions remain on the existing project-authored roots. Robot imports use Rig None with animation/root motion disabled. Environment and actor visual children have no colliders.
+外部Mesh、Skeleton、Material、名前、階層はゲーム処理を持ちません。Stable ID、Collider、Layer、`CharacterMotor`、保持・リセット状態、リプレイ、セクション解法は既存のルートへ残します。RobotはRig None、Animation／Root Motion無効で読み込み、環境とキャラクターの表示用の子にはColliderを付けません。
 
-## Reasons
+## 理由
 
-- Human Visual Review found the generated primitive presentation insufficient; higher-quality authored topology and textures were needed without redesigning gameplay.
-- One primary external kit keeps architecture coherent while a strict manifest avoids importing hundreds of unused variants.
-- CC0 official sources support commercial use and Build distribution while local notices/hashes make provenance auditable.
-- Project-owned deterministic wrappers isolate Unity import differences and allow the vendor presentation to be replaced without migrating gameplay state.
-- Import, license, material, collider, Stable-ID, idempotence, and real-Scene tests make the boundary reproducible.
+- 基本形状だけでは不足していたTopologyとTextureを補い、ゲーム処理は変更しません。
+- 主な外部Kitを1つに絞って統一感を保ち、未使用素材を大量に取り込みません。
+- 公式のCC0配布元を使用し、商用利用とビルド同梱を確認できます。
+- プロジェクト所有のPrefabを境界にし、UnityのImport差や外部素材の更新からゲーム処理を分離できます。
+- Import、ライセンス、Material、Collider、Stable ID、再生成、実シーンをテストできます。
 
-## Alternatives considered
+## 検討した別案
 
-- Continue refining generated primitives: rejected because the first visual review found the presentation materially below the target.
-- Import entire free packages: rejected for repository size, shader/material noise, unused content, and audit cost.
-- Use mixed Asset Store packages: rejected because licensing, account dependency, and style cohesion would be harder to verify.
-- Make the imported Robot Animator authoritative: rejected because animation/root motion could move deterministic Actor roots and alter Replay drift.
-- Modify vendor originals in place: rejected because it obscures provenance and makes upgrades/rebuilds nondeterministic.
+- 基本形状だけを調整し続ける：形状と質感の不足を解消できませんでした。
+- 無料Package全体をImport：容量、Shader／Material、未使用内容、確認範囲が増えます。
+- 複数のAsset Store Packageを混在：ライセンス、Account依存、見た目の統一が難しくなります。
+- 外部RobotのAnimatorをゲーム処理に使用：Animation／Root Motionがキャラクタールートを動かし、Replay Driftへ影響する可能性があります。
+- 原本を直接変更：出所が追いにくく、再Import時の再現性が下がります。
 
-## Current limitations
+## 現在の制約
 
-- The Robot is used as a static visual; there is no production locomotion, interaction animation, or IK.
-- The vendor importer reports one self-intersecting `Foot.L` polygon; no automatic visible or Build defect was found, but both feet need human inspection in motion.
-- Curated external art, project materials, lighting, VFX, audio, and UI still require human judgment for cohesion and portfolio quality.
-- Runtime ProfilerRecorder did not provide authoritative Draw Calls, GPU Frame Time, SetPass, Triangle, or Vertex values on this host.
+- Robotは表示用の簡易姿勢を使用し、最終的なLocomotion、Interaction Animation、IKはありません。
+- 外部Importerは`Foot.L`に自己交差するPolygonを1件報告します。自動確認で表示・ビルド上の問題は見つかっていません。
+- Draw Calls、GPU Frame Time、SetPass、Triangle、Vertexはこの環境で有効な値を取得できませんでした。
 
-## Replacement conditions
+## 見直す条件
 
-Replace or expand the selected art only when official source, distributable license, archive/file hash, curated manifest, notices, Import settings, project-owned wrappers, no-gameplay-collider rule, Stable-ID/collider preservation, P0-P2 hash preservation, P3 automatic solution, Replay Drift, GC/performance, Build, and human visual-acceptance gates remain satisfied.
+追加・差し替え時は、公式配布元、再配布可能なライセンス、ハッシュ、Manifest、ライセンス表示、Import設定、プロジェクト所有Prefab、Colliderなしの表示境界、Stable IDとゲーム用Colliderの維持、シーン自動完走、Replay Drift、GC／性能、ビルドを再確認します。

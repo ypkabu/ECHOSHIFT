@@ -1,30 +1,26 @@
-# ADR 0014: Phase 4 Art Direction and Generated Modular Facility
+# ADR 0014：モジュール式施設のアート方針
 
-## Status
+## 状態
 
-Superseded for the acceptance candidate by ADR 0018 after the primitive-led presentation failed human Visual Review. Retained as the `phase4-automation-passed` historical decision.
+初期案として保存。基本形状だけの見た目から外部素材を限定的に採用する方針へ移行したため、現在は[ADR 0018](0018-curated-external-visual-assets.md)を使用します。
 
-## Decision
+## 採用していた方法
 
-Adopt an austere near-future temporal research facility using a small generated module kit and shared URP/Lit palette. P3 gameplay roots, colliders, Stable IDs, and section solutions remain authoritative; Phase 4 adds collider-free visual children only. White/charcoal architecture, cool PressurePlate circuits, warm Battery circuits, and a pale Goal portal form the global hierarchy.
+小さな自作Module Kitと共通のURP/Lit Paletteを使い、簡素な近未来研究施設として構成する案でした。ゲーム処理のルート、Collider、Stable ID、各セクションの解法は変更せず、Colliderを持たない表示用の子だけを追加します。白とCharcoalを建築、寒色を感圧板の回路、暖色をBatteryの回路、淡色をゴールに割り当てます。
 
-## Reasons
+## 理由
 
-- A single coherent kit addresses the accepted Phase 3 visual-simplicity Medium without importing a large third-party environment.
-- Editor generation keeps Scene rebuilding repeatable and reviewable.
-- Broad silhouettes and limited material channels are readable from the fixed gameplay camera.
-- Presentation children can be replaced later without migrating gameplay state.
+- 1つのKitで統一感を保ち、大きな外部環境Packageを追加せずに見た目を整えられます。
+- Editorから再生成でき、シーン構成を再現できます。
+- 固定カメラでも幅のあるSilhouetteと限定した色を読み取りやすくできます。
+- 表示用の子だけを差し替えれば、ゲーム状態を移行せずに見た目を更新できます。
 
-## Alternatives considered
+## 検討した別案
 
-- Large Asset Store environment: rejected for licensing, dependency, cohesion, and scope risk.
-- Hand-authored external DCC assets: deferred because Phase 4 is a vertical slice, not final art production.
-- Keep the greybox and change only materials: rejected because primitive scale hierarchy and silhouettes were major causes of the inexpensive appearance.
+- 大規模なAsset Store環境：ライセンス、依存関係、統一感、作業範囲の負担が大きくなります。
+- 外部DCCでの全面制作：最終アートを作る段階ではないため保留しました。
+- 基本形状のMaterialだけを変更：形状の単調さと縮尺感を改善できませんでした。
 
-## Current limitations
+## 現在の位置づけ
 
-Generated primitives do not provide final topology, UVs, authored textures, decals, or production character animation. Manual visual review must decide whether the slice is portfolio-usable.
-
-## Replacement conditions
-
-Production art may replace visual children when it preserves collider roots, Door clearances, Camera readability, three Echo identities, device state language, Stable IDs, deterministic tests, and P0-P2 hashes.
+この案には最終Topology、UV、Texture、Decal、Character Animationがありません。ゲーム処理を持つルート、ドアの通過幅、カメラからの読みやすさ、3体のEchoの識別、装置状態、Stable ID、回帰テストを保つという境界は、現在の方式にも引き継いでいます。

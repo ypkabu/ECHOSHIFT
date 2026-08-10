@@ -1,277 +1,174 @@
-# Test Plan
+# テスト計画
 
-**Phase 4.2: Automation Passed; repeat Human Visual Review pending**
+この文書では、現在のプロトタイプに対する回帰テスト、実際のシーンを使った完走確認、性能計測、Windowsビルドの確認方法をまとめます。終了コードだけで判断せず、テスト結果XMLとログの内容も確認します。
 
-## EditMode
+## EditModeテスト
 
-The 61-case suite retains all Phase 0-3 cases and adds Japanese-localization and High-fix regression coverage for:
+現在のEditModeテストは`151/151`件が成功しています。主な確認範囲は次のとおりです。
 
-- replay frame ordering, capacity, overflow rejection, immutable finalization, and short prefixes;
-- LoopSettings validation and drift monitoring;
-- empty and duplicate Stable ID detection;
-- Registry exact-ID resolution and stale removal;
-- ordered, immutable interaction-event finalization and recorded-frame bounds;
-- deterministic Stable-ID candidate tie-break;
-- Battery double-ownership rejection and Battery/Socket reset consistency;
-- required keyboard and gamepad bindings in the Input Actions asset;
-- P2 15-second/900-tick settings, recorder preallocation, invalid settings, and the 36,000-tick limit;
-- Actor generation ordering, oldest-Echo conflict priority, Player-last priority, Stable-ID tie-break, `TargetBusy`, and no fallback;
-- immutable Loop history values, bounded rollover, Evicted state without runtime references, and one-tick Door application;
-- legal and illegal game-state transitions, duplicate-transition rejection, and paused simulation clocks;
-- section/game restart state, authored reset baselines, and replay-reference cleanup;
-- per-section tutorial progress and keyboard/gamepad prompt selection;
-- telemetry aggregation, deterministic schema, immutable snapshot arrays, and exclusion of replay payloads;
-- complete centralized text catalog values;
-- repeatable P3 Scene generation, unchanged P0-P2 Scene hashes, unique Stable IDs, and P3/P2/P1/P0 build order;
-- required Japanese catalog values, no legacy English player text, complete and serialized-replaceable failure mappings, Japanese keyboard/gamepad prompts, and unique stable keys;
-- repeated P3 Scene generation retaining Japanese catalog/font/EventSystem references, valid glyphs, responsive wrapping, and Pause button fit.
+- fixed tick、入力記録、記録上限、短い記録、確定後のデータ変更防止
+- Stable IDの未設定・重複検出と、記録したIDによる対象の一意な解決
+- インタラクションの記録順、記録範囲、競合時の優先順位と`TargetBusy`
+- バッテリーの重複所有防止、バッテリー／ソケット／ドアのリセット整合性
+- ループ履歴の上限、Echoの世代順、ドア状態を次のtickで反映する規則
+- ゲーム状態の正しい遷移、不正遷移の拒否、一時停止中のシミュレーション停止
+- シーン再生成の再現性、Stable ID、Build Settings、Missing Script / Reference
+- 日本語表示、入力案内、フォント、画面幅に応じた折り返し、ポーズ画面の収まり
+- 外部素材の出典・ハッシュ・Import設定、表示用オブジェクトにColliderがないこと
+- VFX、AudioSource、マテリアル、カメラ、HUDの個数・参照・割り当て上限
+- シーン生成前後のアセットSHA-256確認と、想定外の変更がある場合の停止
 
-## PlayMode
+## PlayModeテスト
 
-The 61-case suite retains all P0-P3 coverage and adds Japanese/localization and black-box regression tests:
+現在のPlayModeテストは`131/131`件が成功しています。主な確認範囲は次のとおりです。
 
-- unchanged movement replay, pressure-plate lifecycle cleanup, actor collision matrix, short replay, Echo cap, and generated Phase 0 flow;
-- Player pickup, carry-socket following, deterministic drop, Socket insertion, and powered Door opening;
-- Player/Echo ownership conflict rejection;
-- Actor disable/destruction cleanup without Battery destruction;
-- target disable/unregister/re-enable lifecycle;
-- explicit Battery/Socket/Door world reset consistency;
-- exact recorded-ID Echo pickup and Socket insertion;
-- missing recorded target failure without nearby-target fallback;
-- interaction cursor stopping at a short recording's end;
-- generated `P1_InteractionLab` references, Stable IDs, Reset Registry, overlay, two-loop interaction replay, Door opening, current-Player Goal completion, unexpected-log absence, interaction counts, and drift;
-- generated `P2_CoordinationLab` references, collision matrix, deterministic Battery conflict, four-Replay eviction cleanup, and P0/P1 load regression;
-- a tick-driven three-loop real-Scene solution proving Echo 1 Plate/Gate A, Echo 2 Battery/Socket/Gate B, two simultaneous Echoes, Goal completion, drift tolerance, and zero unexpected interaction failures;
-- the actual generated P3 Scene completing all three sections in sequence without Scene reload;
-- section cleanup, active-root switching, two simultaneous Echoes, four exact successful interactions, zero failures, and drift tolerance;
-- pause freezing timer, Player, Echo/Door simulation and resuming on the same tick;
-- restart section and restart game scope, Loop/tick/history reset, and no stale Echoes;
-- keyboard/gamepad prompts, reason-specific interaction feedback, and hidden debug overlay not affecting simulation;
-- quit intent, telemetry JSON persistence, Completed-state replay suppression, and P0-P3 Scene load regression;
-- recursive Missing Component traversal of the generated P3 Scene;
-- Japanese objectives for all three sections, Japanese loop transition/completion/failure/Pause text, and no English placeholder tutorial with Debug Overlay OFF;
-- staged Section 1/2 Japanese guidance, Restart guidance reset, Battery/Socket/Drop-specific prompts, live no-target interaction failure routing, and no Pickup/Drop false-positive completion hint;
-- fixed Camera rotation during Player follow, low visible foreground wall plus full collision boundary, and serialized Player/device/Echo identity feedback; Phase 4.1 separately verifies that persistent world-label renderers stay hidden;
-- generated P3 starting with Debug Overlay OFF, device-appropriate movement prompt before an interaction target, and EventSystem pointer/keyboard submit paths for Pause actions.
-- the exact Section 1 Plate/tutorial boundary and Echo replay from the accepted endpoint;
-- post-completion Escape/Select Pause, Resume back to Completed, disabled completed-section restart, and the non-quitting two-step Quit test seam.
+- プレイヤーとEchoの移動、短い記録の終端、Echo上限、衝突レイヤー
+- 感圧板、バッテリーの取得・運搬・挿入、ソケット、ドア、ゴール
+- プレイヤー／Echo間の所有競合、対象の無効化・再有効化、ループ時の状態復元
+- 記録したStable IDだけを使用し、近くの別の対象で代用しないこと
+- 3セクションをシーン再読み込みなしで進行し、全区間を自動完走できること
+- 一時停止、セクション再開、最初から再開、完了後のメニュー、2段階の終了確認
+- 日本語の目的表示、状況別の入力案内、失敗理由、デバッグ表示の初期状態
+- カメラ、HUD、ロボットの姿勢、ドア表示、回路表示がゲーム処理を変更しないこと
+- 最大3体のEcho、世代表示、VFX・音響のプール上限、重複再生の抑制
+- プロジェクト内の全シーン読み込み、Missing Component / Reference、予期しないログ
 
-## Batch commands
+## 実行コマンド
 
-From the repository root in PowerShell:
+PowerShellでリポジトリのルートから実行します。メニュー名、クラス名、引数名は実装上の識別子であるため、そのまま記載しています。
 
 ```powershell
 $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\phase3-scene-builder.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\phase3-edit.xml" -logFile "$PWD\Logs\phase3-edit.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\phase3-play.xml" -logFile "$PWD\Logs\phase3-play.log"
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\phase3-build.log"
-& "$PWD\Builds\Phase3\ECHOSHIFT_Phase3.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-standalone.log"
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildJapaneseWindowsDevelopment -logFile "$PWD\Logs\phase3-ja-build.log"
-& "$PWD\Builds\Phase3-JA\ECHOSHIFT_Phase3_JA.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-ja-standalone.log"
-& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase3BuildPipeline.BuildFinalWindowsDevelopment -logFile "$PWD\Logs\phase3-final-build.log"
-& "$PWD\Builds\Phase3-Final\ECHOSHIFT_Phase3_Final.exe" -batchmode -nographics -phase3AutoQuit -logFile "$PWD\Logs\phase3-final-standalone.log"
+& $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\scene-builder.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\editmode.xml" -logFile "$PWD\Logs\editmode.log"
+& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\playmode.xml" -logFile "$PWD\Logs\playmode.log"
+& $unity -batchmode -force-d3d11 -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildPhase4ThreeWindowsDevelopment -logFile "$PWD\Logs\build.log"
+& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -batchmode -force-d3d11 -screen-width 1920 -screen-height 1080 -phase4PerfProbe -logFile "$PWD\Logs\performance.log"
 ```
 
-Review XML contents and logs. A process exit code alone is not sufficient evidence. Do not add `-quit` to test commands: Unity Test Framework exits after writing XML, while an early generic quit can occur before the runner starts.
+Unity Test FrameworkはXMLを書き出した後に終了するため、テスト実行コマンドには`-quit`を付けません。シーン生成とビルドは終了コードに加えてログ内の警告・エラー・完了マーカーを確認します。性能計測はNull Graphics Deviceを使わず、取得できないカウンターを推定値で補いません。
 
-`Phase3BuildPipeline` regenerates P3, builds P3/P2/P1/P0 in that order, targets Windows x86_64, and enables Development Build. The standard, Japanese, and final methods write `Builds/Phase3/ECHOSHIFT_Phase3.exe`, `Builds/Phase3-JA/ECHOSHIFT_Phase3_JA.exe`, and `Builds/Phase3-Final/ECHOSHIFT_Phase3_Final.exe`. `-phase3AutoQuit` is probe-only and does not affect ordinary play.
+## 現在の検証結果
 
-## Latest verified results
+| 確認項目 | 結果 |
+| --- | --- |
+| EditMode | `151/151` 成功 |
+| PlayMode | `131/131` 成功 |
+| 全3セクションの自動完走 | 成功 |
+| インタラクション | `4`回成功 / `0`回失敗 |
+| 最大Replay Drift | `0 m` |
+| Missing Component / Reference | `0` |
+| コンパイラーのエラー / 警告 | `0 / 0` |
+| Missing / NullReference / 未処理例外 | `0 / 0 / 0` |
+| Windows x86_64 Development Build | BuildReport Success |
 
-Executed with Unity `6000.4.6f1` on 2026-07-21 after the last code change:
+最大3体のEchoを出したD3D11計測では、600フレームの平均／95パーセンタイル／最大が`8.342 / 8.405 / 8.639 ms`、Main Threadの平均／最大が`8.337 / 8.637 ms`、定常時GCが`0 B/frame`でした。遷移時の最大値は初回`16.887 ms`、再計測`18.038 ms`で、定常時とは分けて記録しています。Draw Callsなど、この環境で取得できなかった値は未計測として扱っています。
 
-- Phase 3 Scene Builder: completed repeatedly; P0-P2 Scene hashes unchanged, unique Stable IDs, P3/P2/P1/P0 Build Settings order, no serialized Missing Script marker.
-- EditMode: 61 passed, 0 failed, 0 skipped; duration 1.8848759 seconds.
-- PlayMode: 61 passed, 0 failed, 0 skipped; duration 16.4244913 seconds.
-- Phase 0 integration maximum drift: `0 m`.
-- Phase 1 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`.
-- Phase 2 integration maximum drift: `0 m`; Echo interaction success `2`, failure `0`; Goal reached on Loop 3 tick 291.
-- Phase 3 integration maximum drift: `0 m`; interaction success `4`, failure `0`; all sections completed in 1,081 tick advances.
-- Final Windows x86_64 Development Build: process exit code 0, BuildReport succeeded with zero warnings, 289 files and 166,334,282 bytes at `Builds/Phase3-Final`; EXE SHA-256 `098A43C3B20762E4BDF938771C36F0FB116126AEC8932B2A77EB403F0CB77938`.
-- Headless final Standalone probe: P3 reached Playing with `language=ja-JP`, `font=Noto Sans JP`, `glyphs=True`, HUD, and telemetry; it generated one schema-1 JSON, requested the normal quit path, and exited naturally with code 0. Matched Error, Exception, assertion, Missing Script/Reference, and NullReference messages were zero.
-- Source-blind Fresh7 graphical retest: `PRETEST PASS`; 10:53.2 total, sections 2:08 / 3:33 / 4:24, loops 2 / 3 / 3, restarts 0, post-completion Pause and visible two-step Quit successful, Critical/High 0.
-- Human acceptance: full completion and every recorded gameplay/control/comprehension/visibility/Japanese/Restart/Pause/Quit check passed; Critical 0, High 0, Medium 1, Low 0. Unrecorded environment and timing metrics remain unrecorded. The Medium visual-simplicity observation is deferred to `Phase4Backlog.md`.
-- Raw logs and test XML stay ignored because they contain machine-specific paths/timestamps and are reproducible from the documented commands. Summary evidence is committed in `Docs/Phase3JapaneseLocalizationValidation.md`.
+表示・演出では、VFXを最大4システムに制限し、パルスの最大サイズ`0.32 m`、最大アルファ`0.42`、Bloom強度`0.22`、しきい値`1.35`を確認しています。最終確認動画は1920x1080 / 30 fps、39.966667秒で、必要な12場面を含みます。
 
-## Phase 4 additions
+## 検証結果の推移
 
-The retained suites are not removed, disabled, or relaxed. Phase 4 adds 23 EditMode cases covering visual settings/material references, distinct and cycling Echo slots, safe Volume values, pooled feedback, complete Audio cues, packaged legacy/TMP font coverage, no runtime OS-font construction, license presence, shared-material/PropertyBlock discipline, unique builder outputs, capture resolution, and immutable SHA-256 values for P0-P2 Scenes.
+途中の実装で取得した値も、現在の結果と区別して残しています。現在の合格数は上記の`151/151`と`131/131`です。
 
-The 26 Phase 4 PlayMode cases load the real generated P3 Scene and cover its three sections, modular facility roots, compound Player/Echo visuals, device/door adapters, bounded feedback/audio pools, packaged Japanese font resolution, three HUD reference resolutions, Pause layout, HDR/post-processing, local-light limits, no presentation colliders, Plate/Door/Battery/Socket state propagation, maximum three-Echo identity cycling and eviction feedback, Goal feedback de-duplication, short-loop Drift, and unexpected-log absence. Existing tests continue to cover P0-P3 real-Scene load, P3 automatic completion, normal-route interaction failure `0`, Drift tolerance, Missing components/references, and lifecycle behavior.
+### ゲーム進行と日本語表示
 
-## Phase 4 batch commands
+Unity `6000.4.6f1`で2026-07-21に確認しました。
 
-```powershell
-$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\Phase4-SceneBuilder.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4-Automation-EditMode.xml" -logFile "$PWD\Logs\Phase4-Automation-EditMode.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4-Automation-PlayMode.xml" -logFile "$PWD\Logs\Phase4-Automation-PlayMode.log"
-& $unity -batchmode -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4-Captures.log"
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\Phase4-Build.log"
-& "$PWD\Builds\Phase4\ECHOSHIFT_Phase4.exe" -batchmode -force-d3d11 -phase3AutoQuit -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4-Startup.log"
-& "$PWD\Builds\Phase4\ECHOSHIFT_Phase4.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4-Performance.log"
-```
+- EditMode `61`成功／`0`失敗／`0`Skip、`1.8848759 s`
+- PlayMode `61`成功／`0`失敗／`0`Skip、`16.4244913 s`
+- 全検証シーンの最大Replay Drift `0 m`
+- 3つのセクションを1,081 tickで完走し、インタラクション`4`回成功／`0`回失敗
+- Windows x86_64 Development Build：BuildReport成功、警告`0`、289 File、166,334,282 bytes
+- EXE SHA-256：`098A43C3B20762E4BDF938771C36F0FB116126AEC8932B2A77EB403F0CB77938`
+- Headless Playerで`language=ja-JP`、`font=Noto Sans JP`、`glyphs=True`、HUD、Schema 1のJSON保存、終了コード`0`を確認
+- 画面付きの通し確認は10分53.2秒、各セクション2分08秒／3分33秒／4分24秒、ループ2／3／3、再開`0`
 
-`Phase4CapturePipeline` exits the Editor itself after all eight files pass existence/size validation. The Standalone flags are opt-in probes and do not affect ordinary play. The performance run must use a non-Null graphics device; unsupported counters are reported as unavailable, not estimated.
+### モジュール式の表示・演出
 
-## Historical first-pass Phase 4 automated results
+Unity `6000.4.6f1`、URP `17.4.0`で2026-07-21に確認しました。
 
-Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-21 after the final code change:
+- EditMode `84`成功／`0`失敗／`0`Skip、`8.059572 s`
+- PlayMode `87`成功／`0`失敗／`0`Skip、`19.2221506 s`
+- P0／P1／P2のScene SHA-256は`1411EB0E...24C5`、`4AADD3D3...EBB`、`73EC41AA...22C`のまま変化なし
+- 全シーンの最大Replay Drift `0 m`、3セクション完走、インタラクション`4`回成功／`0`回失敗
+- BuildReport成功、警告`0`、エラー`0`、291 File、178,845,266 bytes
+- D3D11、最大3体のEcho、1920x1080、600フレーム：平均`8.339 ms`、95パーセンタイル`8.359 ms`、最大`8.581 ms`
+- Main Thread平均`8.335 ms`、最大`8.596 ms`、ループ切り替え最大`14.093 ms`、定常時GC `0 B/frame`
+- 最大使用Memory `105,811,560 B`
+- Draw Callsは取得できず、SetPassは`0`を返したため有効値として扱わず
+- 1920x1080のキャプチャ8枚について、個数・寸法・File Sizeを確認
 
-- Scene Builder: process exit `0`; P0 `1411EB0E...24C5`, P1 `4AADD3D3...EBB`, and P2 `73EC41AA...22C` SHA-256 values unchanged.
-- EditMode: `84` passed, `0` failed, `0` skipped; duration `8.059572 s`; Phase 4 cases `23`.
-- PlayMode: `87` passed, `0` failed, `0` skipped; duration `19.2221506 s`; Phase 4 cases `26`.
-- P0/P1/P2/P3 integration maximum Drift: `0 m`; P3 interaction success `4`, failure `0`; all P3 sections completed.
-- Build: process exit `0`; BuildReport Success; warnings `0`; errors `0`; reported size `178,650,134 B`; output `291` files / `178,845,266 B`.
-- Standalone batch startup: D3D11 on NVIDIA GeForce RTX 5070 Laptop GPU; `ja-JP`; packaged Noto Sans JP; glyph validation true; telemetry JSON saved; normal quit requested; process exit `0`; matched Missing/Null/unhandled messages `0`.
-- Performance: maximum three Echoes, 1920x1080, 600 frames at a 120fps cap; average `8.339 ms`, p95 `8.359 ms`, maximum `8.581 ms`; Main Thread average `8.335 ms`, maximum `8.596 ms`; Loop Transition maximum frame `14.093 ms`, Main Thread `14.074 ms`; steady GC `0 B/frame`; maximum used memory `105,811,560 B`.
-- Runtime Draw Calls counter was unavailable. SetPass counter was valid but returned `0`; neither value is inferred. Interactive Frame Debugger confirmation remains manual.
-- Eight captures passed automated count/dimension/size validation at 1920x1080 and remain ignored.
-- A normal visible automated Player exit returned `0xC0000005` after clean Unity cleanup on this machine; the unchanged Phase 3 control Build reproduced it. This remains historical evidence from `phase4-automation-passed`; current Phase 4.1 results follow.
+この時点の画面付きPlayerは、正常なUnity終了Messageの後に`0xC0000005`で終了しました。ゲーム内容の結果とは分けて、現在もWindows版の既知の課題として扱っています。
 
-## Phase 4.1 external-asset additions
+### 外部素材の組み込み
 
-The full retained suites remain enabled and unrelaxed. Phase 4.1 adds nine EditMode and six PlayMode cases for official asset/license/hash records, curated-file count, importer settings, 2K texture limits, supported URP shaders, non-missing materials/textures, no imported collider/Animator/root motion, deterministic wrapper generation, preserved Stable IDs/colliders, external actor/environment/device visuals, no persistent world labels or camera-crossing overhead beams, Pause focus/HUD hiding, and Robot child-transform isolation.
+Unity `6000.4.6f1`、URP `17.4.0`で2026-07-22に確認しました。
 
-### Phase 4.1 batch commands
+- EditMode `93/93`、`28.2191387 s`
+- PlayMode `93/93`、`24.4194633 s`
+- 全シーンの最大Replay Drift `0 m`。インタラクション成功／失敗は順に`2/0`、`2/0`、`4/0`
+- Development Build：291 File、204,467,042 B
+- Non-Development Build：182 File、140,785,117 B
+- D3D11、最大3体のEcho、1920x1080、600フレーム：平均`8.337547 ms`、95パーセンタイル`8.336699 ms`
+- Main Thread平均`8.329742 ms`、遷移最大`15.721394 ms`、定常時GC `0 B/frame`
+- 最大使用Memory `168,041,477 B`、Texture Memory `40,882,741 B`
+- Draw Callsは取得できず、GPU Frame Time、SetPass、Triangle、Vertexの`0`は有効値として扱わず
+- 外部素材導入前後のキャプチャは各8枚、1920x1080、デバッグ表示なし
 
-```powershell
-$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\Phase4_1_SceneBuilder.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4_1_EditMode_Final.xml" -logFile "$PWD\Logs\Phase4_1_EditMode_Final.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4_1_PlayMode_Final.xml" -logFile "$PWD\Logs\Phase4_1_PlayMode_Final.log"
-& $unity -batchmode -force-d3d11 -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4_1_Captures.log"
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsDevelopment -logFile "$PWD\Logs\Phase4_1_Build_Development_Final.log"
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildWindowsNonDevelopment -logFile "$PWD\Logs\Phase4_1_Build_NonDevelopment_Final.log"
-& "$PWD\Builds\Phase4_1\ECHOSHIFT_Phase4_1.exe" -batchmode -force-d3d11 -phase3AutoQuit -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_1_Startup.log"
-& "$PWD\Builds\Phase4_1\ECHOSHIFT_Phase4_1.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_1_Performance.log"
-```
+床から浮いて見える外周装飾を修正した後は、対象テスト`1/1`、EditMode `94/94`、PlayMode `93/93`でした。3セクションを1,091 tickで完走し、最大Replay Drift `0 m`、インタラクション`4/0`、Stable ID、Collider、Missing Component、既存シーンのHashを再確認しました。
 
-### Latest Phase 4.1 results
+### カメラ・HUD・画面内の読みやすさ
 
-Executed with Unity `6000.4.6f1`, URP `17.4.0`, on 2026-07-22 after the last code change:
+2026-07-22に確認しました。
 
-- Scene Builder: repeatable; external wrapper hash stable; P0-P2 hashes unchanged; no duplicate Stable ID or serialized Missing Script/Reference.
-- EditMode: `93/93` passed in `28.2191387 s`; PlayMode: `93/93` passed in `24.4194633 s`.
-- P0-P3 maximum Drift: `0 m`; P1/P2/P3 interaction success/failure `2/0`, `2/0`, `4/0`; all P3 sections completed.
-- Development Build: Success, warning `0`, error `0`, 291 files / 204,467,042 B at `Builds/Phase4_1`.
-- Non-Development Build: Success, warning `0`, error `0`, 182 files / 140,785,117 B at `Builds/Phase4_1_NonDevelopment`.
-- Startup: P3 Playing, `ja-JP`, packaged Noto/glyphs/HUD true, telemetry JSON saved, natural exit `0`, Missing/Null/unhandled matches `0`.
-- Performance: 1920x1080, D3D11, maximum 3 Echoes, 600 frames; average `8.337547 ms`, p95 `8.336699 ms`, main average `8.329742 ms`, transition max `15.721394 ms`, steady GC `0 B/frame`, max used memory `168,041,477 B`, texture memory `40,882,741 B`.
-- Draw Calls was unavailable; GPU Frame Time, SetPass, Triangles, and Vertices returned non-authoritative `0` values. They require interactive Profiler/Frame Debugger confirmation.
-- Matching Before/After capture sets each contain eight 1920x1080 PNGs with Debug Overlay off.
-- Nine Development/Non-Development D3D11/D3D12/audio/Quit/visible-window-close scenarios exited `0`; no new Application Error event was recorded. The historical `UnityPlayer.dll` `0xC0000005` root cause remains unproven.
-- Raw logs, XML, captures, Builds, Library, and downloads remain ignored; reproducible summary evidence is committed in `Phase4ExternalAssetIntegrationValidation.md`.
+- 1920x1080のキャプチャ8枚で、デバッグ表示とCursorがなく、必要なキャラクターが画面内に入ることを確認
+- EditMode `99/99`、`25.5873039 s`
+- PlayMode `105/105`、`23.096738 s`
+- 警告／エラー`0/0`
+- 3セクション完走、Replay Drift `0 m`、インタラクション`4/0`、テレメトリーJSONあり
+- BuildReport成功、291 File、204,479,394 B
+- 最大3体のEcho、600フレーム：平均／95パーセンタイル／最大`8.341 / 8.370 / 8.821 ms`
+- Main Thread平均／最大`8.337 / 8.832 ms`
+- Camera平均／最大`0.0077 / 0.0629 ms`
+- UI平均／最大`0.0036 / 0.0532 ms`
+- 定常時GC `0 B/frame`
 
-## Phase 4.1 floating-perimeter regression
+### キャラクター・ドア・回路表示
 
-After the `phase4-assets-automation-passed` capture review, EditMode adds `BuilderRegenerationDoesNotRestoreFloatingPerimeterDecorations`. It rebuilds P3 and rejects the removed wall-lamp names, partial wall wrappers `03`-`06`, diagonal column wrapper `03`, missing continuous backings, wrong perimeter instance counts, and retained wall/column bounds that do not reach the floor envelope.
+2026-07-23に確認しました。
 
-Latest post-correction results on 2026-07-22:
+- EditMode `116/116`、`49.3721874 s`
+- PlayMode `127/127`、`37.6364498 s`
+- 失敗／Skip `0/0`、Unity終了コード`0`
+- 全検証シーンと3セクションの表示経路が成功し、Replay Drift `0 m`、インタラクション`4/0`
+- 最大3体のEcho、600フレーム：平均／95パーセンタイル／最大`8.342 / 8.388 / 8.883 ms`
+- Main Thread平均／最大`8.331 / 8.894 ms`
+- Camera平均／最大`0.0126 / 0.0432 ms`
+- UI平均／最大`0.0070 / 0.0310 ms`
+- Robot Pose平均／最大`0.0054 / 0.0389 ms`
+- ドア表示平均／最大`0.0181 / 0.0423 ms`
+- 定常時GC `0 B/frame`
+- 遷移最大`16.887 ms`、再計測`18.038 ms`
+- D3D11キャプチャ8枚と、30.025秒の通常描画確認で必要な9状態を記録
+- Windows x86_64 Development Build：`PHASE4_3_BUILD_OK`、警告／エラー`0/0`、291 File
 
-- Targeted Builder regeneration: `1/1` passed.
-- EditMode: `94/94` passed in `27.4009265 s`; PlayMode: `93/93` passed in `21.5473395 s`.
-- P0/P1/P2/P3 maximum Drift: `0 m`; P3 success/failure `4/0`; all three sections completed in 1,091 advances.
-- Stable-ID preservation, actor collision, no presentation collider, Missing Component, and P0-P2 hash gates remain passed.
-- Matching defect Before/fixed After sets: 8 PNG each, 1920x1080, under ignored `Captures/Phase4_1/FloatingVisualFix`.
+### VFXと動画
 
-## Phase 4.2 presentation-readability gate
+2026-07-31に確認しました。
 
-```powershell
-$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -force-d3d11 -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CaptureAllFromCommandLine -logFile "$PWD\Logs\Phase4_2_CaptureFull.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase4_2_EditMode_Final.xml" -logFile "$PWD\Logs\Phase4_2_EditMode_Final.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase4_2_PlayMode_Final.xml" -logFile "$PWD\Logs\Phase4_2_PlayMode_Final.log"
-& $unity -batchmode -force-d3d11 -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildPhase4TwoWindowsDevelopment -logFile "$PWD\Logs\Phase4_2_Build_Final.log"
-& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -batchmode -force-d3d11 -phase4AutoCompleteProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_2_StandaloneCompletion.log"
-& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -batchmode -force-d3d11 -phase4PerfProbe -screen-width 1920 -screen-height 1080 -logFile "$PWD\Logs\Phase4_2_Performance_Final.log"
-& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -force-d3d11 -phase3AutoQuit -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -logFile "$PWD\Logs\Phase4_2_NormalWindowStartup.log"
-& "$PWD\Builds\Phase4_2\ECHOSHIFT_Phase4_2.exe" -force-d3d11 -phase4PauseQuitProbe -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -logFile "$PWD\Logs\Phase4_2_NormalWindowPauseQuit.log"
-```
+- EditMode `120/120`、PlayMode `130/130`、失敗／Skip `0/0`
+- Radial Alpha Textureを使う8 ParticleのPulse、最大サイズ`0.32 m`、最大Alpha`0.42`、同時実行最大4System
+- Bloom強度`0.22`、しきい値`1.35`、Scatter `0.42`
+- H.264動画は1920x1080、30 fps、39.966667秒。計測したゲームプレイ39.626秒、完了画面0秒、`Time.timeScale = 1`、必要な12場面を収録
+- 画面全体で輝度`210`以上の占有率は最大`2.00%`、巨大な不透明白Particleは`0`
+- 3セクションを1,070 tickで完走し、Replay Drift `0 m`、インタラクション`4/0`
+- 最大3体のEchoで平均／95パーセンタイル／最大`8.342 / 8.405 / 8.639 ms`
+- Main Thread平均／最大`8.337 / 8.637 ms`、定常時GC `0 B/frame`
+- Build Marker `PHASE4_3_BUILD_OK`、警告／エラー`0/0`、Compiler／Missing／Null／Unhandled一致`0`
+- 録画あり／なし、Pause、自動終了、Recorder初期化あり／なしの6条件すべてで、終了時の`UnityPlayer.dll`内`0xC0000005`を再現
 
-Latest results on 2026-07-22:
+## Windows版終了時の確認
 
-- Full Scene Builder/capture gate: exit `0`; eight 1920x1080 images; Debug
-  Overlay/cursor off; required Actor bounds inside the frame.
-- EditMode `99/99` in `25.5873039 s`; PlayMode `105/105` in
-  `23.096738 s`; warning/error `0/0`.
-- P3 integration and Development Player both completed all three sections;
-  Drift `0 m`, interaction `4/0`, Telemetry JSON present.
-- BuildReport Success, warning/error `0/0`; 291 files / 204,479,394 B at
-  `Builds/Phase4_2`.
-- 600-frame maximum-three-Echo probe: frame average/p95/max
-  `8.341/8.370/8.821 ms`, Main Thread average/max `8.337/8.832 ms`,
-  Camera average/max `0.0077/0.0629 ms`, UI average/max
-  `0.0036/0.0532 ms`, steady GC `0 B/frame`.
-- Packaged Japanese font/glyph marker true; normal-window startup/auto-Quit and
-  Pause-menu Quit exited `0`; Missing/Null/unhandled matches `0`.
-- Raw XML, logs, captures, Builds, and Library remain ignored. Human visual
-  judgment is still required before `phase4-validated`.
+画面表示を伴うWindows版は、終了時に`UnityPlayer.dll`のnative cleanup内で`0xC0000005`を再現します。ゲームプレイ、テレメトリー保存、テスト結果とは分けて未解決事項として管理しています。詳細は[Windows版終了時クラッシュの調査](Phase4WindowsExitCrashInvestigation.md)を参照してください。
 
-## Phase 4.3 character and device presentation gate
-
-```powershell
-$unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform EditMode -testResults "$PWD\TestResults\Phase43EditModeAccepted.xml" -logFile "$PWD\Logs\Phase43EditModeAccepted.log"
-& $unity -batchmode -nographics -projectPath "$PWD\Unity" -runTests -testPlatform PlayMode -testResults "$PWD\TestResults\Phase43PlayModeAccepted.xml" -logFile "$PWD\Logs\Phase43PlayModeAccepted.log"
-& $unity -batchmode -force-d3d11 -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4CapturePipeline.CapturePhase43ExistingFromCommandLine -logFile "$PWD\Logs\Phase43CaptureAccepted.log"
-& $unity -batchmode -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.Phase4BuildPipeline.BuildPhase4ThreeWindowsDevelopment -logFile "$PWD\Logs\Phase43BuildReleaseCandidate.log"
-& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase4AutoCompleteProbe -logFile "$PWD\Logs\Phase43StandaloneReleaseCandidate.log"
-& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase4PauseQuitProbe -logFile "$PWD\Logs\Phase43PauseQuitReleaseCandidate.log"
-& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -batchmode -force-d3d11 -screen-width 1920 -screen-height 1080 -phase4PerfProbe -logFile "$PWD\Logs\Phase43PerformanceAcceptedRepeat.log"
-& "$PWD\Builds\Phase4_3\ECHOSHIFT_Phase4_3.exe" -force-d3d11 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -phase43PresentationProbe -logFile "$PWD\Logs\Phase43PresentationProbeFinal.log"
-```
-
-Accepted results on 2026-07-23:
-
-- EditMode `116/116` in `49.3721874 s`; PlayMode `127/127` in
-  `37.6364498 s`; failed/skipped `0/0`; Unity exit `0`.
-- P0-P2 Scene object hashes match HEAD; P0-P3 integrations and the full P3
-  presentation route pass.
-- Final Standalone completed Sections 1-3 with Drift `0 m`, Interaction
-  success/failure `4/0`, Telemetry JSON, Pause, Quit, and exit `0`.
-- Maximum-three-Echo 600-frame repeat: frame average/p95/max
-  `8.342/8.388/8.883 ms`, Main Thread average/max `8.331/8.894 ms`,
-  Camera average/max `0.0126/0.0432 ms`, UI average/max
-  `0.0070/0.0310 ms`, Robot pose average/max `0.0054/0.0389 ms`, Door
-  visual average/max `0.0181/0.0423 ms`, steady GC `0 B/frame`.
-- Transition maximum was `16.887 ms` in the first accepted run and
-  `18.038 ms` in the repeat. It is recorded as a bounded spike, not hidden or
-  represented as a strict 16.6ms maximum.
-- D3D11 Capture: eight unique 1920x1080 PNGs. Normal-rendered Presentation
-  Probe: `30.025 s`, nine required state screenshots, all Sections complete,
-  exit `0`.
-- Windows x86_64 Development Build: BuildReport Success,
-  `PHASE4_3_BUILD_OK`, warning/error `0/0`, 291 files, no matching
-  Compiler/Missing/Null/unhandled final-log entry.
-- Captures, Builds, Logs, TestResults, and Unity Library remain ignored with
-  zero tracked files. Manual visual review is still required for foot sliding, pose
-  naturalness, Battery hand placement, Door motion, circuit readability, and
-  representative-image quality.
-
-## VFX and manual video review
-
-Final follow-up results on 2026-07-31:
-
-- EditMode `120/120`; PlayMode `130/130`; failed/skipped `0/0`.
-- Soft additive pulse uses a radial-alpha texture, eight particles, maximum
-  cue size `0.32 m`, maximum alpha `0.42`, and four concurrent pooled systems.
-- Bloom remains enabled at intensity `0.22`, threshold `1.35`, scatter `0.42`.
-- Final 39.966667 s H.264 video is 1920x1080/30 fps and contains 39.626 s
-  measured Gameplay, zero Completed seconds, time scale 1, and all twelve
-  required scenes.
-- Whole-frame `luma >= 210` occupancy peaks at `2.00%`; giant opaque white
-  particle masses found: `0`.
-- P3 completes all Sections in 1,070 advances with Drift `0 m`, Interaction
-  `4/0`, and Telemetry output.
-- Maximum-three-Echo D3D11 headless steady probe: average/p95/maximum
-  `8.342/8.405/8.639 ms`, Main Thread average/maximum
-  `8.337/8.637 ms`, steady GC `0 B/frame`.
-- Build marker `PHASE4_3_BUILD_OK`, warning/error `0/0`, final log
-  Compiler/Missing/Null/unhandled matches `0`.
-- Visible Standalone shutdown is a failed High gate: all six recording,
-  non-recording, Pause, auto-Quit, recorder-initialized, and
-  recorder-uninitialized conditions reproduced `0xC0000005` in
-  `UnityPlayer.dll`. The capture encoder itself exited `0`; the issue is not
-  isolated to capture.
+テストXML、ログ、キャプチャ、ビルド、Unityの`Library`は、端末固有のパスや時刻を含む再生成可能な出力のためGit管理していません。

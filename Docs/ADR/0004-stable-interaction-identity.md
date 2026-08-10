@@ -1,33 +1,33 @@
-# ADR 0004: Stable Interaction Identity
+# ADR 0004：インタラクション対象のStable ID
 
-## Status
+## 状態
 
-Accepted for Phase 1.
+採用済み。
 
-## Decision
+## 採用した方法
 
-Replay-addressable interaction targets receive a serialized GUID-format `StableId`. Phase 1 assigns IDs only to the Battery and PowerSocket. IDs are authored and repaired by Editor tooling, validated for empty and duplicate values before a generated scene is saved, and never generated during runtime initialization.
+リプレイから参照する対象に、GUID形式の`StableId`をシーンへ保存します。現在はBatteryとPowerSocketだけへ設定します。IDはEditorツールで生成・修復し、シーン保存前に未設定と重複を検出します。実行開始時には生成しません。
 
-A scene-owned `InteractionRegistry` stores the mapping from ordinal ID string to active `IInteractable`. Each `StableId` registers when enabled and unregisters when disabled. Recorded playback resolves exactly one ID through the Registry and does not search the Scene or substitute another target.
+シーン単位の`InteractionRegistry`が、Stable IDと有効な`IInteractable`の対応を保持します。各`StableId`は有効化時に登録し、無効化時に解除します。再生時は記録したIDを1つだけ解決し、シーン検索や別の対象への置き換えは行いません。
 
-## Reasons
+## 理由
 
-- Transform hierarchy paths and object names are fragile under renaming and reparenting.
-- Direct Unity object references cannot identify the corresponding target after a loop reset or across an immutable serialized command.
-- Editor-owned GUID values remain stable across scene saves without introducing a global identity system for unrelated objects.
-- A scene-owned dictionary provides constant-time lookup and explicit lifetime cleanup.
+- 階層パスやオブジェクト名は、名称変更や親子関係の変更で壊れます。
+- Unityオブジェクトへの直接参照では、リセット後の対応先を確定済みの入力から示せません。
+- Editorで保存するGUIDはシーン保存後も安定し、無関係な全オブジェクトへIDを持たせる必要がありません。
+- Dictionaryによるシーン単位の管理で、一定時間の検索と明示的な解除ができます。
 
-## Alternatives considered
+## 検討した別案
 
-- Hierarchy path: readable but changes under ordinary scene editing and duplicate names are ambiguous.
-- Runtime-generated GUID: cannot reproduce a previously recorded target after restart and violates authoring stability.
-- Scene-wide lookup on every event: simple but allocates or scans repeatedly and can silently choose a different object.
-- Stable IDs on every GameObject: unnecessary scope and authoring noise for the Phase 1 experiment.
+- 階層パス：読みやすい一方、通常のシーン編集で変わり、同名オブジェクトも区別できません。
+- 実行時生成GUID：再起動後に以前の記録先を再現できません。
+- 操作ごとのシーン全体検索：走査が繰り返され、別の対象を選ぶおそれがあります。
+- 全GameObjectへのStable ID：現在の用途には範囲が広すぎます。
 
-## Current limitations
+## 現在の制約
 
-IDs are unique only within one validation scene and are not a save-game or cross-scene content identity. Runtime duplicate registration is rejected, but authoring repair is an Editor responsibility.
+IDは1つの検証シーン内だけで一意です。セーブデータやシーンをまたぐ識別子ではありません。実行時の重複登録は拒否しますが、編集時の修復はEditor側の責務です。
 
-## Replacement conditions
+## 見直す条件
 
-Replace the scene-local scheme when production levels require cross-scene persistence, streamed content, save migration, prefab-instance identity, or externally authored content catalogs.
+シーンをまたぐ永続化、Streaming、セーブデータ移行、Prefab Instanceの識別、外部Content Catalogが必要になった場合に置き換えます。

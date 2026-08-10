@@ -1,33 +1,33 @@
-# ADR 0006: Kinematic Carryable Object
+# ADR 0006：運搬可能オブジェクトのkinematic制御
 
-## Status
+## 状態
 
-Accepted for Phase 1.
+採用済み。
 
-## Decision
+## 採用した方法
 
-The Phase 1 Battery is a kinematic gameplay object. When free, it rests at an explicitly managed pose. When carried, it copies the shared actor Carry Socket pose during `LateUpdate` while remaining outside the actor hierarchy and with its collider disabled. When inserted, it is parented to the PowerSocket insertion Transform. Replay never records or restores arbitrary Rigidbody velocities.
+Batteryはkinematicなゲームオブジェクトとして扱います。置かれている間は明示的に管理する位置・姿勢を使い、保持中はキャラクター階層の外に置いたまま、Colliderを無効にして`LateUpdate`で共通のCarry Socketを追従します。挿入時はPowerSocketの挿入用Transformへ取り付けます。任意のRigidbody速度は記録・復元しません。
 
-The Battery owns single-holder and inserted-socket state. Interactor and PowerSocket maintain the opposite references, and reset explicitly severs both sides before restoring the authored Battery pose.
+Battery自身が単一の保持者と挿入先を管理し、InteractorとPowerSocketは反対側の参照を持ちます。リセット時は両側の参照を明示的に解除してから、編集時の位置・姿勢へ戻します。
 
-## Reasons
+## 理由
 
-- Free dynamic physics would introduce nondeterministic replay and require broad physics rewind outside the milestone.
-- A shared Carry Socket makes Player and Echo carry behavior identical and directly testable.
-- Keeping the Battery outside the actor hierarchy prevents Unity hierarchy destruction from deleting it before ownership cleanup can run.
-- Disabling collision while held prevents the Battery from pushing actors or the Environment.
-- Explicit bidirectional cleanup handles Actor disable, destroy, and loop reset without relying on trigger-exit order.
+- 自由な物理演算はリプレイの再現性を下げ、物理状態全体の巻き戻しが必要になります。
+- 共通のCarry Socketにより、プレイヤーとEchoで同じ運搬処理を使えます。
+- キャラクター階層の外に置くことで、Echoの破棄時にBatteryまで破棄される問題を避けられます。
+- 保持中の衝突を無効にし、キャラクターや環境を押さないようにします。
+- 双方向の参照を明示的に解除し、無効化、破棄、リセット時の順番へ依存しません。
 
-## Alternatives considered
+## 検討した別案
 
-- Dynamic Rigidbody pickup: visually richer but nondeterministic and expensive to rewind correctly.
-- Parent to the actor Carry Socket: concise, but destroying the actor hierarchy can destroy the Battery before cleanup.
-- Transform animation independent of the actor: deterministic but bypasses ownership gameplay.
+- Dynamic Rigidbody：見た目は豊かになりますが、再現性と正しい巻き戻しの負担が増えます。
+- Carry Socketの子にする：短く書けますが、キャラクター階層と一緒にBatteryを破棄するおそれがあります。
+- キャラクターと独立したTransform Animation：再現性はありますが、所有状態のゲーム処理を通りません。
 
-## Current limitations
+## 現在の制約
 
-Carry pose copying occurs once per rendered frame after simulation ticks, so it is suitable for the current kinematic socket but not a physics constraint. Drop placement is a simple deterministic offset and does not search for a physically ideal surface. The Battery has no throw, stacking, momentum, or removal-from-socket behavior.
+位置・姿勢の反映は描画フレームごとに1回で、物理Constraintではありません。置く位置は一定のOffsetで、物理的に最適な面は検索しません。投げる、積む、慣性、ソケットから取り外す操作はありません。
 
-## Replacement conditions
+## 見直す条件
 
-Introduce constrained physics or pose checkpoints only when production puzzles require throwing, dynamic obstacles, stacking, or physically authored carry motion and the corresponding rewind contract has been designed.
+投擲、動く障害物、積み重ね、物理演算を使う運搬が必要になり、対応する巻き戻し方法を設計した場合にConstraintや補正地点を導入します。
