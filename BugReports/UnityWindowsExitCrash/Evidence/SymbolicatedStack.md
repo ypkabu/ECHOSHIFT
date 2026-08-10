@@ -1,6 +1,6 @@
-# symbol付きstack trace
+# シンボル付きコールスタック
 
-## dumpから確認できた事実
+## ダンプから確認できた事実
 
 - 例外：`0xC0000005` Access Violation
 - 操作：読み取り（`Parameter[0] = 0`）

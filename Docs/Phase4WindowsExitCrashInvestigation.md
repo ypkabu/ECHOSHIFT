@@ -34,7 +34,7 @@
 
 構成BはA〜Iの中で唯一Access Violationを観測した最小候補ですが、`1/5`回だけで、URPを直接の原因とは断定できません。同じBinaryをProcDump付きで`20`回、User Level WER LocalDumps付きで`30`回追加実行した結果は`0/20`と`0/30`で、Dumpを取得できませんでした。そのため構成Bが製品版と同じCall Stackかは未確認です。
 
-## Symbol付きCall Stack
+## シンボル付きコールスタック
 
 ```text
 UnityPlayer!ExternalGPUProfiler::GetGameViewWindowHandle+0x9

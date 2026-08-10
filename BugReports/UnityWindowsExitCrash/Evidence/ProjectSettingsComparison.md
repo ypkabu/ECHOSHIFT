@@ -1,6 +1,6 @@
-# PackageとProject Settingsの比較
+# パッケージとプロジェクト設定の比較
 
-## Package構成別の結果
+## パッケージ構成別の結果
 
 Git管理している初期状態は構成Bです。`Packages/manifest.json`はURP `17.4.0`を含み、`packages-lock.json`はUnity 6000.4.12f1で新しく解決しました。A〜IのManifest Snapshotは`StageDefinitions`に保存しています。
 
@@ -23,7 +23,7 @@ Git管理している初期状態は構成Bです。`Packages/manifest.json`はU
 - uGUI/TMP 2.0.0
 - 元の6000.4.6f1 ProjectはVisual Studio Editor 2.0.22。確認用Copyでは実行用Packageを変えず2.0.27へ更新
 
-## Player Settingsの差分
+## プレイヤー設定の差分
 
 製品版はCompany `Echo Shift Prototype`、Product `ECHO SHIFT`、1920x1080、Window表示、Run In Background OFF、Resizable Window OFF、Flip Model Swapchain ON、Mono、Input Systemを使用します。構成Gは、Builderから画面に関係するWindows設定を反映します。Serialized Active Input Handlerは構成Gの生成後に個別確認していないため、完全一致とはしていません。
 
