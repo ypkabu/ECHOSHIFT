@@ -113,4 +113,20 @@ Hidden起動および別起動方式ではboot後に完走しない試行もあ�
 
 ### 配布判断・残る確認
 
-**Windows ZIPおよび新しいゲーム配布Releaseは作成しません。** Quit無効化、強制終了、例外隠蔽で配布条件を緩和していません。別PC、IL2CPP、正常終了が確認できるUnity更新版、今回の再現に対する新Dumpは未確認です。正常終了の検証後にのみ、手動Pause / Restart / Quit、通常のクリア、非Developmentビルド、配布ファイル・署名状態を含む配布チェックを再開します。
+**Windows ZIPおよび新しいゲーム配布Releaseは作成しません。** Quit無効化、強制終了、例外隠蔽で配布条件を緩和していません。この9月29日の再現では新Dumpを取得していません。別PC、IL2CPP、正常終了が確認できるUnity更新版は未確認です。正常終了の検証後にのみ、手動Pause / Restart / Quit、通常のクリア、非Developmentビルド、配布ファイル・署名状態を含む配布チェックを再開します。
+
+## 新しいDumpと実終了コードの確認（2026-10-03）
+
+公開レビュー用ブランチから別の検証用コピーを作り、Unity `6000.4.6f1` でWindows Development Playerを再ビルドしました。BuildReportは警告0・エラー0、204,653,851 bytes、ビルドprocessの終了コード0でした。D3D11の画面付き自動完走probeを実行し、Microsoft ProcDumpで今回のUnhandled Access ViolationのFull Dumpを取得しました。Dumpはローカルの検証資料として保管し、リポジトリやReleaseには含めません。
+
+- Dump取得時のPlayerは `advances=1072;interactionSuccess=4;interactionFailure=0;drift=0` とテレメトリー保存完了後に `0xc0000005` を発生しました。ProcDumpの終了コード1をPlayerの正常終了とは扱いません。
+- 別の監視なしの画面付き実行でも完走 `advances=1073`、成功4・失敗0・drift 0を確認しました。起動したPlayerのprocessを待ち、その実終了コード `-1073741819` を取得しました。強制終了していません。
+- Windows Applicationイベント1000の `UnityPlayer.dll / 0xc0000005 / offset 0x1d2f39` と、新Dumpのシンボル付き9フレームは以前の6000.4.6f1解析と一致しました。
+
+### Native命令から確認できた破棄順の問題
+
+`ExternalGPUProfiler::GetGameViewWindowHandle` は `GetScreenManager` を呼び、その戻り値の `+0x138` を読みます。今回の例外時はこの戻り値に対応する `RAX` が0で、読み取りに失敗していました。呼び出し元の `RuntimeStatic<PlatformAccessibilityManager,0>::StaticDestroy` では、Accessibility側のcleanupが `UiaDisconnectAllProviders` の後に画面ハンドルを取得しようとします。少なくともこの時点ではScreenManagerへアクセスできず、Native cleanup間の寿命・破棄順に問題があることを確認しました。
+
+これは障害箇所と直前のNative呼び出し順の確認です。ゲーム側のどの条件がこの状態を成立させるか、どのUnity更新版で修正されるかは未特定で、**根本対処・正常終了確認は未達です**。終了タイミングの変更、OSのAccessibility設定変更、強制終了・例外隠蔽は採用していません。既存の6000.4.8f1／6000.4.12f1でも以前に同じ関数順を観測しているため、その版への変更だけで修正済みとは判断しません。
+
+成果物再生成後のEditMode `151/151`、PlayMode `131/131` は通りましたが、Editorテストの成功はこのWindows Player終了問題の解決を意味しません。詳細は[検証結果](ValidationSummary.md)を参照してください。

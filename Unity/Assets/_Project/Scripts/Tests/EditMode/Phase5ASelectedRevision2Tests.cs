@@ -23,7 +23,7 @@ namespace EchoShift.Tests
             new KeyValuePair<string, string>("Assets/_Project/Scenes/P2_CoordinationLab.unity",
                 "73EC41AA4B72E30BDFCD874E0DFA3BBC59C7F407519B3160A157C9380F08822C"),
             new KeyValuePair<string, string>("Assets/_Project/Scenes/P3_PlayableGreybox.unity",
-                "4ACA5F734DB1C754E7C237CA6EE819B30F8F50B53BB5C37298C31C92F36961E8")
+                "A1887A182ECD17E4E1712E2926765230DCB9D1F6DF9B71D748EBDE49A086B854")
         };
 
         [Test]
@@ -166,6 +166,9 @@ namespace EchoShift.Tests
             }
             string contact = Path.Combine(root, "Phase5A_SelectedRevision2_ContactSheet.png");
             Assert.That(File.Exists(contact), Is.True);
+            byte[] contactPng = File.ReadAllBytes(contact);
+            Assert.That(ReadBigEndianInt32(contactPng, 16), Is.EqualTo(1440), contact);
+            Assert.That(ReadBigEndianInt32(contactPng, 20), Is.EqualTo(1080), contact);
 
             string audioRoot = Path.Combine(root, "Audio");
             for (int i = 0; i < Phase5AIdentityPreviewBuilder.Revision2Cues.Count; i++)
@@ -184,8 +187,19 @@ namespace EchoShift.Tests
             string manifest = File.ReadAllText(AbsoluteAssetPath(
                 $"{Phase5AIdentityPreviewBuilder.Revision2ArtRoot}/P5A_R2_ProductionHashes.txt"));
             for (int i = 0; i < ProductionSceneHashes.Length; i++)
+            {
                 Assert.That(manifest, Does.Contain(
                     $"{ProductionSceneHashes[i].Key}|{ProductionSceneHashes[i].Value}"));
+                using (System.Security.Cryptography.SHA256 sha =
+                       System.Security.Cryptography.SHA256.Create())
+                {
+                    string actual = BitConverter.ToString(sha.ComputeHash(
+                        File.ReadAllBytes(AbsoluteAssetPath(ProductionSceneHashes[i].Key))))
+                        .Replace("-", string.Empty);
+                    Assert.That(actual, Is.EqualTo(ProductionSceneHashes[i].Value),
+                        ProductionSceneHashes[i].Key);
+                }
+            }
         }
 
         private static void AssertInactiveWhenPresent(Transform root, string name)

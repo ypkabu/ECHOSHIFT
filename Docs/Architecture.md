@@ -117,4 +117,4 @@ Runtime側はEditor用・テスト用のAssemblyに依存しません。`Unity.I
 
 ## 検証範囲
 
-開発時資料にはEditMode `151/151`、PlayMode `131/131`の記録がありますが、2026-09-29のクリーンな公開ソースではEditMode `146成功 / 5失敗`、PlayMode `131/131`でした。5件はGit管理外の画像・音声成果物に依存します。全3セクションの自動完走、インタラクション`4`回成功／`0`回失敗、最大Replay Drift `0 m`、Windows BuildReport成功は再確認しましたが、画面付きPlayerのnative終了時クラッシュは未解決です。[最新の検証範囲](ValidationSummary.md)と[テスト計画](TestPlan.md)を参照してください。
+2026-10-03に画像・音声を再生成し、古い検査baselineとContact Sheet生成の不整合を修正した後、EditMode `151/151`、PlayMode `131/131`を確認しました。再生成前の2026-09-29はEditMode `146成功 / 5失敗`で、5件はGit管理外の成果物に依存します。全3セクションの自動完走、インタラクション`4`回成功／`0`回失敗、最大Replay Drift `0 m`、Windows BuildReport成功は再確認しましたが、画面付きPlayerのnative終了時クラッシュは未解決です。[最新の検証範囲](ValidationSummary.md)と[テスト計画](TestPlan.md)を参照してください。

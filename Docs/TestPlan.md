@@ -4,7 +4,7 @@
 
 ## EditModeテスト
 
-2026-09-29のクリーンな公開ソースでは`146成功 / 5失敗 / 0 Skip`でした。開発時の`151/151`とは区別します。失敗5件はGit管理外の画像・音声成果物を検査するテストです。主な確認範囲は次のとおりです。
+2026-10-03に画像・音声を再生成し、生成・検査の不整合を修正した後は`151成功 / 0失敗 / 0 Skip`でした。2026-09-29の成果物を含まないクリーン検証は`146成功 / 5失敗`です。両者の準備条件を区別します。主な確認範囲は次のとおりです。
 
 - fixed tick、入力記録、記録上限、短い記録、確定後のデータ変更防止
 - Stable IDの未設定・重複検出と、記録したIDによる対象の一意な解決
@@ -50,7 +50,7 @@ $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
 
 Unity Test FrameworkはXMLを書き出した後に終了するため、テスト実行コマンドには`-quit`を付けません。シーン生成とビルドは終了コードに加えてログ内の警告・エラー・完了マーカーを確認します。性能計測はNull Graphics Deviceを使わず、取得できないカウンターを推定値で補いません。
 
-## 最新の再検証結果（2026-09-29）
+## 再生成前の再検証結果（2026-09-29）
 
 [検証結果の要約](ValidationSummary.md)に対象commit、実行時間、失敗したテスト名とEditor起動時診断を記録しています。
 
@@ -71,7 +71,7 @@ Unity Test FrameworkはXMLを書き出した後に終了するため、テスト
 3. `ECHO SHIFT/Phase 5A/Generate Selected Revision 2` → `SelectedRevision2`
 4. `ECHO SHIFT/Phase 5A/Generate Selected Revision 2.1` → `SelectedRevision21` と `Audio`
 
-実装入口は[Phase5AIdentityPreviewBuilder](../Unity/Assets/_Project/Scripts/Editor/Phase5AIdentityPreviewBuilder.cs)と同ディレクトリのSelectedRevision各Builderです。これらはキャプチャだけでなくプレビューScene・Materialも再保存します。作業前に差分がない検証用コピーを使い、生成後の差分と本番canonical hashを確認してください。今回の公開ソース再検証では、納品済みの本番アセットを不用意に再保存しないため、この再生成を実行していません。**上記の準備手順を含む151件の全成功は今回未確認**です。
+実装入口は[Phase5AIdentityPreviewBuilder](../Unity/Assets/_Project/Scripts/Editor/Phase5AIdentityPreviewBuilder.cs)と同ディレクトリのSelectedRevision各Builderです。これらはキャプチャだけでなくプレビューScene・Materialも再保存します。作業前に差分がない検証用コピーを使い、生成後の差分と本番canonical hashを確認してください。2026-10-03には隔離コピーで4段階の再生成を実行し、Revision 2のContact Sheet生成と検査baselineの不整合を修正した後にEditMode `151/151`、PlayMode `131/131`、両process終了コード0を確認しました。[再生成前後と修正範囲](ValidationSummary.md)を参照してください。
 
 ## 開発時の検証結果
 
@@ -95,7 +95,7 @@ Unity Test FrameworkはXMLを書き出した後に終了するため、テスト
 
 ## 検証結果の推移
 
-途中の実装で取得した値を履歴として残しています。最新のクリーン実行結果は上段の「最新の再検証結果」を参照してください。
+途中の実装で取得した値を履歴として残しています。最新の再生成後の実行結果は[検証結果の要約](ValidationSummary.md)、再生成前の結果は上段の「再生成前の再検証結果」を参照してください。
 
 ### ゲーム進行と日本語表示
 

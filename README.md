@@ -8,7 +8,7 @@
 
 **Windows版は現在ダウンロードできません。** 画面付きPlayerの終了時にUnityPlayer.dll内のnative crashが再現するため、動画とソースを公開しています。動画では記録・Echo再生・装置の連携を確認できますが、正常終了を保証するものではありません。
 
-2026-09-29の再検証では全3セクションの自動完走、PlayMode `131/131`、Windowsビルド成功を確認しました。一方、終了コードは `-1073741819 (0xC0000005)`、EditModeは成果物不足により `146成功 / 5失敗`です。[検証範囲](Docs/ValidationSummary.md) · [終了時クラッシュ調査](Docs/Phase4WindowsExitCrashInvestigation.md)
+2026-10-03に画像・音声を再生成し、生成手順・検査の不整合を修正した後、EditMode `151/151`、PlayMode `131/131`を確認しました。Windowsビルドと全3セクションの自動完走も成功しましたが、終了時のnative crashを新しいDumpで再確認しており、正常終了は未確認です。[検証範囲](Docs/ValidationSummary.md) · [終了時クラッシュ調査](Docs/Phase4WindowsExitCrashInvestigation.md)
 
 ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複数のループに分けて操作する個人制作のプロトタイプです。最大3体のEchoが記録済みの行動を同時に再生し、現在のプレイヤーがその結果を利用してゴールを目指します。
 
@@ -76,10 +76,10 @@ ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複
 
 ### 5. 実際のシーンを含む検証
 
-- 2026-09-29のクリーンな公開ソースでEditMode `146/151`成功、PlayMode `131/131`成功。EditModeの5失敗はGit管理外のPhase5A画像・音声成果物を必要とするテストです。
+- 2026-10-03にPhase5A成果物を再生成し、古い検査baselineとContact Sheet生成を修正してEditMode `151/151`、PlayMode `131/131`成功。画像・音声はGit管理外なので、全テストには生成準備が必要です。再生成前の2026-09-29はEditMode `146/151`でした。
 - PlayModeでプロジェクト内の全シーン読み込み、Missing Component/Reference、全3セクションの自動完走を検証しています。
 - 正常解法ではインタラクション `4`回成功 / `0`回失敗、最大Replay Drift `0 m`を確認しています。
-- 今回のBuildReportはエラー／警告 `0/0`、完走PlayerログにMissing、NullReference、Unhandled Exceptionの一致はありません。ただしnative crashは別途再現しており、Editor起動ログのPackageCache診断やEditModeの失敗を「全ログ問題なし」とは扱いません。
+- 今回のBuildReportはエラー／警告 `0/0`、完走PlayerログにMissing、NullReference、Unhandled Exceptionの一致はありません。ただしnative crashは別途再現しており、Editor起動ログのPackageCache診断や再生成前のEditMode失敗を「全ログ問題なし」とは扱いません。
 
 結果の要約は[検証結果の要約](Docs/ValidationSummary.md)、検証方法は[テスト計画](Docs/TestPlan.md)を参照してください。
 
