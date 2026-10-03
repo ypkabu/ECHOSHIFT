@@ -34,7 +34,7 @@ namespace EchoShift.Tests
             new KeyValuePair<string, string>("Assets/_Project/Scenes/P2_CoordinationLab.unity",
                 "73EC41AA4B72E30BDFCD874E0DFA3BBC59C7F407519B3160A157C9380F08822C"),
             new KeyValuePair<string, string>("Assets/_Project/Scenes/P3_PlayableGreybox.unity",
-                "4ACA5F734DB1C754E7C237CA6EE819B30F8F50B53BB5C37298C31C92F36961E8")
+                "A1887A182ECD17E4E1712E2926765230DCB9D1F6DF9B71D748EBDE49A086B854")
         };
 
         [Test]
@@ -160,8 +160,19 @@ namespace EchoShift.Tests
                 "P5A_Selected_ProductionHashes.txt");
             string manifest = File.ReadAllText(manifestPath);
             for (int i = 0; i < ProductionSceneHashes.Length; i++)
+            {
                 Assert.That(manifest, Does.Contain(
                     $"{ProductionSceneHashes[i].Key}|{ProductionSceneHashes[i].Value}"));
+                using (System.Security.Cryptography.SHA256 sha =
+                       System.Security.Cryptography.SHA256.Create())
+                {
+                    string actual = BitConverter.ToString(sha.ComputeHash(
+                        File.ReadAllBytes(AbsoluteAssetPath(ProductionSceneHashes[i].Key))))
+                        .Replace("-", string.Empty);
+                    Assert.That(actual, Is.EqualTo(ProductionSceneHashes[i].Value),
+                        ProductionSceneHashes[i].Key);
+                }
+            }
         }
 
         private static void AssertChildCount(Transform root, string name, int expected)

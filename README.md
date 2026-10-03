@@ -1,8 +1,14 @@
 # ECHO//SHIFT
 
+**過去の自分の移動と操作をEchoとして再生し、現在の自分と協力して仕掛けを解くUnity製3Dパズルゲーム。**
+
 ![プレイヤーとEcho](Docs/Media/player_and_echo.png)
 
-**過去の自分の移動と操作をEchoとして再生し、現在の自分と協力して仕掛けを解くUnity製3Dパズルゲーム。**
+[🎥 50秒プレイ動画](https://github.com/ypkabu/ECHOSHIFT/releases/download/portfolio-demo-v1/ECHOSHIFT_Gameplay_Demo.mp4) · [💻 コア実装](Unity/Assets/_Project/Scripts/Runtime/) · [技術解説](Docs/Architecture.md)
+
+**Windows版は現在ダウンロードできません。** 画面付きPlayerの終了時にUnityPlayer.dll内のnative crashが再現するため、動画とソースを公開しています。動画では記録・Echo再生・装置の連携を確認できますが、正常終了を保証するものではありません。
+
+2026-10-03に画像・音声を再生成し、生成手順・検査の不整合を修正した後、EditMode `151/151`、PlayMode `131/131`を確認しました。Windowsビルドと全3セクションの自動完走も成功しましたが、終了時のnative crashを新しいDumpで再確認しており、正常終了は未確認です。[検証範囲](Docs/ValidationSummary.md) · [終了時クラッシュ調査](Docs/Phase4WindowsExitCrashInvestigation.md)
 
 ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複数のループに分けて操作する個人制作のプロトタイプです。最大3体のEchoが記録済みの行動を同時に再生し、現在のプレイヤーがその結果を利用してゴールを目指します。
 
@@ -16,7 +22,7 @@ ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複
 | 対応環境 | Windows x86_64 |
 | 開発形態 | 個人制作。仕様、設計、実装、検証、プレイテストを一貫して管理 |
 | 開発期間 | 2026-07-19〜2026-08-09 |
-| 現在の状態 | プレイ可能なプロトタイプ。ゲームプレイと回帰テストを検証済み |
+| 現在の状態 | 動画・ソース公開。画面付きWindows配布は終了時クラッシュのため未承認 |
 
 ## プレイ動画
 
@@ -70,12 +76,21 @@ ECHO//SHIFTは、感圧板、バッテリー、電源ソケット、ドアを複
 
 ### 5. 実際のシーンを含む検証
 
-- EditMode `151/151`、PlayMode `131/131`が成功。
-- プロジェクト内の全シーン読み込み、Missing Component/Reference、全3セクションの自動完走を検証しています。
+- 2026-10-03にPhase5A成果物を再生成し、古い検査baselineとContact Sheet生成を修正してEditMode `151/151`、PlayMode `131/131`成功。画像・音声はGit管理外なので、全テストには生成準備が必要です。再生成前の2026-09-29はEditMode `146/151`でした。
+- PlayModeでプロジェクト内の全シーン読み込み、Missing Component/Reference、全3セクションの自動完走を検証しています。
 - 正常解法ではインタラクション `4`回成功 / `0`回失敗、最大Replay Drift `0 m`を確認しています。
-- コンパイラーのエラー／警告、Missing、NullReference、Unhandled Exceptionに一致する検証ログは各`0`です。
+- 今回のBuildReportはエラー／警告 `0/0`、完走PlayerログにMissing、NullReference、Unhandled Exceptionの一致はありません。ただしnative crashは別途再現しており、Editor起動ログのPackageCache診断や再生成前のEditMode失敗を「全ログ問題なし」とは扱いません。
 
 結果の要約は[検証結果の要約](Docs/ValidationSummary.md)、検証方法は[テスト計画](Docs/TestPlan.md)を参照してください。
+
+## 見てほしいコード
+
+| 関心 | 入口 |
+| --- | --- |
+| fixed tickとリプレイの順序 | [Runtime/Core](Unity/Assets/_Project/Scripts/Runtime/Core/) |
+| 記録対象の識別と操作の競合 | [Runtime/Interaction](Unity/Assets/_Project/Scripts/Runtime/Interaction/) |
+| 3セクションの進行・リセット | [Runtime/Gameplay](Unity/Assets/_Project/Scripts/Runtime/Gameplay/) |
+| 回帰検証 | [EditMode](Unity/Assets/_Project/Scripts/Tests/EditMode/) / [PlayMode](Unity/Assets/_Project/Scripts/Tests/PlayMode/) |
 
 ## 操作方法
 

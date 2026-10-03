@@ -91,6 +91,7 @@ namespace EchoShift.Editor
             Directory.CreateDirectory(audioDirectory);
             Cursor.visible = false;
             RenderRevision2(preview, captureDirectory);
+            WriteRevision2ContactSheet(captureDirectory);
             WriteRevision2Audio(audioDirectory);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -663,6 +664,52 @@ namespace EchoShift.Editor
                 Render(preview.Camera, Path.Combine(outputDirectory, Revision2CaptureNames[i]));
             }
             preview.DisableAll();
+        }
+
+        private static void WriteRevision2ContactSheet(string outputDirectory)
+        {
+            const int columns = 3;
+            const int thumbnailWidth = 480;
+            const int thumbnailHeight = 270;
+            int rows = (Revision2CaptureNames.Length + columns - 1) / columns;
+            Texture2D sheet = new Texture2D(columns * thumbnailWidth,
+                rows * thumbnailHeight, TextureFormat.RGB24, false);
+            RenderTexture previous = RenderTexture.active;
+            RenderTexture thumbnail = RenderTexture.GetTemporary(
+                thumbnailWidth, thumbnailHeight, 0, RenderTextureFormat.ARGB32);
+            try
+            {
+                sheet.SetPixels(new Color[sheet.width * sheet.height]);
+                for (int i = 0; i < Revision2CaptureNames.Length; i++)
+                {
+                    Texture2D source = new Texture2D(2, 2, TextureFormat.RGB24, false);
+                    try
+                    {
+                        if (!source.LoadImage(File.ReadAllBytes(Path.Combine(
+                                outputDirectory, Revision2CaptureNames[i]))))
+                            throw new InvalidOperationException(
+                                $"Could not load capture {Revision2CaptureNames[i]}");
+                        Graphics.Blit(source, thumbnail);
+                        RenderTexture.active = thumbnail;
+                        sheet.ReadPixels(new Rect(0, 0, thumbnailWidth, thumbnailHeight),
+                            i % columns * thumbnailWidth,
+                            (rows - 1 - i / columns) * thumbnailHeight, false);
+                    }
+                    finally
+                    {
+                        UnityEngine.Object.DestroyImmediate(source);
+                    }
+                }
+                sheet.Apply();
+                File.WriteAllBytes(Path.Combine(outputDirectory,
+                    "Phase5A_SelectedRevision2_ContactSheet.png"), sheet.EncodeToPNG());
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(thumbnail);
+                UnityEngine.Object.DestroyImmediate(sheet);
+            }
         }
 
         private static void WriteRevision2LogoSources()

@@ -4,7 +4,7 @@
 
 ## EditModeテスト
 
-現在のEditModeテストは`151/151`件が成功しています。主な確認範囲は次のとおりです。
+2026-10-03に画像・音声を再生成し、生成・検査の不整合を修正した後は`151成功 / 0失敗 / 0 Skip`でした。2026-09-29の成果物を含まないクリーン検証は`146成功 / 5失敗`です。両者の準備条件を区別します。主な確認範囲は次のとおりです。
 
 - fixed tick、入力記録、記録上限、短い記録、確定後のデータ変更防止
 - Stable IDの未設定・重複検出と、記録したIDによる対象の一意な解決
@@ -37,6 +37,8 @@
 
 PowerShellでリポジトリのルートから実行します。メニュー名、クラス名、引数名は実装上の識別子であるため、そのまま記載しています。
 
+WindowsのGUIアプリは呼び出し方によって呼び出し元が先に戻ります。下記の各実行後、次の工程へ進む前に対象Unity processの終了、XML、ログを確認してください。今回の自動検証は `Start-Process -PassThru -WindowStyle Hidden` で取得したprocessを `WaitForExit()` で待ち、実際の終了コードを取得しました。**Playerの画面付き検証ではHiddenを使わず**、完走マーカーだけを正常終了の根拠にしません。
+
 ```powershell
 $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
 & $unity -batchmode -nographics -quit -projectPath "$PWD\Unity" -executeMethod EchoShift.Editor.P3SceneBuilder.BuildFromCommandLine -logFile "$PWD\Logs\scene-builder.log"
@@ -48,7 +50,32 @@ $unity = 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe'
 
 Unity Test FrameworkはXMLを書き出した後に終了するため、テスト実行コマンドには`-quit`を付けません。シーン生成とビルドは終了コードに加えてログ内の警告・エラー・完了マーカーを確認します。性能計測はNull Graphics Deviceを使わず、取得できないカウンターを推定値で補いません。
 
-## 現在の検証結果
+## 再生成前の再検証結果（2026-09-29）
+
+[検証結果の要約](ValidationSummary.md)に対象commit、実行時間、失敗したテスト名とEditor起動時診断を記録しています。
+
+| 確認項目 | 結果 |
+| --- | --- |
+| EditMode | 146成功 / 5失敗 / 0 Skip、終了コード2 |
+| PlayMode | 131成功 / 0失敗 / 0 Skip、終了コード0 |
+| Windows x86_64 Development Build | BuildReport Success、エラー0・警告0、終了コード0 |
+| 画面付きPlayer | 全3セクション完走、インタラクション4/0、Replay Drift 0 m |
+| Player終了 | `-1073741819 (0xC0000005)`、配布不可 |
+
+### Phase5A成果物依存テストの準備
+
+`Captures/Phase5A/` はGit管理外です。開発時の成果物検査を実行するには、描画可能なEditorで以下の既存メニューから画像・音声を生成する必要があります。
+
+1. `ECHO SHIFT/Phase 5A/Generate Identity Options` → `Options/A`、`B`、`C`
+2. `ECHO SHIFT/Phase 5A/Generate Selected Revision` → `SelectedRevision`
+3. `ECHO SHIFT/Phase 5A/Generate Selected Revision 2` → `SelectedRevision2`
+4. `ECHO SHIFT/Phase 5A/Generate Selected Revision 2.1` → `SelectedRevision21` と `Audio`
+
+実装入口は[Phase5AIdentityPreviewBuilder](../Unity/Assets/_Project/Scripts/Editor/Phase5AIdentityPreviewBuilder.cs)と同ディレクトリのSelectedRevision各Builderです。これらはキャプチャだけでなくプレビューScene・Materialも再保存します。作業前に差分がない検証用コピーを使い、生成後の差分と本番canonical hashを確認してください。2026-10-03には隔離コピーで4段階の再生成を実行し、Revision 2のContact Sheet生成と検査baselineの不整合を修正した後にEditMode `151/151`、PlayMode `131/131`、両process終了コード0を確認しました。[再生成前後と修正範囲](ValidationSummary.md)を参照してください。
+
+## 開発時の検証結果
+
+以下の成功数・性能値・動画寸法は既存の開発時記録です。今回、性能計測や動画の再録画を実施したものではありません。
 
 | 確認項目 | 結果 |
 | --- | --- |
@@ -68,7 +95,7 @@ Unity Test FrameworkはXMLを書き出した後に終了するため、テスト
 
 ## 検証結果の推移
 
-途中の実装で取得した値も、現在の結果と区別して残しています。現在の合格数は上記の`151/151`と`131/131`です。
+途中の実装で取得した値を履歴として残しています。最新の再生成後の実行結果は[検証結果の要約](ValidationSummary.md)、再生成前の結果は上段の「再生成前の再検証結果」を参照してください。
 
 ### ゲーム進行と日本語表示
 

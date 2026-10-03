@@ -37,6 +37,10 @@
 *.VC.db
 
 # OS files
+.env
+.env.*
+!.env.example
+*.slnx
 .DS_Store
 Thumbs.db
 Desktop.ini
