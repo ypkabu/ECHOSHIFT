@@ -117,4 +117,4 @@ Runtime側はEditor用・テスト用のAssemblyに依存しません。`Unity.I
 
 ## 検証範囲
 
-シーン生成、EditMode `151/151`、PlayMode `131/131`、全3セクションの自動完走、インタラクション`4`回成功／`0`回失敗、最大Replay Drift `0 m`を確認しています。BuildReportの警告・エラー、Missing Component / Reference、NullReference、未処理例外に一致する項目は各`0`です。詳しいコマンドと性能値は[テスト計画](TestPlan.md)に記録しています。
+開発時資料にはEditMode `151/151`、PlayMode `131/131`の記録がありますが、2026-09-29のクリーンな公開ソースではEditMode `146成功 / 5失敗`、PlayMode `131/131`でした。5件はGit管理外の画像・音声成果物に依存します。全3セクションの自動完走、インタラクション`4`回成功／`0`回失敗、最大Replay Drift `0 m`、Windows BuildReport成功は再確認しましたが、画面付きPlayerのnative終了時クラッシュは未解決です。[最新の検証範囲](ValidationSummary.md)と[テスト計画](TestPlan.md)を参照してください。
